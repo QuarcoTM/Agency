@@ -1,15 +1,15 @@
-ДЕН И НОЩ — САЙТ, ВЕРСИЯ 0.1
+Траурна агенция „Ден и Нощ“ — версия 0.2
 
 Файлове:
-- index.html — съдържание и структура
+- index.html — кратка начална страница
+- uslugi.html — услуги
+- pri-smarten-sluchai.html — инструкции при смъртен случай
+- traurni-stoki.html — траурни стоки
+- za-nas.html — за нас
+- kontakti.html — контакти и карта
 - styles.css — дизайн и мобилна версия
-- script.js — мобилно меню и леки анимации
-- assets/logo.jpg — оригиналното предоставено лого
-- assets/favicon.png — икона за браузъра
-- robots.txt / sitemap.xml — базово SEO
+- script.js — мобилно меню и година
+- assets/logo.jpg — оригиналното подадено лого, показвано с object-fit: contain (без изрязване)
+- assets/favicon.png
 
-Публикуване:
-Това е статичен сайт. Може да бъде качен безплатно на Cloudflare Pages или GitHub Pages и да се свърже deninoshtbg.com.
-
-Бележка:
-Google Maps картата изисква интернет връзка. Всичко останало е локално в папката.
+Сайтът е статичен и може да се качи на Cloudflare Pages / GitHub Pages или обикновен хостинг.
