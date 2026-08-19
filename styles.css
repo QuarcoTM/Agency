@@ -191,3 +191,9 @@ a.facebook-button:hover{border-color:var(--brown-2);background:#171717}
     font-size:15px!important;
   }
 }
+
+
+/* v1.27 — full clickable home CTA on touch devices */
+.hero-actions{position:relative;z-index:20}
+.hero-actions .button{position:relative;z-index:21;pointer-events:auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,255,255,.14)}
+@media(max-width:560px){.hero-actions{width:100%}.hero-actions .button{display:flex;width:100%;align-self:stretch}}
