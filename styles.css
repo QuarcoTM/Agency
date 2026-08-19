@@ -67,3 +67,23 @@ a.facebook-button:hover{border-color:var(--brown-2);background:#171717}
 .contact-map-block .map-frame{height:470px;border-color:rgba(179,131,94,.48)}
 @media(max-width:900px){.contact-cards-grid{grid-template-columns:1fr 1fr;gap:14px}.contact-box-card{min-height:230px;padding:22px 18px}.contact-box-value{font-size:25px}.contact-box-text{font-size:22px}}
 @media(max-width:560px){.contact-cards-grid{grid-template-columns:1fr 1fr;gap:12px}.contact-box-card{min-height:205px;padding:18px 12px}.contact-box-icon,.facebook-circle{width:62px;height:62px}.contact-box-icon svg{width:31px;height:31px}.facebook-circle{font-size:44px}.contact-box-card h2{font-size:18px}.contact-box-value{font-size:18px}.contact-box-button{width:100%;padding:0 10px;min-height:44px;font-size:14px}.contact-box-text{font-size:18px}.contact-box-subtext,.facebook-card-text{font-size:14px}.contact-map-block .map-frame{height:360px}}
+
+
+/* v1.19 funeral goods catalog */
+.goods-hero{padding-bottom:34px}
+.goods-hero h1{max-width:900px}
+.goods-section{padding-top:38px}
+.goods-category-nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);margin-bottom:46px}
+.goods-category-nav a{display:flex;align-items:center;justify-content:center;min-height:58px;padding:10px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);color:#fff;text-decoration:none;font-size:14px;font-weight:700;text-align:center;background:#090909;transition:.15s ease}
+.goods-category-nav a:hover{background:#120d0b;color:var(--brown-2)}
+.goods-catalog{border-top:1px solid var(--line)}
+.goods-category{scroll-margin-top:52px;display:grid;grid-template-columns:80px minmax(0,1fr);gap:28px;padding:30px 0;border-bottom:1px solid var(--line);align-items:start}
+.goods-category-number{font-family:Georgia,'Times New Roman',serif;color:var(--brown-2);font-size:30px;line-height:1.1;padding-top:4px}
+.goods-category-copy h2{font-size:32px;margin:0 0 8px}
+.goods-category-copy p{max-width:760px;margin:0;color:var(--muted);font-size:16px}
+.goods-contact-strip{margin-top:42px;padding:26px 28px;border:1px solid var(--line);border-left:4px solid var(--red);background:#0c0908;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.goods-contact-strip strong{font-size:20px;color:#fff}
+.goods-contact-strip p{margin:5px 0 0;color:var(--muted)}
+.goods-contact-strip .button{flex:0 0 auto;cursor:pointer}
+@media(max-width:900px){.goods-category-nav{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.goods-hero{padding-bottom:28px}.goods-section{padding-top:28px}.goods-category-nav{grid-template-columns:1fr 1fr;margin-bottom:34px}.goods-category-nav a{min-height:54px;font-size:13px;padding:8px}.goods-category{grid-template-columns:46px 1fr;gap:14px;padding:24px 0}.goods-category-number{font-size:22px}.goods-category-copy h2{font-size:25px}.goods-category-copy p{font-size:15px}.goods-contact-strip{display:block;padding:22px 18px}.goods-contact-strip .button{margin-top:20px;width:100%}}
