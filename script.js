@@ -29,22 +29,20 @@
       }
     });
   }
-  const footerPhones=document.querySelector('.footer-phones');
-  if(footerPhones){
-    const revealPhones=()=>footerPhones.classList.add('is-visible');
-    if('IntersectionObserver' in window){
-      const observer=new IntersectionObserver((entries,obs)=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            revealPhones();
-            obs.unobserve(entry.target);
-          }
-        });
-      },{threshold:0.45});
-      observer.observe(footerPhones);
-    }else{
-      revealPhones();
-    }
-  }
 
+  const footer=document.querySelector('.site-footer');
+  if(footer){
+    const observer=new IntersectionObserver((entries)=>{
+      entries.forEach((entry)=>{
+        if(entry.isIntersecting){
+          footer.classList.remove('footer-visible');
+          void footer.offsetWidth;
+          footer.classList.add('footer-visible');
+        }else{
+          footer.classList.remove('footer-visible');
+        }
+      });
+    },{threshold:0.35});
+    observer.observe(footer);
+  }
 })();
