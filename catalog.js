@@ -9,6 +9,9 @@
     publishableKey: 'sb_publishable_053ZIwadY-CXSIIm3E0byQ_ByB9UJp3'
   };
 
+  const isCategoryPage = document.body.classList.contains('category-page');
+  const selectedSlug = isCategoryPage ? (new URLSearchParams(window.location.search).get('category') || '') : '';
+
   function setStatus(message, isError){
     status.textContent = message || '';
     status.classList.toggle('is-error', Boolean(isError));
@@ -20,6 +23,21 @@
     if (className) el.className = className;
     if (typeof text === 'string') el.textContent = text;
     return el;
+  }
+
+  function renderCategoryLinks(categories){
+    nav.replaceChildren();
+    categories.forEach((category)=>{
+      const link = document.createElement('a');
+      link.href = 'kategoriya.html?category=' + encodeURIComponent(category.slug);
+      link.textContent = category.name;
+      link.dataset.category = category.slug;
+      if (selectedSlug && category.slug === selectedSlug){
+        link.classList.add('is-active');
+        link.setAttribute('aria-current','page');
+      }
+      nav.appendChild(link);
+    });
   }
 
   function renderProduct(product){
@@ -49,45 +67,39 @@
     return article;
   }
 
-  function render(categories, products){
-    nav.replaceChildren();
+  function renderCatalogLanding(categories){
     catalog.replaceChildren();
+    const intro = make('div','goods-catalog-intro');
+    intro.appendChild(make('strong','', 'Изберете категория'));
+    intro.appendChild(make('p','', 'Всяка категория се отваря на отделна страница с публикуваните модели.'));
+    catalog.appendChild(intro);
+    if (!categories.length){
+      setStatus('Категориите ще бъдат публикувани скоро. За наличности се свържете с нас по телефона.');
+    } else {
+      setStatus('');
+    }
+  }
 
-    const grouped = new Map();
-    products.forEach((product)=>{
-      const key = String(product.category_id);
-      if (!grouped.has(key)) grouped.set(key, []);
-      grouped.get(key).push(product);
-    });
+  function renderCategory(category, products){
+    const title = document.getElementById('category-page-title');
+    const description = document.getElementById('category-page-description');
+    if (title) title.textContent = category.name;
+    if (description) description.textContent = 'Разгледайте публикуваните модели в категория „' + category.name + '“. За конкретна наличност и допълнителна информация се свържете с нас.';
+    document.title = category.name + ' | Траурни стоки | Траурна агенция „Ден и Нощ“';
 
-    categories.forEach((category, index)=>{
-      const anchor = document.createElement('a');
-      anchor.href = '#' + category.slug;
-      anchor.textContent = category.name;
-      nav.appendChild(anchor);
-
-      const section = make('section', 'goods-category');
-      section.id = category.slug;
-      section.dataset.category = category.slug;
-      section.appendChild(make('div', 'goods-category-number', String(index + 1).padStart(2, '0')));
-
-      const content = make('div', 'goods-category-content');
-      const heading = make('div', 'goods-category-copy');
-      heading.appendChild(make('h2', '', category.name));
-      content.appendChild(heading);
-
-      const list = grouped.get(String(category.id)) || [];
-      if (list.length){
-        const grid = make('div', 'product-grid');
-        list.forEach((product)=>grid.appendChild(renderProduct(product)));
-        content.appendChild(grid);
-      } else {
-        content.appendChild(make('p', 'goods-empty', 'В момента няма публикувани артикули в тази категория. За наличности се свържете с нас.'));
-      }
-
-      section.appendChild(content);
-      catalog.appendChild(section);
-    });
+    catalog.replaceChildren();
+    const section = make('section','goods-category goods-category-page-content');
+    const content = make('div','goods-category-content');
+    if (products.length){
+      const grid = make('div','product-grid');
+      products.forEach((product)=>grid.appendChild(renderProduct(product)));
+      content.appendChild(grid);
+    } else {
+      content.appendChild(make('p','goods-empty','В момента няма публикувани артикули в тази категория. За наличности се свържете с нас.'));
+    }
+    section.appendChild(content);
+    catalog.appendChild(section);
+    setStatus('');
   }
 
   async function getRows(table, query, signal){
@@ -115,25 +127,33 @@
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(), 12000);
     try{
-      const [categories, products] = await Promise.all([
-        getRows(
-          'categories',
-          'select=id,name,slug,sort_order,is_active&is_active=eq.true&order=sort_order.asc',
-          controller.signal
-        ),
-        getRows(
-          'products',
-          'select=id,name,slug,description,image_url,is_available,sort_order,category_id,is_active&is_active=eq.true&order=sort_order.asc',
-          controller.signal
-        )
-      ]);
+      const categories = await getRows(
+        'categories',
+        'select=id,name,slug,sort_order,is_active&is_active=eq.true&order=sort_order.asc',
+        controller.signal
+      );
+      renderCategoryLinks(categories || []);
 
-      render(categories || [], products || []);
-      if (!categories || !categories.length){
-        setStatus('Категориите ще бъдат публикувани скоро. За наличности се свържете с нас по телефона.');
-      } else {
-        setStatus('');
+      if (!isCategoryPage){
+        renderCatalogLanding(categories || []);
+        return;
       }
+
+      const category = (categories || []).find((item)=>item.slug === selectedSlug);
+      if (!category){
+        const title = document.getElementById('category-page-title');
+        if (title) title.textContent = 'Категорията не е намерена';
+        catalog.replaceChildren();
+        setStatus('Тази категория не е намерена. Върнете се към всички траурни стоки.', true);
+        return;
+      }
+
+      const products = await getRows(
+        'products',
+        'select=id,name,slug,description,image_url,is_available,sort_order,category_id,is_active&is_active=eq.true&category_id=eq.' + encodeURIComponent(category.id) + '&order=sort_order.asc,created_at.asc',
+        controller.signal
+      );
+      renderCategory(category, products || []);
     } catch (error){
       console.error('Catalog load failed:', error);
       setStatus('Каталогът не може да бъде зареден в момента. За наличности се свържете с нас по телефона.', true);

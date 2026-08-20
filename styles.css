@@ -492,3 +492,16 @@ a.call-number svg{width:20px!important;height:20px!important;opacity:.9}
 .product-availability.is-available{color:#7fd09f}.product-availability.is-unavailable{color:#d58a8f}
 @media(max-width:900px){.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.product-grid{grid-template-columns:1fr;gap:14px}.goods-category{grid-template-columns:40px minmax(0,1fr)!important}.product-name{font-size:21px}}
+
+/* v1.38 — catalog pages and reliable touch controls */
+a,button{touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,255,255,.12)}
+.goods-category-nav a{cursor:pointer}
+.goods-category-nav a.is-active{background:#1a120e!important;border-color:var(--brown-2)!important;color:#fff!important}
+.goods-catalog-intro{grid-column:1/-1;padding:24px 0 6px;border-top:1px solid var(--line)}
+.goods-catalog-intro strong{display:block;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:500;margin-bottom:8px}
+.goods-catalog-intro p{margin:0;color:var(--muted);line-height:1.6}
+.goods-back-link{display:inline-flex;margin:0 0 18px;color:var(--brown-2)!important;text-decoration:none;border-bottom:1px solid rgba(179,131,94,.55);font-weight:800}
+.category-page .goods-catalog{display:block!important}
+.category-page .goods-category-page-content{display:block!important;padding:0!important;border:0!important;background:transparent!important}
+.category-page .product-grid{margin-top:0}
+@media(max-width:560px){.goods-catalog-intro strong{font-size:24px}.goods-back-link{margin-bottom:14px}}

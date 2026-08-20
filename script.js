@@ -36,6 +36,15 @@
         fab.setAttribute('aria-expanded','false');
       }
     });
+
+    document.querySelectorAll('.goods-call-trigger,.js-call-trigger').forEach((button)=>{
+      button.addEventListener('click',(e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        widget.classList.add('open');
+        fab.setAttribute('aria-expanded','true');
+      });
+    });
   }
 
 
