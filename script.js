@@ -30,6 +30,34 @@
     });
   }
 
+
+  document.querySelectorAll('.nav a').forEach((link)=>{
+    link.addEventListener('click',()=>{
+      if(nav&&menuBtn){
+        nav.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded','false');
+      }
+    });
+  });
+
+  document.querySelectorAll('.map-consent-button').forEach((button)=>{
+    button.addEventListener('click',()=>{
+      const holder=button.closest('.map-consent');
+      if(!holder) return;
+      const src=holder.getAttribute('data-map-src');
+      if(!src) return;
+      const iframe=document.createElement('iframe');
+      iframe.title='Карта — Траурна агенция Ден и Нощ';
+      iframe.src=src;
+      iframe.loading='lazy';
+      iframe.referrerPolicy='no-referrer-when-downgrade';
+      iframe.allowFullscreen=true;
+      holder.classList.remove('map-consent');
+      holder.removeAttribute('data-map-src');
+      holder.replaceChildren(iframe);
+    });
+  });
+
   const footer=document.querySelector('.site-footer');
   if(footer){
     const observer=new IntersectionObserver((entries)=>{
