@@ -22,6 +22,8 @@
   const productForm = $('product-form');
   const editorMessage = $('editor-message');
   const saveButton = $('save-product');
+  const loginSubmit = $('login-submit');
+  const passwordToggle = $('password-toggle');
 
   function message(el, text, type){
     el.textContent = text || '';
@@ -177,8 +179,10 @@
   }
 
   function setLoggedIn(loggedIn){
-    loginPanel.hidden = loggedIn;
+    loginPanel.hidden = Boolean(loggedIn);
     dashboard.hidden = !loggedIn;
+    loginPanel.setAttribute('aria-hidden', loggedIn ? 'true' : 'false');
+    dashboard.setAttribute('aria-hidden', loggedIn ? 'false' : 'true');
   }
 
   async function loadData(){
@@ -325,21 +329,45 @@
 
   loginForm.addEventListener('submit', async (event)=>{
     event.preventDefault();
+    if (loginSubmit.disabled) return;
     message(loginMessage, 'Влизане…');
     const email = $('login-email').value.trim();
     const password = $('login-password').value;
+    loginSubmit.disabled = true;
+    loginSubmit.textContent = 'Влизане…';
     try{
       const auth = await authToken('password', { email, password });
       saveSession(auth);
       $('login-password').value = '';
+      message(loginMessage, '');
       setLoggedIn(true);
-      await loadData();
+      try{
+        await loadData();
+      } catch (dataError){
+        message(dashboardMessage, 'Входът е успешен, но данните не се заредиха: ' + dataError.message, 'error');
+      }
     } catch (error){
       clearSession();
       setLoggedIn(false);
       message(loginMessage, 'Неуспешен вход. Проверете имейла и паролата.', 'error');
+    } finally {
+      loginSubmit.disabled = false;
+      loginSubmit.textContent = 'Вход';
     }
   });
+
+  if (passwordToggle){
+    passwordToggle.addEventListener('click', ()=>{
+      const input = $('login-password');
+      const willShow = input.type === 'password';
+      input.type = willShow ? 'text' : 'password';
+      passwordToggle.classList.toggle('is-visible', willShow);
+      passwordToggle.setAttribute('aria-pressed', willShow ? 'true' : 'false');
+      passwordToggle.setAttribute('aria-label', willShow ? 'Скрий паролата' : 'Покажи паролата');
+      try { input.focus({ preventScroll: true }); } catch (_) { input.focus(); }
+    });
+  }
+
 
   $('logout-button').addEventListener('click', async ()=>{
     const session = readSession();
@@ -437,15 +465,14 @@
   });
 
   async function boot(){
+    const session = await ensureSession();
+    const loggedIn = Boolean(session && session.access_token);
+    setLoggedIn(loggedIn);
+    if (!loggedIn) return;
     try{
-      const session = await ensureSession();
-      const loggedIn = Boolean(session && session.access_token);
-      setLoggedIn(loggedIn);
-      if (loggedIn) await loadData();
+      await loadData();
     } catch (error){
-      clearSession();
-      setLoggedIn(false);
-      message(loginMessage, 'Влезте с администраторския акаунт.', 'error');
+      message(dashboardMessage, 'Админ панелът е отворен, но данните не се заредиха: ' + error.message, 'error');
     }
   }
 

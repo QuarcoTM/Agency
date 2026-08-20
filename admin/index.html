@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.37" rel="stylesheet"/>
+<link href="admin.css?v=1.38" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -28,8 +28,15 @@
       <p>Влезте с администраторския акаунт, за да управлявате продуктите.</p>
       <form id="login-form" autocomplete="on">
         <label>Имейл<input id="login-email" name="email" type="email" autocomplete="username" required/></label>
-        <label>Парола<input id="login-password" name="password" type="password" autocomplete="current-password" required/></label>
-        <button class="admin-button" type="submit">Вход</button>
+        <label>Парола
+          <span class="password-field">
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required/>
+            <button class="password-toggle" id="password-toggle" type="button" aria-label="Покажи паролата" aria-pressed="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path class="eye-slash" d="M4 4 20 20" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            </button>
+          </span>
+        </label>
+        <button class="admin-button" id="login-submit" type="submit">Вход</button>
       </form>
       <div class="admin-message" id="login-message" role="status" aria-live="polite"></div>
     </div>
@@ -96,7 +103,7 @@
   </section>
 </div>
 
-<script src="../supabase-config.js?v=1.37"></script>
-<script src="admin.js?v=1.37"></script>
+<script src="../supabase-config.js?v=1.38"></script>
+<script src="admin.js?v=1.38"></script>
 </body>
 </html>
