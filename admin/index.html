@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.40" rel="stylesheet"/>
+<link href="admin.css?v=1.41" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -47,7 +47,7 @@
       <div>
         <p class="admin-eyebrow">Управление</p>
         <h1>Траурни стоки</h1>
-        <p class="dashboard-intro">Добавяйте, редактирайте, скривайте и изтривайте артикули. За всеки продукт се използва една снимка.</p>
+        <p class="dashboard-intro">Управлявайте продуктите от едно място — наличност, видимост, подредба, архив и снимки.</p>
       </div>
       <div class="dashboard-actions">
         <button class="admin-button" id="new-product-button" type="button">+ Нов продукт</button>
@@ -55,9 +55,35 @@
       </div>
     </div>
 
+    <div class="schema-warning" id="schema-warning" hidden>
+      За новите функции са нужни колоните <strong>product_code</strong> и <strong>is_archived</strong> в Supabase. Пуснете SQL файла за v1.41 и презаредете админ панела.
+    </div>
+
+    <div class="stats-grid" aria-label="Обобщение">
+      <button class="stat-card" type="button" data-stat-filter="current"><span id="stat-total">0</span><small>Текущи</small></button>
+      <button class="stat-card" type="button" data-stat-filter="available"><span id="stat-available">0</span><small>В наличност</small></button>
+      <button class="stat-card" type="button" data-stat-filter="unavailable"><span id="stat-unavailable">0</span><small>Неналични</small></button>
+      <button class="stat-card" type="button" data-stat-filter="hidden"><span id="stat-hidden">0</span><small>Скрити</small></button>
+      <button class="stat-card" type="button" data-stat-filter="archived"><span id="stat-archived">0</span><small>Архив</small></button>
+    </div>
+
     <div class="toolbar">
+      <label class="filter-label search-label">Търсене
+        <input id="product-search" type="search" inputmode="search" placeholder="Име, код или описание…" autocomplete="off"/>
+      </label>
       <label class="filter-label">Категория
         <select id="category-filter"><option value="">Всички категории</option></select>
+      </label>
+      <label class="filter-label">Статус
+        <select id="status-filter">
+          <option value="current">Текущи (без архив)</option>
+          <option value="visible">Показани в сайта</option>
+          <option value="hidden">Скрити</option>
+          <option value="available">В наличност</option>
+          <option value="unavailable">Неналични</option>
+          <option value="archived">Архив</option>
+          <option value="all">Всички</option>
+        </select>
       </label>
       <span class="product-count" id="product-count"></span>
     </div>
@@ -79,13 +105,16 @@
       <input id="product-current-image" type="hidden"/>
       <input id="product-sort-order" type="hidden"/>
 
+      <div class="two-fields">
+        <label>Код на продукта *<input id="product-code" type="text" maxlength="50" autocomplete="off" placeholder="Напр. К-012" required/></label>
+        <label>Категория *<select id="product-category" required></select></label>
+      </div>
       <label>Име на продукта *<input id="product-name" type="text" maxlength="120" required/></label>
-      <label>Категория *<select id="product-category" required></select></label>
       <label>Описание<textarea id="product-description" rows="5" maxlength="1200" placeholder="Кратко описание на модела, материал, размер или друга полезна информация."></textarea></label>
 
       <div class="image-field">
         <label>Снимка <span id="image-required-mark">*</span><input id="product-image" type="file" accept="image/jpeg,image/png,image/webp"/></label>
-        <p class="field-help">Само 1 снимка. JPG, PNG или WEBP до 5 MB.</p>
+        <p class="field-help">Само 1 снимка. При качване се оптимизира автоматично до WebP, за да зарежда по-бързо на сайта.</p>
         <div class="image-preview" id="image-preview" hidden><img id="image-preview-img" alt="Преглед на снимката"/></div>
       </div>
 
@@ -95,6 +124,7 @@
       </div>
 
       <div class="editor-actions">
+        <button class="admin-button secondary" id="preview-edit" type="button">Преглед</button>
         <button class="admin-button secondary" id="cancel-edit" type="button">Отказ</button>
         <button class="admin-button" id="save-product" type="submit">Запази</button>
       </div>
@@ -103,7 +133,17 @@
   </section>
 </div>
 
-<script src="../supabase-config.js?v=1.40"></script>
-<script src="admin.js?v=1.40"></script>
+<div class="preview-backdrop" id="preview-backdrop" hidden>
+  <section class="preview-panel" role="dialog" aria-modal="true" aria-labelledby="preview-title">
+    <div class="editor-head">
+      <div><p class="admin-eyebrow">Предварителен преглед</p><h2 id="preview-title">Как ще изглежда</h2></div>
+      <button class="icon-button" id="preview-close" type="button" aria-label="Затвори">×</button>
+    </div>
+    <div id="preview-content" class="admin-preview-content"></div>
+  </section>
+</div>
+
+<script src="../supabase-config.js?v=1.41"></script>
+<script src="admin.js?v=1.41"></script>
 </body>
 </html>
