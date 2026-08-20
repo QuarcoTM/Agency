@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="format-detection" content="telephone=no, date=no, email=no, address=no"/>
+<meta name="robots" content="noindex,nofollow,noarchive"/>
+<title>Админ панел | Ден и Нощ</title>
+<link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="admin.css?v=1.36" rel="stylesheet"/>
+</head>
+<body>
+<header class="admin-header">
+  <a class="admin-brand" href="../index.html" aria-label="Към сайта">
+    <img src="../assets/logo-den-i-nosht.webp" alt="Траурна агенция „Ден и Нощ“"/>
+  </a>
+  <div class="admin-header-copy">
+    <strong>Админ панел</strong>
+    <span>Траурни стоки</span>
+  </div>
+  <a class="admin-site-link" href="../traurni-stoki.html">Към каталога</a>
+</header>
+
+<main class="admin-main">
+  <section class="login-panel" id="login-panel">
+    <div class="admin-card login-card">
+      <h1>Вход</h1>
+      <p>Влезте с администраторския акаунт, за да управлявате продуктите.</p>
+      <form id="login-form" autocomplete="on">
+        <label>Имейл<input id="login-email" name="email" type="email" autocomplete="username" required/></label>
+        <label>Парола<input id="login-password" name="password" type="password" autocomplete="current-password" required/></label>
+        <button class="admin-button" type="submit">Вход</button>
+      </form>
+      <div class="admin-message" id="login-message" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="dashboard" id="dashboard" hidden>
+    <div class="dashboard-top">
+      <div>
+        <p class="admin-eyebrow">Управление</p>
+        <h1>Траурни стоки</h1>
+        <p class="dashboard-intro">Добавяйте, редактирайте, скривайте и изтривайте артикули. За всеки продукт се използва една снимка.</p>
+      </div>
+      <div class="dashboard-actions">
+        <button class="admin-button" id="new-product-button" type="button">+ Нов продукт</button>
+        <button class="admin-button secondary" id="logout-button" type="button">Изход</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <label class="filter-label">Категория
+        <select id="category-filter"><option value="">Всички категории</option></select>
+      </label>
+      <span class="product-count" id="product-count"></span>
+    </div>
+
+    <div class="admin-message" id="dashboard-message" role="status" aria-live="polite"></div>
+    <div class="admin-product-list" id="product-list"></div>
+  </section>
+</main>
+
+<div class="editor-backdrop" id="editor-backdrop" hidden>
+  <section class="editor-panel" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+    <div class="editor-head">
+      <div><p class="admin-eyebrow">Продукт</p><h2 id="editor-title">Нов продукт</h2></div>
+      <button class="icon-button" id="editor-close" type="button" aria-label="Затвори">×</button>
+    </div>
+    <form id="product-form">
+      <input id="product-id" type="hidden"/>
+      <input id="product-slug" type="hidden"/>
+      <input id="product-current-image" type="hidden"/>
+      <input id="product-sort-order" type="hidden"/>
+
+      <label>Име на продукта *<input id="product-name" type="text" maxlength="120" required/></label>
+      <label>Категория *<select id="product-category" required></select></label>
+      <label>Описание<textarea id="product-description" rows="5" maxlength="1200" placeholder="Кратко описание на модела, материал, размер или друга полезна информация."></textarea></label>
+
+      <div class="image-field">
+        <label>Снимка <span id="image-required-mark">*</span><input id="product-image" type="file" accept="image/jpeg,image/png,image/webp"/></label>
+        <p class="field-help">Само 1 снимка. JPG, PNG или WEBP до 5 MB.</p>
+        <div class="image-preview" id="image-preview" hidden><img id="image-preview-img" alt="Преглед на снимката"/></div>
+      </div>
+
+      <div class="switch-row">
+        <label class="switch-label"><input id="product-available" type="checkbox" checked/><span>В наличност</span></label>
+        <label class="switch-label"><input id="product-active" type="checkbox" checked/><span>Показвай в сайта</span></label>
+      </div>
+
+      <div class="editor-actions">
+        <button class="admin-button secondary" id="cancel-edit" type="button">Отказ</button>
+        <button class="admin-button" id="save-product" type="submit">Запази</button>
+      </div>
+      <div class="admin-message" id="editor-message" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../supabase-config.js?v=1.36"></script>
+<script src="admin.js?v=1.36"></script>
+</body>
+</html>
