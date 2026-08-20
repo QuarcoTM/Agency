@@ -16,3 +16,18 @@ button,a{touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,255,255,
 .admin-button:disabled,.small-button:disabled{opacity:.55;cursor:wait;pointer-events:none}
 .small-button,.admin-button,.icon-button{touch-action:manipulation}
 @media(max-width:760px){.small-button{min-height:44px;padding:9px 14px}.admin-button{min-height:48px}.password-toggle{width:48px;height:44px}}
+
+
+/* v1.39 — admin action buttons: no cramped right-edge controls on touch devices */
+.product-actions{position:relative;z-index:4}
+.small-button{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,255,255,.14)}
+@media(max-width:1200px),(hover:none),(pointer:coarse){
+  .admin-product{grid-template-columns:96px minmax(0,1fr)!important;align-items:start}
+  .admin-product-image{width:96px;height:96px}
+  .product-actions{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px!important;justify-content:stretch!important;width:100%;border-top:1px solid var(--line);padding-top:14px;margin-top:2px}
+  .small-button{width:100%;min-height:52px!important;padding:10px 12px!important;font-size:15px;position:relative;z-index:5}
+}
+@media(max-width:520px){
+  .product-actions{grid-template-columns:1fr 1fr}
+  .small-button.danger{grid-column:1/-1}
+}
