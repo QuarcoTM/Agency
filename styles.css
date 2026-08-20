@@ -477,3 +477,18 @@ a.call-number svg{width:20px!important;height:20px!important;opacity:.9}
   .footer-legal-links a:link,
   .footer-legal-links a:visited{width:auto!important;min-height:0!important;padding:4px 0!important;justify-content:initial!important}
 }
+
+/* v1.36 — live Supabase product catalog */
+.goods-catalog-status{margin:0 0 24px;padding:14px 16px;border-left:3px solid var(--brown);background:#0b0b0b;color:var(--muted);font-size:14px}
+.goods-catalog-status[hidden]{display:none}.goods-catalog-status.is-error{border-left-color:var(--red);color:#e8c7c9}
+.goods-category-content{min-width:0}.goods-empty{margin:10px 0 0;color:var(--muted);font-size:15px}
+.product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:20px}
+.product-card{border:1px solid var(--line);background:#090909;min-width:0;display:flex;flex-direction:column}
+.product-image-wrap{aspect-ratio:1/1;background:#000;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);overflow:hidden}
+.product-image-wrap img{width:100%;height:100%;object-fit:contain;background:#000}
+.product-card-body{padding:16px;display:flex;flex-direction:column;flex:1}
+.product-name{font-size:22px;margin:0 0 8px}.product-description{margin:0 0 16px!important;color:var(--muted);font-size:14px;line-height:1.55}
+.product-availability{margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);font-size:13px;font-weight:800}
+.product-availability.is-available{color:#7fd09f}.product-availability.is-unavailable{color:#d58a8f}
+@media(max-width:900px){.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.product-grid{grid-template-columns:1fr;gap:14px}.goods-category{grid-template-columns:40px minmax(0,1fr)!important}.product-name{font-size:21px}}
