@@ -642,3 +642,6 @@ a.call-number{min-height:62px!important;touch-action:manipulation;pointer-events
 
 /* v1.41 — product code + direct product preview */
 .product-code{margin:-4px 0 12px;text-align:center;color:#b3835e;font-size:12px;font-weight:800;letter-spacing:.04em}.product-card.is-target-product{outline:1px solid rgba(179,131,94,.75);outline-offset:5px}
+
+/* v1.45: static catalog context for accessibility and search */
+.goods-seo-intro{max-width:900px;margin:0 0 22px;color:var(--muted,#b9b9b9);line-height:1.7}

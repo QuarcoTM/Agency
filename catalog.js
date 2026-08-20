@@ -169,7 +169,13 @@
     const description = document.getElementById('category-page-description');
     if (title) title.textContent = category.name;
     if (description) description.textContent = 'Разгледайте публикуваните модели в категория „' + category.name + '“. За конкретна наличност и допълнителна информация се свържете с нас.';
-    document.title = category.name + ' | Траурни стоки | Траурна агенция „Ден и Нощ“';
+    document.title = category.name + ' в Кюстендил | Траурни стоки – Ден и Нощ';
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) metaDescription.setAttribute('content', category.name + ' в Кюстендил от траурна агенция „Ден и Нощ“. Разгледайте публикуваните модели и се свържете с нас за актуална наличност.');
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', category.name + ' в Кюстендил | Ден и Нощ');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) ogDescription.setAttribute('content', 'Разгледайте ' + category.name.toLowerCase() + ' от траурна агенция „Ден и Нощ“ в Кюстендил.');
 
     catalog.replaceChildren();
     const section = make('section','goods-category goods-category-page-content');
