@@ -1,13 +1,10 @@
 (function(){
-  const cfg = window.DENINOSHT_SUPABASE;
-  const sdk = window.supabase;
-  if (!cfg || !sdk){
-    document.body.innerHTML = '<p style="padding:30px;color:white">Админ панелът не може да се зареди.</p>';
-    return;
-  }
-
-  const db = sdk.createClient(cfg.url, cfg.publishableKey);
+  const cfg = window.DENINOSHT_SUPABASE || {
+    url: 'https://beflewauiyexpmvcxjat.supabase.co',
+    publishableKey: 'sb_publishable_053ZIwadY-CXSIIm3E0byQ_ByB9UJp3'
+  };
   const bucket = 'product-images';
+  const sessionKey = 'deninosht_admin_session_v1';
   let categories = [];
   let products = [];
   let currentObjectUrl = '';
@@ -40,6 +37,95 @@
       .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').replace(/-{2,}/g,'-') || 'product';
   }
 
+  function readSession(){
+    try{
+      const raw = localStorage.getItem(sessionKey);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) { return null; }
+  }
+
+  function saveSession(data){
+    const session = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_at: Date.now() + Math.max(60, Number(data.expires_in || 3600)) * 1000,
+      user: data.user || null
+    };
+    localStorage.setItem(sessionKey, JSON.stringify(session));
+    return session;
+  }
+
+  function clearSession(){
+    localStorage.removeItem(sessionKey);
+  }
+
+  async function parseError(response){
+    try{
+      const data = await response.json();
+      return data.msg || data.message || data.error_description || data.error || ('HTTP ' + response.status);
+    } catch (_) {
+      return 'HTTP ' + response.status;
+    }
+  }
+
+  async function authToken(grantType, payload){
+    const response = await fetch(cfg.url + '/auth/v1/token?grant_type=' + encodeURIComponent(grantType), {
+      method: 'POST',
+      headers: {
+        apikey: cfg.publishableKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify(payload),
+      cache: 'no-store'
+    });
+    if (!response.ok) throw new Error(await parseError(response));
+    return response.json();
+  }
+
+  async function ensureSession(){
+    let session = readSession();
+    if (!session || !session.refresh_token) return null;
+    if (session.access_token && session.expires_at > Date.now() + 60000) return session;
+    try{
+      const refreshed = await authToken('refresh_token', { refresh_token: session.refresh_token });
+      session = saveSession(refreshed);
+      return session;
+    } catch (error){
+      clearSession();
+      return null;
+    }
+  }
+
+  async function request(path, options, authenticated, retry){
+    const opts = Object.assign({ method: 'GET', headers: {} }, options || {});
+    const headers = new Headers(opts.headers || {});
+    headers.set('apikey', cfg.publishableKey);
+    headers.set('Accept', 'application/json');
+
+    if (authenticated){
+      const session = await ensureSession();
+      if (!session) throw new Error('Сесията е изтекла. Влезте отново.');
+      headers.set('Authorization', 'Bearer ' + session.access_token);
+    }
+
+    const response = await fetch(cfg.url + path, Object.assign({}, opts, { headers, cache: 'no-store' }));
+    if (response.status === 401 && authenticated && retry !== false){
+      const session = readSession();
+      if (session && session.refresh_token){
+        session.expires_at = 0;
+        localStorage.setItem(sessionKey, JSON.stringify(session));
+        const refreshed = await ensureSession();
+        if (refreshed) return request(path, options, authenticated, false);
+      }
+    }
+    if (!response.ok) throw new Error(await parseError(response));
+    if (response.status === 204) return null;
+    const text = await response.text();
+    if (!text) return null;
+    try { return JSON.parse(text); } catch (_) { return text; }
+  }
+
   function categoryName(id){
     const c = categories.find((item)=>String(item.id) === String(id));
     return c ? c.name : 'Без категория';
@@ -53,11 +139,22 @@
     return decodeURIComponent(url.slice(idx + marker.length).split('?')[0]);
   }
 
+  function encodePath(path){
+    return String(path).split('/').map(encodeURIComponent).join('/');
+  }
+
   async function removeStoredImage(url){
     const path = storagePathFromUrl(url);
     if (!path) return;
-    const { error } = await db.storage.from(bucket).remove([path]);
-    if (error) console.warn('Image cleanup failed:', error.message);
+    try{
+      await request('/storage/v1/object/' + bucket, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prefixes: [path] })
+      }, true);
+    } catch (error){
+      console.warn('Image cleanup failed:', error.message);
+    }
   }
 
   async function uploadImage(file, slug){
@@ -67,10 +164,16 @@
     if (!allowed.includes(file.type)) throw new Error('Разрешени са JPG, PNG и WEBP снимки.');
     const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
     const path = 'products/' + Date.now() + '-' + slug + '.' + ext;
-    const { error } = await db.storage.from(bucket).upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
-    if (error) throw error;
-    const { data } = db.storage.from(bucket).getPublicUrl(path);
-    return data.publicUrl;
+    await request('/storage/v1/object/' + bucket + '/' + encodePath(path), {
+      method: 'POST',
+      headers: {
+        'Content-Type': file.type,
+        'cache-control': 'max-age=3600',
+        'x-upsert': 'false'
+      },
+      body: file
+    }, true);
+    return cfg.url + '/storage/v1/object/public/' + bucket + '/' + encodePath(path);
   }
 
   function setLoggedIn(loggedIn){
@@ -81,13 +184,11 @@
   async function loadData(){
     message(dashboardMessage, 'Зареждане…');
     const [catResult, prodResult] = await Promise.all([
-      db.from('categories').select('id,name,slug,sort_order,is_active').order('sort_order', {ascending:true}),
-      db.from('products').select('id,name,slug,description,image_url,is_available,sort_order,is_active,category_id,created_at').order('sort_order', {ascending:true}).order('created_at', {ascending:true})
+      request('/rest/v1/categories?select=id,name,slug,sort_order,is_active&order=sort_order.asc', {}, true),
+      request('/rest/v1/products?select=id,name,slug,description,image_url,is_available,sort_order,is_active,category_id,created_at&order=sort_order.asc,created_at.asc', {}, true)
     ]);
-    if (catResult.error) throw catResult.error;
-    if (prodResult.error) throw prodResult.error;
-    categories = catResult.data || [];
-    products = prodResult.data || [];
+    categories = catResult || [];
+    products = prodResult || [];
     populateCategoryControls();
     renderProducts();
     message(dashboardMessage, '');
@@ -193,20 +294,33 @@
   }
 
   async function toggleActive(product){
-    message(dashboardMessage, 'Записване…');
-    const { error } = await db.from('products').update({is_active: !product.is_active}).eq('id', product.id);
-    if (error){ message(dashboardMessage, 'Грешка: ' + error.message, 'error'); return; }
-    await loadData();
+    try{
+      message(dashboardMessage, 'Записване…');
+      await request('/rest/v1/products?id=eq.' + encodeURIComponent(product.id), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ is_active: !product.is_active })
+      }, true);
+      await loadData();
+    } catch (error){
+      message(dashboardMessage, 'Грешка: ' + error.message, 'error');
+    }
   }
 
   async function deleteProduct(product){
     if (!window.confirm('Да изтрием ли „' + product.name + '“? Това действие не може да се върне.')) return;
-    message(dashboardMessage, 'Изтриване…');
-    const { error } = await db.from('products').delete().eq('id', product.id);
-    if (error){ message(dashboardMessage, 'Грешка: ' + error.message, 'error'); return; }
-    await removeStoredImage(product.image_url);
-    await loadData();
-    message(dashboardMessage, 'Продуктът е изтрит.', 'success');
+    try{
+      message(dashboardMessage, 'Изтриване…');
+      await request('/rest/v1/products?id=eq.' + encodeURIComponent(product.id), {
+        method: 'DELETE',
+        headers: { Prefer: 'return=minimal' }
+      }, true);
+      await removeStoredImage(product.image_url);
+      await loadData();
+      message(dashboardMessage, 'Продуктът е изтрит.', 'success');
+    } catch (error){
+      message(dashboardMessage, 'Грешка: ' + error.message, 'error');
+    }
   }
 
   loginForm.addEventListener('submit', async (event)=>{
@@ -214,15 +328,30 @@
     message(loginMessage, 'Влизане…');
     const email = $('login-email').value.trim();
     const password = $('login-password').value;
-    const { error } = await db.auth.signInWithPassword({email, password});
-    if (error){ message(loginMessage, 'Неуспешен вход. Проверете имейла и паролата.', 'error'); return; }
-    $('login-password').value = '';
-    setLoggedIn(true);
-    try{ await loadData(); }catch(e){ message(dashboardMessage, 'Грешка при зареждане: ' + e.message, 'error'); }
+    try{
+      const auth = await authToken('password', { email, password });
+      saveSession(auth);
+      $('login-password').value = '';
+      setLoggedIn(true);
+      await loadData();
+    } catch (error){
+      clearSession();
+      setLoggedIn(false);
+      message(loginMessage, 'Неуспешен вход. Проверете имейла и паролата.', 'error');
+    }
   });
 
   $('logout-button').addEventListener('click', async ()=>{
-    await db.auth.signOut();
+    const session = readSession();
+    if (session && session.access_token){
+      try{
+        await fetch(cfg.url + '/auth/v1/logout', {
+          method: 'POST',
+          headers: { apikey: cfg.publishableKey, Authorization: 'Bearer ' + session.access_token }
+        });
+      } catch (_) {}
+    }
+    clearSession();
     setLoggedIn(false);
     products=[];
     productList.replaceChildren();
@@ -280,10 +409,19 @@
         sort_order: Number($('product-sort-order').value) || 10
       };
 
-      let result;
-      if (editing) result = await db.from('products').update(payload).eq('id', id);
-      else result = await db.from('products').insert(payload);
-      if (result.error) throw result.error;
+      if (editing){
+        await request('/rest/v1/products?id=eq.' + encodeURIComponent(id), {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify(payload)
+        }, true);
+      } else {
+        await request('/rest/v1/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify(payload)
+        }, true);
+      }
 
       if (newImage && oldImage && newImage !== oldImage) await removeStoredImage(oldImage);
       closeEditor();
@@ -299,19 +437,17 @@
   });
 
   async function boot(){
-    const { data, error } = await db.auth.getSession();
-    if (error){ message(loginMessage, 'Неуспешна проверка на сесията.', 'error'); setLoggedIn(false); return; }
-    const loggedIn = Boolean(data.session);
-    setLoggedIn(loggedIn);
-    if (loggedIn){
-      try{ await loadData(); }catch(e){ message(dashboardMessage, 'Грешка при зареждане: ' + e.message, 'error'); }
+    try{
+      const session = await ensureSession();
+      const loggedIn = Boolean(session && session.access_token);
+      setLoggedIn(loggedIn);
+      if (loggedIn) await loadData();
+    } catch (error){
+      clearSession();
+      setLoggedIn(false);
+      message(loginMessage, 'Влезте с администраторския акаунт.', 'error');
     }
   }
-
-  db.auth.onAuthStateChange((event, session)=>{
-    if (event === 'SIGNED_OUT') setLoggedIn(false);
-    if (event === 'SIGNED_IN' && session) setLoggedIn(true);
-  });
 
   boot();
 })();
