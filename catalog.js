@@ -2,7 +2,8 @@
   const nav = document.querySelector('.goods-category-nav');
   const catalog = document.querySelector('.goods-catalog');
   const status = document.querySelector('.goods-catalog-status');
-  if (!nav || !catalog || !status) return;
+  const categorySelect = document.getElementById('category-switcher-select');
+  if (!catalog || !status) return;
 
   const cfg = window.DENINOSHT_SUPABASE || {
     url: 'https://beflewauiyexpmvcxjat.supabase.co',
@@ -26,22 +27,34 @@
   }
 
   function renderCategoryLinks(categories){
-    nav.replaceChildren();
-    categories.forEach((category)=>{
-      const link = document.createElement('a');
-      link.href = 'kategoriya.html?category=' + encodeURIComponent(category.slug);
-      link.textContent = category.name;
-      link.dataset.category = category.slug;
-      if (selectedSlug && category.slug === selectedSlug){
-        link.classList.add('is-active');
-        link.setAttribute('aria-current','page');
+    if (nav){
+      nav.replaceChildren();
+      if (!isCategoryPage){
+        categories.forEach((category)=>{
+          const link = document.createElement('a');
+          link.href = 'kategoriya.html?category=' + encodeURIComponent(category.slug);
+          link.textContent = category.name;
+          link.dataset.category = category.slug;
+          nav.appendChild(link);
+        });
       }
-      nav.appendChild(link);
-    });
+    }
+
+    if (isCategoryPage && categorySelect){
+      categorySelect.replaceChildren();
+      categories.forEach((category)=>{
+        const option = new Option(category.name, category.slug);
+        if (category.slug === selectedSlug) option.selected = true;
+        categorySelect.add(option);
+      });
+      categorySelect.disabled = !categories.length;
+    }
   }
 
   function renderProduct(product){
     const article = make('article', 'product-card');
+    article.appendChild(make('h3', 'product-name', product.name || 'Артикул'));
+
     if (product.image_url){
       const imageWrap = make('div', 'product-image-wrap');
       const img = document.createElement('img');
@@ -54,7 +67,6 @@
     }
 
     const body = make('div', 'product-card-body');
-    body.appendChild(make('h3', 'product-name', product.name || 'Артикул'));
     if (product.description){
       body.appendChild(make('p', 'product-description', product.description));
     }
@@ -160,6 +172,14 @@
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  if (categorySelect){
+    categorySelect.addEventListener('change', ()=>{
+      const slug = categorySelect.value;
+      if (!slug || slug === selectedSlug) return;
+      window.location.href = 'kategoriya.html?category=' + encodeURIComponent(slug);
+    });
   }
 
   loadCatalog();
