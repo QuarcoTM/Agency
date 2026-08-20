@@ -639,3 +639,6 @@ a.call-number{min-height:62px!important;touch-action:manipulation;pointer-events
   .goods-category-nav a,.goods-category-nav a:link,.goods-category-nav a:visited{min-height:62px!important}
   .goods-call-trigger{min-height:58px!important}
 }
+
+/* v1.41 — product code + direct product preview */
+.product-code{margin:-4px 0 12px;text-align:center;color:#b3835e;font-size:12px;font-weight:800;letter-spacing:.04em}.product-card.is-target-product{outline:1px solid rgba(179,131,94,.75);outline-offset:5px}

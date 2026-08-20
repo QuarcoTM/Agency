@@ -121,7 +121,11 @@
 
   function renderProduct(product){
     const article = make('article', 'product-card');
+    article.id = 'product-' + product.id;
     article.appendChild(make('h3', 'product-name', product.name || 'Артикул'));
+    if (product.product_code){
+      article.appendChild(make('div', 'product-code', 'Код: ' + product.product_code));
+    }
 
     if (product.image_url){
       const imageWrap = make('div', 'product-image-wrap');
@@ -228,12 +232,27 @@
         return;
       }
 
-      const products = await getRows(
-        'products',
-        'select=id,name,slug,description,image_url,is_available,sort_order,category_id,is_active&is_active=eq.true&category_id=eq.' + encodeURIComponent(category.id) + '&order=sort_order.asc,created_at.asc',
-        controller.signal
-      );
+      let products;
+      try{
+        products = await getRows(
+          'products',
+          'select=id,name,product_code,slug,description,image_url,is_available,sort_order,category_id,is_active,is_archived&is_active=eq.true&is_archived=eq.false&category_id=eq.' + encodeURIComponent(category.id) + '&order=sort_order.asc,created_at.asc',
+          controller.signal
+        );
+      } catch (schemaError){
+        products = await getRows(
+          'products',
+          'select=id,name,slug,description,image_url,is_available,sort_order,category_id,is_active&is_active=eq.true&category_id=eq.' + encodeURIComponent(category.id) + '&order=sort_order.asc,created_at.asc',
+          controller.signal
+        );
+      }
       renderCategory(category, products || []);
+      if (window.location.hash){
+        requestAnimationFrame(()=>{
+          const target = document.querySelector(window.location.hash);
+          if (target){ target.classList.add('is-target-product'); target.scrollIntoView({behavior:'smooth',block:'center'}); }
+        });
+      }
     } catch (error){
       console.error('Catalog load failed:', error);
       setStatus('Каталогът не може да бъде зареден в момента. За наличности се свържете с нас по телефона.', true);
