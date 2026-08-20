@@ -1,5 +1,5 @@
 
-:root{--black:#050505;--black-2:#0b0b0b;--black-3:#111111;--white:#f5f3ef;--muted:#c9c5bf;--brown:#8b5e3c;--brown-2:#b3835e;--red:#c51f26;--red-hover:#e02a32;--green:#168547;--line:rgba(179,131,94,.38)}
+:root{--black:#050505;--black-2:#0b0b0b;--black-3:#111111;--white:#f5f3ef;--muted:#c9c5bf;--brown:#8b5e3c;--brown-2:#b3835e;--red:#84272d;--red-hover:#9b3339;--green:#168547;--line:rgba(179,131,94,.38)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
 body{margin:0;background:var(--black);color:var(--white);font-family:Arial,Helvetica,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:inherit}img{max-width:100%;display:block}.container{width:min(1180px,calc(100% - 40px));margin:0 auto}
@@ -285,3 +285,158 @@ a.call-number:hover,a.call-number:active{background:var(--red-hover)!important;t
 .call-panel-title,.call-number small{display:none!important}
 .call-fab{width:62px;height:62px;border:2px solid rgba(255,255,255,.9);box-shadow:0 9px 24px rgba(0,0,0,.55)}
 @media(max-width:560px){.call-widget{right:14px;bottom:14px}.call-panel{width:min(330px,calc(100vw - 28px));margin-bottom:10px}.call-panel-head{padding:13px 14px 11px}.call-panel-head strong{font-size:20px}.call-panel-numbers{padding:12px;gap:9px}a.call-number{min-height:58px;font-size:19px}.call-fab{width:58px;height:58px}}
+
+
+/* v1.33 — softer pill buttons + refined call popover */
+:root{--red:#84272d;--red-hover:#9b3339}
+
+/* Main action buttons */
+.button,
+a.contact-call-button,
+.contact-box-button,
+a.facebook-button,
+.map-consent-button,
+.footer-legal-links a{
+  border-radius:999px!important;
+  box-shadow:none!important;
+}
+.button,
+.contact-box-button,
+a.contact-call-button,
+.map-consent-button{
+  background:var(--red)!important;
+  border-color:var(--red)!important;
+}
+.button:hover,
+.button:active,
+.contact-box-button:hover,
+.contact-box-button:active,
+a.contact-call-button:hover,
+a.contact-call-button:active,
+.map-consent-button:hover,
+.map-consent-button:active{
+  background:var(--red-hover)!important;
+  border-color:var(--red-hover)!important;
+}
+
+/* Product category buttons become separate rounded pills */
+.goods-category-nav{
+  border:0!important;
+  gap:10px!important;
+  background:transparent!important;
+}
+.goods-category-nav a,
+.goods-category-nav a:link,
+.goods-category-nav a:visited{
+  min-height:54px!important;
+  border:1px solid rgba(179,131,94,.42)!important;
+  border-radius:999px!important;
+  background:#0b0a09!important;
+  padding:10px 16px!important;
+  text-decoration:none!important;
+}
+.goods-category-nav a:hover,
+.goods-category-nav a:active{
+  background:#15100d!important;
+  border-color:var(--brown-2)!important;
+  color:#fff!important;
+}
+
+/* Floating phone — softer, premium look */
+.call-fab{
+  width:62px!important;
+  height:62px!important;
+  border-radius:50%!important;
+  background:#176f42!important;
+  border:1px solid rgba(255,255,255,.72)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.48)!important;
+}
+.call-fab:hover,.call-fab:active{background:#1b7a49!important;filter:none!important}
+
+.call-panel{
+  width:316px!important;
+  max-width:calc(100vw - 28px)!important;
+  padding:14px!important;
+  margin-bottom:12px!important;
+  background:rgba(10,10,10,.98)!important;
+  border:1px solid rgba(179,131,94,.48)!important;
+  border-radius:26px!important;
+  box-shadow:0 20px 52px rgba(0,0,0,.7)!important;
+  overflow:visible!important;
+}
+.call-panel-head{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:42px!important;
+  padding:0 46px 10px!important;
+  border:0!important;
+}
+.call-panel-head strong{
+  font-family:Georgia,'Times New Roman',serif!important;
+  font-size:20px!important;
+  font-weight:500!important;
+  color:#f1ede7!important;
+}
+.call-panel-close{
+  position:absolute!important;
+  top:-2px!important;
+  right:0!important;
+  width:38px!important;
+  height:38px!important;
+  border-radius:50%!important;
+  border:1px solid rgba(179,131,94,.38)!important;
+  background:#111!important;
+  color:#d4cec6!important;
+  font-size:23px!important;
+  box-shadow:none!important;
+}
+.call-panel-close:hover,.call-panel-close:active{background:#181513!important;border-color:var(--brown-2)!important;color:#fff!important}
+.call-panel-numbers{
+  display:grid!important;
+  gap:10px!important;
+  padding:0!important;
+}
+a.call-number,
+a.call-number:link,
+a.call-number:visited{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  width:100%!important;
+  min-height:56px!important;
+  margin:0!important;
+  padding:11px 18px!important;
+  border-radius:999px!important;
+  background:#75242a!important;
+  border:1px solid #8d343a!important;
+  color:#fff!important;
+  box-shadow:none!important;
+  font-size:19px!important;
+  font-weight:800!important;
+  text-decoration:none!important;
+  -webkit-text-decoration:none!important;
+}
+a.call-number:hover,a.call-number:active{
+  background:#8a2c33!important;
+  border-color:#a33b42!important;
+  transform:none!important;
+}
+a.call-number svg{width:20px!important;height:20px!important;opacity:.9}
+
+/* Other button-like controls */
+.menu-toggle{border-radius:999px!important;min-width:46px;min-height:42px}
+
+@media(max-width:560px){
+  .button{border-radius:999px!important}
+  .goods-category-nav{gap:9px!important}
+  .goods-category-nav a,
+  .goods-category-nav a:link,
+  .goods-category-nav a:visited{min-height:52px!important;padding:9px 10px!important}
+  .call-panel{width:min(304px,calc(100vw - 28px))!important;padding:12px!important;border-radius:24px!important}
+  .call-panel-head{padding-bottom:8px!important}
+  a.call-number,a.call-number:link,a.call-number:visited{min-height:54px!important;font-size:18px!important}
+  .call-fab{width:58px!important;height:58px!important}
+}
