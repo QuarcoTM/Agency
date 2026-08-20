@@ -534,3 +534,108 @@ a.call-number{min-height:62px!important;touch-action:manipulation;pointer-events
   .product-name{font-size:21px;padding:14px 14px 12px}
   .product-card-body{padding:14px}
 }
+
+/* v1.40 — reliable iPhone touch targets and custom category menu */
+.top-ticker{pointer-events:none!important}
+.site-header,.header-inner,.goods-section,.goods-category-nav,.goods-catalog,.goods-contact-strip,.category-switcher{position:relative}
+.header-inner{z-index:1210}
+.goods-category-nav,.goods-catalog,.goods-contact-strip,.category-switcher{z-index:10}
+
+/* The floating widget's invisible layout box must never block controls behind it. */
+.call-widget{pointer-events:none!important}
+.call-fab{pointer-events:auto!important}
+.call-panel{pointer-events:none!important}
+.call-widget.open .call-panel{pointer-events:auto!important}
+
+.goods-category-nav a,
+.goods-category-nav a:link,
+.goods-category-nav a:visited,
+.goods-call-trigger,
+.menu-toggle,
+.call-fab,
+.call-panel-close{
+  position:relative;
+  pointer-events:auto!important;
+  -webkit-user-select:none;
+  user-select:none;
+  touch-action:manipulation!important;
+}
+.goods-category-nav a{z-index:2}
+
+/* Avoid sticky :hover states on touch Safari. */
+@media(hover:hover) and (pointer:fine){
+  .goods-category-nav a:hover{background:#15100d!important;border-color:var(--brown-2)!important;color:#fff!important}
+  .call-fab:hover{background:#1b7a49!important}
+}
+@media(hover:none){
+  .goods-category-nav a:hover{background:#0b0a09!important;border-color:rgba(179,131,94,.42)!important}
+  .goods-category-nav a:active{background:#15100d!important;border-color:var(--brown-2)!important}
+}
+
+/* Custom category chooser — no native select overlay/tap quirks. */
+.category-switcher{display:block!important;margin:0 0 26px!important;padding:0 0 18px!important;border-bottom:1px solid var(--line)}
+.category-switcher-button{
+  width:min(100%,460px);
+  min-height:58px;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:10px 16px;
+  border:1px solid rgba(179,131,94,.5);
+  border-radius:18px;
+  background:#0b0a09;
+  color:#fff;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  position:relative;
+  z-index:22;
+}
+.category-switcher-button:active{background:#15100d;border-color:var(--brown-2)}
+.category-switcher-label{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.category-switcher-current{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}
+.category-switcher-chevron{font-size:24px;line-height:1;transition:transform .15s ease;color:var(--brown-2)}
+.category-switcher-button[aria-expanded="true"] .category-switcher-chevron{transform:rotate(180deg)}
+.category-switcher-menu{
+  width:min(100%,460px);
+  margin-top:8px;
+  border:1px solid rgba(179,131,94,.45);
+  border-radius:18px;
+  overflow:hidden;
+  background:#0a0908;
+  box-shadow:0 18px 42px rgba(0,0,0,.42);
+  position:relative;
+  z-index:21;
+}
+.category-switcher-menu[hidden]{display:none!important}
+.category-switcher-menu a,
+.category-switcher-menu a:link,
+.category-switcher-menu a:visited{
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-height:54px;
+  padding:12px 16px;
+  border-bottom:1px solid rgba(179,131,94,.22);
+  color:#fff!important;
+  text-decoration:none!important;
+  font-weight:750;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  position:relative;
+  z-index:2;
+}
+.category-switcher-menu a:last-child{border-bottom:0}
+.category-switcher-menu a.is-current{color:var(--brown-2)!important;background:#15100d}
+.category-switcher-menu a:active{background:#1a120e}
+
+@media(max-width:760px){
+  .category-switcher-button,.category-switcher-menu{width:100%;max-width:none}
+  .category-switcher-button{min-height:62px;padding:11px 14px}
+  .category-switcher-menu a,.category-switcher-menu a:link,.category-switcher-menu a:visited{min-height:58px;padding:13px 15px}
+  .goods-category-nav a,.goods-category-nav a:link,.goods-category-nav a:visited{min-height:62px!important}
+  .goods-call-trigger{min-height:58px!important}
+}

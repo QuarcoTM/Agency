@@ -2,7 +2,9 @@
   const nav = document.querySelector('.goods-category-nav');
   const catalog = document.querySelector('.goods-catalog');
   const status = document.querySelector('.goods-catalog-status');
-  const categorySelect = document.getElementById('category-switcher-select');
+  const categoryMenuButton = document.getElementById('category-switcher-button');
+  const categoryMenu = document.getElementById('category-switcher-menu');
+  const categoryCurrent = document.getElementById('category-switcher-current');
   if (!catalog || !status) return;
 
   const cfg = window.DENINOSHT_SUPABASE || {
@@ -26,6 +28,60 @@
     return el;
   }
 
+  function navigateToCategory(slug){
+    if(!slug) return;
+    window.location.assign('kategoriya.html?category=' + encodeURIComponent(slug));
+  }
+
+  function bindTouchNavigation(link, slug){
+    let touchHandled = false;
+    link.addEventListener('touchend',(event)=>{
+      if(event.cancelable) event.preventDefault();
+      touchHandled = true;
+      navigateToCategory(slug);
+      setTimeout(()=>{ touchHandled = false; },700);
+    },{passive:false});
+    link.addEventListener('click',(event)=>{
+      if(touchHandled){
+        event.preventDefault();
+        return;
+      }
+    });
+  }
+
+  function closeCategoryMenu(){
+    if(!categoryMenuButton || !categoryMenu) return;
+    categoryMenuButton.setAttribute('aria-expanded','false');
+    categoryMenu.hidden = true;
+    document.body.classList.remove('category-menu-open');
+  }
+
+  function toggleCategoryMenu(event){
+    if(event) event.stopPropagation();
+    if(!categoryMenuButton || !categoryMenu) return;
+    const opening = categoryMenu.hidden;
+    categoryMenu.hidden = !opening;
+    categoryMenuButton.setAttribute('aria-expanded',String(opening));
+    document.body.classList.toggle('category-menu-open',opening);
+  }
+
+  function bindReliableMenuButton(){
+    if(!categoryMenuButton) return;
+    let suppressClickUntil = 0;
+    categoryMenuButton.addEventListener('touchend',(event)=>{
+      if(event.cancelable) event.preventDefault();
+      suppressClickUntil = Date.now() + 700;
+      toggleCategoryMenu(event);
+    },{passive:false});
+    categoryMenuButton.addEventListener('click',(event)=>{
+      if(Date.now() < suppressClickUntil){
+        event.preventDefault();
+        return;
+      }
+      toggleCategoryMenu(event);
+    });
+  }
+
   function renderCategoryLinks(categories){
     if (nav){
       nav.replaceChildren();
@@ -35,19 +91,31 @@
           link.href = 'kategoriya.html?category=' + encodeURIComponent(category.slug);
           link.textContent = category.name;
           link.dataset.category = category.slug;
+          bindTouchNavigation(link, category.slug);
           nav.appendChild(link);
         });
       }
     }
 
-    if (isCategoryPage && categorySelect){
-      categorySelect.replaceChildren();
+    if (isCategoryPage && categoryMenu && categoryMenuButton){
+      categoryMenu.replaceChildren();
+      const selected = categories.find((category)=>category.slug === selectedSlug);
+      if(categoryCurrent) categoryCurrent.textContent = selected ? selected.name : 'Изберете категория';
+
       categories.forEach((category)=>{
-        const option = new Option(category.name, category.slug);
-        if (category.slug === selectedSlug) option.selected = true;
-        categorySelect.add(option);
+        const link = document.createElement('a');
+        link.href = 'kategoriya.html?category=' + encodeURIComponent(category.slug);
+        link.textContent = category.name;
+        link.dataset.category = category.slug;
+        if(category.slug === selectedSlug){
+          link.classList.add('is-current');
+          link.setAttribute('aria-current','page');
+        }
+        bindTouchNavigation(link, category.slug);
+        categoryMenu.appendChild(link);
       });
-      categorySelect.disabled = !categories.length;
+
+      categoryMenuButton.disabled = !categories.length;
     }
   }
 
@@ -174,13 +242,17 @@
     }
   }
 
-  if (categorySelect){
-    categorySelect.addEventListener('change', ()=>{
-      const slug = categorySelect.value;
-      if (!slug || slug === selectedSlug) return;
-      window.location.href = 'kategoriya.html?category=' + encodeURIComponent(slug);
-    });
-  }
+  bindReliableMenuButton();
+
+  document.addEventListener('click',(event)=>{
+    if(!categoryMenuButton || !categoryMenu || categoryMenu.hidden) return;
+    const switcher = document.querySelector('.category-switcher');
+    if(switcher && !switcher.contains(event.target)) closeCategoryMenu();
+  });
+
+  document.addEventListener('keydown',(event)=>{
+    if(event.key === 'Escape') closeCategoryMenu();
+  });
 
   loadCatalog();
 })();

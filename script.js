@@ -1,8 +1,28 @@
 (function(){
+  function bindReliableTap(element, handler){
+    if(!element) return;
+    let suppressClickUntil = 0;
+
+    element.addEventListener('touchend',(event)=>{
+      if(event.cancelable) event.preventDefault();
+      suppressClickUntil = Date.now() + 700;
+      handler(event);
+    },{passive:false});
+
+    element.addEventListener('click',(event)=>{
+      if(Date.now() < suppressClickUntil){
+        event.preventDefault();
+        return;
+      }
+      handler(event);
+    });
+  }
+
   const menuBtn=document.querySelector('.menu-toggle');
   const nav=document.querySelector('.nav');
   if(menuBtn&&nav){
-    menuBtn.addEventListener('click',()=>{
+    bindReliableTap(menuBtn,(event)=>{
+      event.stopPropagation();
       const isOpen=nav.classList.toggle('open');
       menuBtn.setAttribute('aria-expanded',String(isOpen));
     });
@@ -12,41 +32,43 @@
   const fab=document.querySelector('.call-fab');
   const callClose=document.querySelector('.call-panel-close');
   if(widget&&fab){
-    fab.addEventListener('click',(e)=>{
-      e.stopPropagation();
+    bindReliableTap(fab,(event)=>{
+      event.stopPropagation();
       const isOpen=widget.classList.toggle('open');
       fab.setAttribute('aria-expanded',String(isOpen));
     });
+
     if(callClose){
-      callClose.addEventListener('click',(e)=>{
-        e.stopPropagation();
+      bindReliableTap(callClose,(event)=>{
+        event.stopPropagation();
         widget.classList.remove('open');
         fab.setAttribute('aria-expanded','false');
       });
     }
-    document.addEventListener('click',(e)=>{
-      if(!widget.contains(e.target)){
+
+    document.addEventListener('click',(event)=>{
+      if(!widget.contains(event.target)){
         widget.classList.remove('open');
         fab.setAttribute('aria-expanded','false');
       }
     });
-    document.addEventListener('keydown',(e)=>{
-      if(e.key==='Escape'){
+
+    document.addEventListener('keydown',(event)=>{
+      if(event.key==='Escape'){
         widget.classList.remove('open');
         fab.setAttribute('aria-expanded','false');
       }
     });
 
     document.querySelectorAll('.goods-call-trigger,.js-call-trigger').forEach((button)=>{
-      button.addEventListener('click',(e)=>{
-        e.preventDefault();
-        e.stopPropagation();
+      bindReliableTap(button,(event)=>{
+        event.preventDefault();
+        event.stopPropagation();
         widget.classList.add('open');
         fab.setAttribute('aria-expanded','true');
       });
     });
   }
-
 
   document.querySelectorAll('.nav a').forEach((link)=>{
     link.addEventListener('click',()=>{
@@ -58,7 +80,7 @@
   });
 
   document.querySelectorAll('.map-consent-button').forEach((button)=>{
-    button.addEventListener('click',()=>{
+    bindReliableTap(button,()=>{
       const holder=button.closest('.map-consent');
       if(!holder) return;
       const src=holder.getAttribute('data-map-src');
