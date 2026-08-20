@@ -17,20 +17,25 @@
 <meta content="Траурна агенция „Ден и Нощ“ — Кюстендил" name="twitter:title"/>
 <meta content="Денонощна организация на траурни услуги в Кюстендил." name="twitter:description"/>
 <meta content="assets/social-share.jpg" name="twitter:image"/>
-<link href="styles.css?v=1.42" rel="stylesheet"/>
+<link href="styles.css?v=1.44" rel="stylesheet"/>
 </head>
 <body class="category-page"><a class="skip-link" href="#main-content">Към основното съдържание</a>
 <div aria-hidden="true" class="top-ticker">
-<div class="ticker-track">
-<span class="ticker-item">ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</span>
-<span class="ticker-item">ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</span>
-<span class="ticker-item">ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</span>
-<span class="ticker-item">ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</span>
-<span class="ticker-item">ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</span>
-<span class="ticker-item">ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</span>
-<span class="ticker-item">ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</span>
-<span class="ticker-item">ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</span>
-</div>
+<div class="ticker-track"></div>
+<script>
+(function(){
+  var key='deninosht_top_ticker_v1', text='';
+  try { text=(localStorage.getItem(key)||'').trim(); } catch (_) {}
+  if (!text) return;
+  var track=document.currentScript.previousElementSibling;
+  if (!track) return;
+  function item(){ var s=document.createElement('span'); s.className='ticker-item'; s.textContent=text; return s; }
+  function group(){ var g=document.createElement('div'); g.className='ticker-group'; g.setAttribute('aria-hidden','true'); for(var i=0;i<8;i+=1) g.appendChild(item()); return g; }
+  track.append(group(),group());
+  track.setAttribute('data-ticker-ready','1');
+  track.classList.add('ticker-running');
+})();
+</script>
 </div>
 <header class="site-header">
 <div class="container header-inner">
@@ -105,9 +110,9 @@
 </div>
 <button aria-expanded="false" aria-label="Покажи телефоните" class="call-fab" type="button"><svg aria-hidden="true" class="call-icon" viewbox="0 0 24 24"><path d="M6.6 10.8a15.5 15.5 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.06.35 2.2.53 3.37.53a1 1 0 0 1 1 1V21a1 1 0 0 1-1 1C10.73 22 2 13.27 2 2.25a1 1 0 0 1 1-1H7.5a1 1 0 0 1 1 1c0 1.17.18 2.31.53 3.37a1 1 0 0 1-.25 1l-2.18 2.18Z" fill="currentColor"></path></svg></button>
 </div>
-<script src="supabase-config.js?v=1.42"></script>
-<script src="site-settings.js?v=1.42"></script>
-<script src="catalog.js?v=1.42"></script>
-<script src="script.js?v=1.42"></script>
+<script src="supabase-config.js?v=1.44"></script>
+<script src="site-settings.js?v=1.44"></script>
+<script src="catalog.js?v=1.44"></script>
+<script src="script.js?v=1.44"></script>
 </body>
 </html>
