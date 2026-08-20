@@ -10,12 +10,20 @@
 
   const widget=document.querySelector('.call-widget');
   const fab=document.querySelector('.call-fab');
+  const callClose=document.querySelector('.call-panel-close');
   if(widget&&fab){
     fab.addEventListener('click',(e)=>{
       e.stopPropagation();
       const isOpen=widget.classList.toggle('open');
       fab.setAttribute('aria-expanded',String(isOpen));
     });
+    if(callClose){
+      callClose.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        widget.classList.remove('open');
+        fab.setAttribute('aria-expanded','false');
+      });
+    }
     document.addEventListener('click',(e)=>{
       if(!widget.contains(e.target)){
         widget.classList.remove('open');
