@@ -440,3 +440,40 @@ a.call-number svg{width:20px!important;height:20px!important;opacity:.9}
   a.call-number,a.call-number:link,a.call-number:visited{min-height:54px!important;font-size:18px!important}
   .call-fab{width:58px!important;height:58px!important}
 }
+
+
+/* v1.34 — footer legal links are plain text */
+.footer-legal-links{display:flex;align-items:center;gap:18px;flex-wrap:wrap;width:auto!important}
+.footer-legal-links a,
+.footer-legal-links a:link,
+.footer-legal-links a:visited{
+  display:inline-block!important;
+  width:auto!important;
+  min-height:0!important;
+  padding:3px 0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-bottom:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  color:#9f9a94!important;
+  font-size:13px;
+  font-weight:400;
+  line-height:1.4;
+  text-decoration:none!important;
+  -webkit-text-decoration:none!important;
+}
+.footer-legal-links a:hover,
+.footer-legal-links a:active{
+  background:transparent!important;
+  border:0!important;
+  color:#fff!important;
+  text-decoration:none!important;
+}
+@media(max-width:560px){
+  .footer-legal-links{width:auto!important;gap:14px;flex-direction:row;align-items:center}
+  .footer-legal-links a,
+  .footer-legal-links a:link,
+  .footer-legal-links a:visited{width:auto!important;min-height:0!important;padding:4px 0!important;justify-content:initial!important}
+}
