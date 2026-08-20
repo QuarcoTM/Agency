@@ -169,6 +169,7 @@
       if (Array.isArray(created) && created[0]) siteSettingsRowId = created[0].id;
     }
     topTickerInput.value = value;
+    try { localStorage.setItem('deninosht_top_ticker_v1', value); } catch (_) {}
     message(tickerSettingMessage, successText || 'Съобщението е записано и вече се използва на сайта.', 'success');
   }
 
