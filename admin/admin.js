@@ -9,6 +9,9 @@
   let products = [];
   let currentObjectUrl = '';
   let schemaReady = true;
+  const ORIGINAL_TICKER = 'ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34';
+  let siteSettingsRowId = null;
+  let siteSettingsReady = true;
 
   const $ = (id)=>document.getElementById(id);
   const loginPanel = $('login-panel');
@@ -28,6 +31,10 @@
   const saveButton = $('save-product');
   const loginSubmit = $('login-submit');
   const passwordToggle = $('password-toggle');
+  const topTickerInput = $('top-ticker-input');
+  const tickerSettingMessage = $('ticker-setting-message');
+  const saveTopTickerButton = $('save-top-ticker');
+  const resetTopTickerButton = $('reset-top-ticker');
 
   function message(el, text, type){
     if (!el) return;
@@ -116,6 +123,53 @@
     const text = await response.text();
     if (!text) return null;
     try { return JSON.parse(text); } catch (_) { return text; }
+  }
+
+  async function loadTopTickerSetting(){
+    if (!topTickerInput) return;
+    siteSettingsReady = true;
+    siteSettingsRowId = null;
+    topTickerInput.value = ORIGINAL_TICKER;
+    message(tickerSettingMessage, 'Зареждане на текущото съобщение…');
+    try{
+      const rows = await request('/rest/v1/site_settings?select=id,top_ticker_text&order=id.asc&limit=1', {}, true);
+      if (Array.isArray(rows) && rows[0]){
+        siteSettingsRowId = rows[0].id;
+        topTickerInput.value = String(rows[0].top_ticker_text || '').trim() || ORIGINAL_TICKER;
+      }
+      message(tickerSettingMessage, '');
+    } catch(error){
+      siteSettingsReady = false;
+      if (/site_settings|relation|schema cache|42P01|not found/i.test(error.message || '')){
+        message(tickerSettingMessage, 'Първо създайте таблицата site_settings в Supabase. Дотогава сайтът ще показва оригиналното съобщение.', 'error');
+      } else {
+        message(tickerSettingMessage, 'Настройката не се зареди: ' + error.message, 'error');
+      }
+    }
+  }
+
+  async function persistTopTicker(text, successText){
+    const value = String(text || '').trim();
+    if (!value) throw new Error('Съобщението не може да бъде празно.');
+    if (value.length > 260) throw new Error('Съобщението е прекалено дълго.');
+    if (!siteSettingsReady) throw new Error('Таблицата site_settings още не е настроена в Supabase.');
+
+    if (siteSettingsRowId !== null && siteSettingsRowId !== undefined){
+      await request('/rest/v1/site_settings?id=eq.' + encodeURIComponent(siteSettingsRowId), {
+        method:'PATCH',
+        headers:{'Content-Type':'application/json',Prefer:'return=minimal'},
+        body:JSON.stringify({top_ticker_text:value})
+      }, true);
+    } else {
+      const created = await request('/rest/v1/site_settings', {
+        method:'POST',
+        headers:{'Content-Type':'application/json',Prefer:'return=representation'},
+        body:JSON.stringify({top_ticker_text:value})
+      }, true);
+      if (Array.isArray(created) && created[0]) siteSettingsRowId = created[0].id;
+    }
+    topTickerInput.value = value;
+    message(tickerSettingMessage, successText || 'Съобщението е записано и вече се използва на сайта.', 'success');
   }
 
   function categoryName(id){
@@ -505,6 +559,7 @@
     try{
       const auth=await authToken('password',{email,password}); saveSession(auth); $('login-password').value=''; message(loginMessage,''); setLoggedIn(true);
       try{ await loadData(); } catch(dataError){ message(dashboardMessage,'Входът е успешен, но данните не се заредиха: '+dataError.message,'error'); }
+      await loadTopTickerSetting();
     } catch(_){ clearSession(); setLoggedIn(false); message(loginMessage,'Неуспешен вход. Проверете имейла и паролата.','error'); }
     finally{ loginSubmit.disabled=false; loginSubmit.textContent='Вход'; }
   });
@@ -523,6 +578,31 @@
     if (session&&session.access_token){ try{ await fetch(cfg.url+'/auth/v1/logout',{method:'POST',headers:{apikey:cfg.publishableKey,Authorization:'Bearer '+session.access_token}}); } catch(_){} }
     clearSession(); setLoggedIn(false); products=[]; productList.replaceChildren(); message(loginMessage,'Излязохте от админ панела.','success');
   });
+
+  if (saveTopTickerButton){
+    saveTopTickerButton.addEventListener('click', async ()=>{
+      if (saveTopTickerButton.disabled) return;
+      saveTopTickerButton.disabled = true;
+      resetTopTickerButton.disabled = true;
+      message(tickerSettingMessage, 'Записване…');
+      try{ await persistTopTicker(topTickerInput.value, 'Съобщението е записано. Отвори сайта, за да го видиш.'); }
+      catch(error){ message(tickerSettingMessage, error.message || 'Грешка при записването.', 'error'); }
+      finally{ saveTopTickerButton.disabled = false; resetTopTickerButton.disabled = false; }
+    });
+  }
+
+  if (resetTopTickerButton){
+    resetTopTickerButton.addEventListener('click', async ()=>{
+      const ok = window.confirm('Да върна ли оригиналното движещо се съобщение?');
+      if (!ok) return;
+      saveTopTickerButton.disabled = true;
+      resetTopTickerButton.disabled = true;
+      message(tickerSettingMessage, 'Връщане на оригинала…');
+      try{ await persistTopTicker(ORIGINAL_TICKER, 'Оригиналното съобщение е възстановено.'); }
+      catch(error){ message(tickerSettingMessage, error.message || 'Грешка при възстановяването.', 'error'); }
+      finally{ saveTopTickerButton.disabled = false; resetTopTickerButton.disabled = false; }
+    });
+  }
 
   $('new-product-button').addEventListener('click',()=>openEditor(null));
   $('editor-close').addEventListener('click',closeEditor);
@@ -589,6 +669,7 @@
   async function boot(){
     const session=await ensureSession(); const loggedIn=Boolean(session&&session.access_token); setLoggedIn(loggedIn); if(!loggedIn)return;
     try{ await loadData(); } catch(error){ message(dashboardMessage,'Админ панелът е отворен, но данните не се заредиха: '+error.message,'error'); }
+    await loadTopTickerSetting();
   }
 
   boot();

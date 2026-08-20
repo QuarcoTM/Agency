@@ -11,3 +11,21 @@
 .admin-preview-content{padding-top:22px}.preview-product-card{max-width:440px;margin:0 auto}.preview-product-card h3{font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:500;margin:0 0 8px;text-align:center}.preview-product-code{text-align:center;color:var(--brown);font-weight:700;font-size:13px;margin-bottom:14px}.preview-product-card img{display:block;width:100%;max-height:520px;object-fit:contain;background:#000;border:1px solid rgba(255,255,255,.08)}.preview-product-card p{color:#d7d2cc;line-height:1.65;margin:16px 0}.preview-availability{font-weight:800;font-size:13px;border-top:1px solid var(--line);padding-top:12px}.preview-availability.is-available{color:#8bd9ad}.preview-availability.is-unavailable{color:#ef9da2}
 @media(max-width:980px){.stats-grid{grid-template-columns:repeat(3,1fr)}.toolbar{grid-template-columns:1fr 1fr}.product-count{padding:0}.admin-product{grid-template-columns:96px minmax(0,1fr)}.admin-product-image{width:96px;height:96px}.product-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;justify-content:stretch;width:100%;border-top:1px solid var(--line);padding-top:14px}.small-button{width:100%;min-height:48px}}
 @media(max-width:760px){.admin-header{grid-template-columns:auto 1fr}.admin-site-link{grid-column:1/-1;justify-self:start}.admin-main{width:min(100% - 28px,1160px);padding-top:28px}.dashboard-top{display:block}.dashboard-actions{justify-content:flex-start;margin-top:20px}.stats-grid{grid-template-columns:repeat(2,1fr)}.stat-card:first-child{grid-column:1/-1}.toolbar{grid-template-columns:1fr}.product-count{padding:0 0 2px}.admin-product{grid-template-columns:82px 1fr}.admin-product-image{width:82px;height:82px}.product-actions{grid-template-columns:1fr 1fr}.small-button.order{font-size:20px}.editor-panel,.preview-panel{padding:18px}.two-fields{grid-template-columns:1fr}.image-preview{width:180px;height:180px}.editor-actions{display:grid;grid-template-columns:1fr 1fr}.editor-actions .admin-button:last-of-type{grid-column:1/-1}.password-toggle{width:48px;height:44px}}
+
+/* v1.42 — site setting: top ticker */
+.site-setting-card{margin:24px 0 26px;padding:22px;border:1px solid rgba(179,131,94,.42);background:#0b0a09;border-radius:18px}
+.site-setting-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}
+.site-setting-head h2{margin:2px 0 6px;font-size:24px}
+.site-setting-head p:last-child{margin:0;color:var(--admin-muted,#aaa);line-height:1.5}
+.ticker-setting-label{display:block;font-weight:700}
+.ticker-setting-label textarea{display:block;width:100%;min-height:96px;margin-top:8px;resize:vertical;font:inherit;line-height:1.45}
+.ticker-setting-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.reset-original-button{border-color:rgba(255,255,255,.22)!important}
+.original-ticker-note{margin:14px 0 0;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);color:#a9a9a9;font-size:13px;line-height:1.55}
+.original-ticker-note strong{color:#e8e8e8}
+@media(max-width:640px){
+  .site-setting-card{padding:18px 15px;border-radius:16px}
+  .site-setting-head h2{font-size:21px}
+  .ticker-setting-actions{display:grid;grid-template-columns:1fr}
+  .ticker-setting-actions .admin-button{width:100%;min-height:52px}
+}

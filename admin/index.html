@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.41" rel="stylesheet"/>
+<link href="admin.css?v=1.42" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -55,8 +55,27 @@
       </div>
     </div>
 
+    <section class="site-setting-card" aria-labelledby="ticker-setting-title">
+      <div class="site-setting-head">
+        <div>
+          <p class="admin-eyebrow">Настройки на сайта</p>
+          <h2 id="ticker-setting-title">Горно движещо се съобщение</h2>
+          <p>Промяната се показва на всички страници на сайта.</p>
+        </div>
+      </div>
+      <label class="ticker-setting-label" for="top-ticker-input">Текст
+        <textarea id="top-ticker-input" rows="3" maxlength="260" spellcheck="true"></textarea>
+      </label>
+      <div class="ticker-setting-actions">
+        <button class="admin-button" id="save-top-ticker" type="button">Запази съобщението</button>
+        <button class="admin-button secondary reset-original-button" id="reset-top-ticker" type="button">Върни оригинала</button>
+      </div>
+      <p class="original-ticker-note"><strong>Оригинал:</strong> ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34</p>
+      <div class="admin-message" id="ticker-setting-message" role="status" aria-live="polite"></div>
+    </section>
+
     <div class="schema-warning" id="schema-warning" hidden>
-      За новите функции са нужни колоните <strong>product_code</strong> и <strong>is_archived</strong> в Supabase. Пуснете SQL файла за v1.41 и презаредете админ панела.
+      За продуктовите функции са нужни колоните <strong>product_code</strong> и <strong>is_archived</strong> в Supabase.
     </div>
 
     <div class="stats-grid" aria-label="Обобщение">
@@ -143,7 +162,7 @@
   </section>
 </div>
 
-<script src="../supabase-config.js?v=1.41"></script>
-<script src="admin.js?v=1.41"></script>
+<script src="../supabase-config.js?v=1.42"></script>
+<script src="admin.js?v=1.42"></script>
 </body>
 </html>
