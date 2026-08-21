@@ -751,3 +751,22 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
   .faq-answer{padding:0 0 20px}
   .faq-answer p{font-size:16px;line-height:1.7}
 }
+
+
+/* v1.51 — light SEO structure: service landing pages + clearer heading hierarchy */
+.services-section-intro{max-width:900px;margin:0 0 30px;color:var(--muted);font-size:17px;line-height:1.7}
+.service-row h2{font-size:23px;line-height:1.25;margin:0 0 8px}
+.service-row-copy{min-width:0}
+.service-detail-link{display:inline-block;margin-top:10px;color:var(--brown-2);font-weight:800;text-decoration:none;border-bottom:1px solid rgba(179,131,94,.55);padding-bottom:2px}
+.service-detail-link:hover{color:#fff;border-bottom-color:#fff}
+.service-back-link{display:inline-block;margin:0 0 22px;color:var(--brown-2);font-weight:800;text-decoration:none;border-bottom:1px solid rgba(179,131,94,.55);padding-bottom:2px}
+.service-detail-hero .eyebrow{margin-top:2px}
+.service-detail-content{max-width:900px}
+.service-detail-content h2:not(:first-child){margin-top:46px}
+.related-services{padding:42px 0;border-bottom:1px solid var(--line);background:#080706}
+.related-services h2{font-size:30px;margin-bottom:20px}
+.related-service-links{display:flex;flex-wrap:wrap;gap:10px}
+.related-service-links a{display:inline-flex;align-items:center;min-height:44px;padding:9px 13px;border:1px solid rgba(179,131,94,.42);background:#0b0a09;color:#fff;text-decoration:none;font-weight:700}
+.related-service-links a:hover{border-color:var(--brown-2);background:#15100d}
+@media(max-width:900px){.service-row-copy{grid-column:2}.service-row h2{font-size:22px}}
+@media(max-width:560px){.services-section-intro{font-size:16px}.service-row h2{font-size:21px}.service-detail-content h2:not(:first-child){margin-top:38px}.related-services{padding:34px 0}.related-services h2{font-size:27px}.related-service-links{display:grid;grid-template-columns:1fr 1fr}.related-service-links a{justify-content:center;text-align:center;font-size:14px}}
