@@ -115,6 +115,25 @@
     });
   });
 
+
+  // FAQ accordion — uses the same touch-safe tap handling as the rest of the site.
+  document.querySelectorAll('.faq-question').forEach((button)=>{
+    const panelId=button.getAttribute('aria-controls');
+    const panel=panelId ? document.getElementById(panelId) : null;
+    if(!panel) return;
+
+    // Always start from the HTML-defined closed state after a normal refresh.
+    button.setAttribute('aria-expanded','false');
+    panel.hidden=true;
+
+    bindReliableTap(button,(event)=>{
+      event.preventDefault();
+      const isOpen=button.getAttribute('aria-expanded')==='true';
+      button.setAttribute('aria-expanded',String(!isOpen));
+      panel.hidden=isOpen;
+    });
+  });
+
   const footer=document.querySelector('.site-footer');
   if(footer){
     const observer=new IntersectionObserver((entries)=>{

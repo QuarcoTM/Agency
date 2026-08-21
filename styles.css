@@ -693,3 +693,61 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
 .reviews-more-summary strong{color:#fff}
 .reviews-more-summary p{width:100%;margin:0;color:var(--muted);font-size:14px}
 @media(max-width:760px){.reviews-panel{grid-template-columns:1fr;padding-top:24px}.reviews-toggle-button{width:100%}.review-item{padding:20px 18px}.review-item-head{align-items:flex-start;flex-direction:column;gap:7px}}
+
+
+/* v1.49 — standalone FAQ page with reliable accordion controls */
+.faq-container{max-width:980px}
+.faq-list{border-top:1px solid var(--line)}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-question{
+  width:100%;
+  min-height:72px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 42px;
+  align-items:center;
+  gap:20px;
+  padding:20px 4px;
+  border:0;
+  background:transparent;
+  color:#fff;
+  font:inherit;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:22px;
+  line-height:1.35;
+  text-align:left;
+  cursor:pointer;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  -webkit-user-select:none;
+  user-select:none;
+  position:relative;
+  z-index:2;
+}
+.faq-question:active{background:#0d0b0a}
+.faq-question:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.faq-icon{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  justify-self:end;
+  border:1px solid rgba(179,131,94,.55);
+  border-radius:50%;
+  color:var(--brown-2);
+  font-family:Arial,sans-serif;
+  font-size:25px;
+  font-weight:400;
+  line-height:1;
+  transition:transform .15s ease,background .15s ease;
+}
+.faq-question[aria-expanded="true"] .faq-icon{transform:rotate(45deg);background:#15100d}
+.faq-answer{padding:0 58px 22px 4px}
+.faq-answer[hidden]{display:none!important}
+.faq-answer p{margin:0;color:var(--muted);font-size:17px;line-height:1.75}
+@media(hover:hover) and (pointer:fine){.faq-question:hover .faq-icon{border-color:var(--brown-2);background:#15100d}}
+@media(max-width:760px){
+  .faq-question{min-height:68px;grid-template-columns:minmax(0,1fr) 40px;gap:14px;padding:18px 0;font-size:20px}
+  .faq-icon{width:38px;height:38px}
+  .faq-answer{padding:0 0 20px}
+  .faq-answer p{font-size:16px;line-height:1.7}
+}
