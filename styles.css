@@ -647,7 +647,7 @@ a.call-number{min-height:62px!important;touch-action:manipulation;pointer-events
 .goods-seo-intro{max-width:900px;margin:0 0 22px;color:var(--muted,#b9b9b9);line-height:1.7}
 
 
-/* v1.46 — social proof + accessibility finish */
+/* v1.47 — social proof + accessibility finish */
 .reviews-proof{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#080706;padding:54px 0}
 .reviews-proof-inner{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(0,1.55fr);gap:52px;align-items:center}
 .reviews-score{padding-right:42px;border-right:1px solid rgba(179,131,94,.38)}
@@ -676,3 +676,20 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
   .reviews-copy blockquote{font-size:20px}
   .reviews-google-link{width:100%}
 }
+
+
+/* v1.48 — in-site expandable Google reviews */
+.reviews-intro{margin:0 0 20px;color:var(--muted);font-size:16px;line-height:1.6}
+.reviews-toggle-button{min-height:50px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,255,255,.12)}
+.reviews-panel{grid-column:1/-1;margin-top:4px;padding-top:30px;border-top:1px solid rgba(179,131,94,.34);display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.reviews-panel[hidden]{display:none!important}
+.review-item{min-width:0;padding:22px 22px 20px;border:1px solid rgba(179,131,94,.34);background:#0b0a09}
+.review-item-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+.review-item-head strong{color:#fff;font-size:16px}
+.review-item-stars{color:#f0e2aa;font-size:16px;letter-spacing:.06em;white-space:nowrap}
+.review-item blockquote{margin:0 0 14px;padding:0;border:0;color:#f2efeb;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.55}
+.review-platform{color:#969089;font-size:13px}
+.reviews-more-summary{grid-column:1/-1;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:17px 20px;border-left:3px solid var(--brown);background:#0b0a09}
+.reviews-more-summary strong{color:#fff}
+.reviews-more-summary p{width:100%;margin:0;color:var(--muted);font-size:14px}
+@media(max-width:760px){.reviews-panel{grid-template-columns:1fr;padding-top:24px}.reviews-toggle-button{width:100%}.review-item{padding:20px 18px}.review-item-head{align-items:flex-start;flex-direction:column;gap:7px}}

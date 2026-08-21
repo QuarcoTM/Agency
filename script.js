@@ -97,6 +97,24 @@
     });
   });
 
+  document.querySelectorAll('.reviews-toggle-button').forEach((button)=>{
+    bindReliableTap(button,()=>{
+      const panelId=button.getAttribute('aria-controls');
+      const panel=panelId ? document.getElementById(panelId) : null;
+      if(!panel) return;
+      const isOpen=button.getAttribute('aria-expanded')==='true';
+      if(isOpen){
+        panel.hidden=true;
+        button.setAttribute('aria-expanded','false');
+        button.textContent='Прочетете отзивите';
+      }else{
+        panel.hidden=false;
+        button.setAttribute('aria-expanded','true');
+        button.textContent='Скрийте отзивите';
+      }
+    });
+  });
+
   const footer=document.querySelector('.site-footer');
   if(footer){
     const observer=new IntersectionObserver((entries)=>{
