@@ -645,3 +645,34 @@ a.call-number{min-height:62px!important;touch-action:manipulation;pointer-events
 
 /* v1.45: static catalog context for accessibility and search */
 .goods-seo-intro{max-width:900px;margin:0 0 22px;color:var(--muted,#b9b9b9);line-height:1.7}
+
+
+/* v1.46 — social proof + accessibility finish */
+.reviews-proof{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#080706;padding:54px 0}
+.reviews-proof-inner{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(0,1.55fr);gap:52px;align-items:center}
+.reviews-score{padding-right:42px;border-right:1px solid rgba(179,131,94,.38)}
+.reviews-rating-line{display:flex;align-items:baseline;gap:15px;margin:5px 0 4px}
+.reviews-rating-line strong{font-family:Georgia,'Times New Roman',serif;font-size:58px;line-height:1;color:#fff;font-weight:500}
+.reviews-stars{color:#f0e2aa;font-size:23px;letter-spacing:.08em;white-space:nowrap}
+.reviews-score p{margin:0;color:var(--muted);font-size:16px}
+.reviews-copy h2{margin:0 0 14px;max-width:720px}
+.reviews-copy blockquote{margin:0 0 4px;padding:0;border:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.45;color:#fff}
+.reviews-source{margin:0 0 22px;color:#aaa49d;font-size:14px}
+.reviews-google-link{min-height:48px}
+
+/* Keyboard and high-contrast affordances across interactive controls. */
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:3px;border-color:#fff!important}
+[role="button"]:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media (forced-colors:active){.button,.call-fab,.call-panel-close,.footer-legal-links a{border:2px solid ButtonText}.reviews-stars{color:CanvasText}}
+@media(max-width:760px){
+  .reviews-proof{padding:42px 0}
+  .reviews-proof-inner{grid-template-columns:1fr;gap:30px}
+  .reviews-score{padding:0 0 28px;border-right:0;border-bottom:1px solid rgba(179,131,94,.38)}
+  .reviews-rating-line strong{font-size:50px}
+}
+@media(max-width:560px){
+  .reviews-rating-line{gap:11px}
+  .reviews-stars{font-size:19px}
+  .reviews-copy blockquote{font-size:20px}
+  .reviews-google-link{width:100%}
+}
