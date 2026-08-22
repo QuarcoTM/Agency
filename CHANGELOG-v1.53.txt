@@ -1,0 +1,39 @@
+v1.53 спрямо v1.52
+===================
+Променени:
+- index.html
+- uslugi.html
+- traurni-stoki.html
+- kontakti.html
+- pomeni.html
+- faq.html
+- pri-smarten-sluchai.html
+- 404.html
+- kategoriya.html
+- всички HTML страници: cache-busting ?v=1.53
+- analytics.js
+- styles.css
+- admin/index.html
+- admin/admin.js
+- admin/admin.css
+- robots.txt
+- sitemap.xml
+
+Нови:
+- image-sitemap.xml
+- supabase-analytics-v1.53.sql
+- README-v1.53.txt
+- CHANGELOG-v1.53.txt
+
+Запазени без функционално премахване:
+- catalog.js
+- site-settings.js
+- script.js
+- supabase-config.js
+- assets/
+- продуктов каталог и изображения
+- админ вход
+- добавяне/редакция/изтриване на продукти
+- top ticker настройка
+- GDPR/политики
+- call widget / карта / FAQ / reviews логика

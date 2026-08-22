@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.52" rel="stylesheet"/>
+<link href="admin.css?v=1.53" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -134,9 +134,17 @@
         <button class="range-button" type="button" data-analytics-days="90">90 дни</button>
       </div>
 
+      <div class="analytics-device-control">
+        <div>
+          <strong>Това устройство</strong>
+          <p id="analytics-device-status">Проверка на настройката…</p>
+        </div>
+        <button class="admin-button secondary" id="analytics-device-toggle" type="button">Не отчитай това устройство</button>
+      </div>
+
       <div class="analytics-setup" id="analytics-setup" hidden>
         <strong>Статистиката още не е активирана в Supabase.</strong>
-        <p>Пуснете еднократно файла <code>supabase-analytics-v1.52.sql</code> в Supabase SQL Editor. След това натиснете „Обнови“.</p>
+        <p>Пуснете еднократно файла <code>supabase-analytics-v1.53.sql</code> в Supabase SQL Editor. След това натиснете „Обнови“.</p>
       </div>
       <div class="admin-message" id="analytics-message" role="status" aria-live="polite"></div>
 
@@ -146,6 +154,7 @@
         <article class="analytics-kpi"><span id="analytics-contact-views">0</span><small>Отваряния на Контакти</small></article>
         <article class="analytics-kpi"><span id="analytics-map-opens">0</span><small>Отваряния на карта</small></article>
         <article class="analytics-kpi"><span id="analytics-faq-opens">0</span><small>Отворени FAQ</small></article>
+        <article class="analytics-kpi"><span id="analytics-404-hits">0</span><small>404 посещения</small></article>
       </div>
 
       <section class="analytics-card analytics-chart-card">
@@ -168,10 +177,30 @@
         </section>
       </div>
 
-      <section class="analytics-card">
-        <div class="analytics-card-head"><div><p class="admin-eyebrow">Контакт</p><h3>Кликове по телефон</h3></div></div>
-        <div class="analytics-list analytics-phone-list" id="analytics-phones"></div>
-      </section>
+      <div class="analytics-columns">
+        <section class="analytics-card">
+          <div class="analytics-card-head"><div><p class="admin-eyebrow">SEO</p><h3>Google landing pages</h3></div></div>
+          <div class="analytics-list" id="analytics-google-landings"></div>
+          <p class="analytics-note">Показва страниците, на които посетителите са влезли директно от Google.</p>
+        </section>
+        <section class="analytics-card">
+          <div class="analytics-card-head"><div><p class="admin-eyebrow">Кампании</p><h3>UTM кампании</h3></div></div>
+          <div class="analytics-list" id="analytics-campaigns"></div>
+          <p class="analytics-note">Отчита utm_source, utm_medium и utm_campaign, когато присъстват в линка.</p>
+        </section>
+      </div>
+
+      <div class="analytics-columns">
+        <section class="analytics-card">
+          <div class="analytics-card-head"><div><p class="admin-eyebrow">Контакт</p><h3>Кликове по телефон</h3></div></div>
+          <div class="analytics-list analytics-phone-list" id="analytics-phones"></div>
+        </section>
+        <section class="analytics-card">
+          <div class="analytics-card-head"><div><p class="admin-eyebrow">Технически</p><h3>404 адреси</h3></div></div>
+          <div class="analytics-list" id="analytics-not-found"></div>
+          <p class="analytics-note">Показва липсващи URL адреси, които реално са били отваряни.</p>
+        </section>
+      </div>
 
       <p class="analytics-privacy-note">Не показваме „уникални посетители“, защото нарочно не създаваме tracking cookie, fingerprint или постоянен visitor ID. Така данните са по-щадящи към поверителността, но остават достатъчни за следене на SEO трафика и реалните действия към контакт.</p>
     </section>
@@ -228,7 +257,7 @@
   </section>
 </div>
 
-<script src="../supabase-config.js?v=1.52"></script>
-<script src="admin.js?v=1.52"></script>
+<script src="../supabase-config.js?v=1.53"></script>
+<script src="admin.js?v=1.53"></script>
 </body>
 </html>

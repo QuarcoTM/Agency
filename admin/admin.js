@@ -5,6 +5,7 @@
   };
   const bucket = 'product-images';
   const sessionKey = 'deninosht_admin_session_v1';
+  const analyticsOptOutKey = 'deninosht_analytics_do_not_count_device_v1';
   let categories = [];
   let products = [];
   let currentObjectUrl = '';
@@ -45,6 +46,8 @@
   const analyticsMessage = $('analytics-message');
   const analyticsSetup = $('analytics-setup');
   const analyticsRefresh = $('analytics-refresh');
+  const analyticsDeviceToggle = $('analytics-device-toggle');
+  const analyticsDeviceStatus = $('analytics-device-status');
 
   function message(el, text, type){
     if (!el) return;
@@ -186,6 +189,38 @@
     return phone || 'Неуточнен';
   }
 
+  function campaignLabel(row){
+    const campaign=String(row && row.utm_campaign || 'Без име');
+    const source=String(row && row.utm_source || 'неуточнен');
+    const medium=String(row && row.utm_medium || '');
+    return campaign + ' — ' + source + (medium ? ' / ' + medium : '');
+  }
+
+  function analyticsDeviceExcluded(){
+    try{ return localStorage.getItem(analyticsOptOutKey)==='1'; }
+    catch(_){ return false; }
+  }
+
+  function renderAnalyticsDeviceControl(){
+    if(!analyticsDeviceToggle || !analyticsDeviceStatus) return;
+    const excluded=analyticsDeviceExcluded();
+    analyticsDeviceStatus.textContent=excluded
+      ? 'Това устройство НЕ се отчита в статистиката.'
+      : 'Това устройство се отчита в статистиката.';
+    analyticsDeviceToggle.textContent=excluded
+      ? 'Отчитай това устройство'
+      : 'Не отчитай това устройство';
+    analyticsDeviceToggle.classList.toggle('is-excluded',excluded);
+  }
+
+  function toggleAnalyticsDevice(){
+    try{
+      if(analyticsDeviceExcluded()) localStorage.removeItem(analyticsOptOutKey);
+      else localStorage.setItem(analyticsOptOutKey,'1');
+    }catch(_){}
+    renderAnalyticsDeviceControl();
+  }
+
   function setAnalyticsKpis(row){
     row=row || {};
     $('analytics-pageviews').textContent=formatNumber(row.page_views);
@@ -193,6 +228,7 @@
     $('analytics-contact-views').textContent=formatNumber(row.contact_page_views);
     $('analytics-map-opens').textContent=formatNumber(row.map_opens);
     $('analytics-faq-opens').textContent=formatNumber(row.faq_opens);
+    $('analytics-404-hits').textContent=formatNumber(row.not_found_hits);
   }
 
   function renderAnalyticsList(element, rows, labelFn, valueKey){
@@ -253,18 +289,24 @@
     message(analyticsMessage,'Зареждане на статистиката…');
     try{
       const since=analyticsSince(analyticsDays).toISOString();
-      const [kpis,daily,pages,sources,phones]=await Promise.all([
-        analyticsRpc('admin_analytics_kpis',{p_since:since}),
-        analyticsRpc('admin_analytics_daily',{p_since:since}),
-        analyticsRpc('admin_analytics_top_pages',{p_since:since,p_limit:10}),
-        analyticsRpc('admin_analytics_sources',{p_since:since,p_limit:10}),
-        analyticsRpc('admin_analytics_phones',{p_since:since})
+      const [kpis,daily,pages,sources,phones,googleLandings,campaigns,notFound]=await Promise.all([
+        analyticsRpc('admin_analytics_kpis_v153',{p_since:since}),
+        analyticsRpc('admin_analytics_daily_v153',{p_since:since}),
+        analyticsRpc('admin_analytics_top_pages_v153',{p_since:since,p_limit:10}),
+        analyticsRpc('admin_analytics_sources_v153',{p_since:since,p_limit:10}),
+        analyticsRpc('admin_analytics_phones_v153',{p_since:since}),
+        analyticsRpc('admin_analytics_google_landings_v153',{p_since:since,p_limit:10}),
+        analyticsRpc('admin_analytics_campaigns_v153',{p_since:since,p_limit:10}),
+        analyticsRpc('admin_analytics_not_found_v153',{p_since:since,p_limit:10})
       ]);
       setAnalyticsKpis(Array.isArray(kpis)?kpis[0]:kpis);
       renderAnalyticsChart(daily,analyticsDays);
       renderAnalyticsList($('analytics-top-pages'),pages,(r)=>pageLabel(r.page_path),'views');
       renderAnalyticsList($('analytics-sources'),sources,(r)=>sourceLabel(r.source),'views');
       renderAnalyticsList($('analytics-phones'),phones,(r)=>phoneLabel(r.phone),'clicks');
+      renderAnalyticsList($('analytics-google-landings'),googleLandings,(r)=>pageLabel(r.page_path),'views');
+      renderAnalyticsList($('analytics-campaigns'),campaigns,(r)=>campaignLabel(r),'views');
+      renderAnalyticsList($('analytics-not-found'),notFound,(r)=>String(r.page_path || 'Неизвестен адрес'),'hits');
       message(analyticsMessage,'Последно обновяване: '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'}),'success');
     } catch(error){
       setAnalyticsKpis({});
@@ -272,9 +314,12 @@
       renderAnalyticsList($('analytics-top-pages'),[],()=>'', 'views');
       renderAnalyticsList($('analytics-sources'),[],()=>'', 'views');
       renderAnalyticsList($('analytics-phones'),[],()=>'', 'clicks');
+      renderAnalyticsList($('analytics-google-landings'),[],()=>'', 'views');
+      renderAnalyticsList($('analytics-campaigns'),[],()=>'', 'views');
+      renderAnalyticsList($('analytics-not-found'),[],()=>'', 'hits');
       if(analyticsSchemaMissing(error)){
         if(analyticsSetup) analyticsSetup.hidden=false;
-        message(analyticsMessage,'Нужно е еднократното SQL активиране за v1.52.','error');
+        message(analyticsMessage,'Нужно е еднократното SQL активиране за v1.53.','error');
       }else message(analyticsMessage,'Статистиката не се зареди: '+error.message,'error');
     } finally {
       analyticsLoading=false;
@@ -795,6 +840,8 @@
     loadAnalytics();
   }));
   if(analyticsRefresh) analyticsRefresh.addEventListener('click',loadAnalytics);
+  if(analyticsDeviceToggle) analyticsDeviceToggle.addEventListener('click',toggleAnalyticsDevice);
+  renderAnalyticsDeviceControl();
 
   $('product-image').addEventListener('change',(event)=>{
     resetPreview(); const file=event.target.files&&event.target.files[0];

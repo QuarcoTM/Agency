@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://deninosht.bg/</loc>
+    <image:image>
+      <image:loc>https://deninosht.bg/assets/logo-den-i-nosht.webp</image:loc>
+      <image:title>Траурна агенция „Ден и Нощ“ – Кюстендил</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://deninosht.bg/assets/photo-hands.webp</image:loc>
+      <image:title>Съдействие при организация на погребална церемония в Кюстендил</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://deninosht.bg/assets/photo-hearse.webp</image:loc>
+      <image:title>Погребален транспорт в Кюстендил</image:title>
+    </image:image>
+  </url>
+</urlset>

@@ -770,3 +770,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
 .related-service-links a:hover{border-color:var(--brown-2);background:#15100d}
 @media(max-width:900px){.service-row-copy{grid-column:2}.service-row h2{font-size:22px}}
 @media(max-width:560px){.services-section-intro{font-size:16px}.service-row h2{font-size:21px}.service-detail-content h2:not(:first-child){margin-top:38px}.related-services{padding:34px 0}.related-services h2{font-size:27px}.related-service-links{display:grid;grid-template-columns:1fr 1fr}.related-service-links a{justify-content:center;text-align:center;font-size:14px}}
+
+/* v1.53 SEO: contextual service links keep the existing visual style */
+.service-row h3 a{color:inherit;text-decoration:none}.service-row h3 a:hover,.service-row h3 a:focus-visible{text-decoration:underline;text-underline-offset:3px}
