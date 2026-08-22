@@ -36,6 +36,7 @@
       event.stopPropagation();
       const isOpen=widget.classList.toggle('open');
       fab.setAttribute('aria-expanded',String(isOpen));
+      if(isOpen&&window.DenINoshtAnalytics) window.DenINoshtAnalytics.track('call_widget_open','Плаващ телефон');
     });
 
     if(callClose){
@@ -94,6 +95,7 @@
       holder.classList.remove('map-consent');
       holder.removeAttribute('data-map-src');
       holder.replaceChildren(iframe);
+      if(window.DenINoshtAnalytics) window.DenINoshtAnalytics.track('map_open','Карта в Контакти');
     });
   });
 
@@ -111,6 +113,7 @@
         panel.hidden=false;
         button.setAttribute('aria-expanded','true');
         button.textContent='Скрийте отзивите';
+        if(window.DenINoshtAnalytics) window.DenINoshtAnalytics.track('reviews_open','Отзиви');
       }
     });
   });
@@ -131,6 +134,7 @@
       const isOpen=button.getAttribute('aria-expanded')==='true';
       button.setAttribute('aria-expanded',String(!isOpen));
       panel.hidden=isOpen;
+      if(!isOpen&&window.DenINoshtAnalytics) window.DenINoshtAnalytics.track('faq_open',button.textContent);
     });
   });
 
