@@ -12,6 +12,8 @@
   const ORIGINAL_TICKER = 'ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34';
   let siteSettingsRowId = null;
   let siteSettingsReady = true;
+  let analyticsDays = 30;
+  let analyticsLoading = false;
 
   const $ = (id)=>document.getElementById(id);
   const loginPanel = $('login-panel');
@@ -35,6 +37,14 @@
   const tickerSettingMessage = $('ticker-setting-message');
   const saveTopTickerButton = $('save-top-ticker');
   const resetTopTickerButton = $('reset-top-ticker');
+  const productsAdminView = $('products-admin-view');
+  const analyticsAdminView = $('analytics-admin-view');
+  const dashboardTitle = $('dashboard-title');
+  const dashboardIntro = $('dashboard-intro');
+  const newProductButton = $('new-product-button');
+  const analyticsMessage = $('analytics-message');
+  const analyticsSetup = $('analytics-setup');
+  const analyticsRefresh = $('analytics-refresh');
 
   function message(el, text, type){
     if (!el) return;
@@ -123,6 +133,166 @@
     const text = await response.text();
     if (!text) return null;
     try { return JSON.parse(text); } catch (_) { return text; }
+  }
+
+  function analyticsRpc(name, payload){
+    return request('/rest/v1/rpc/' + name, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload || {})
+    }, true);
+  }
+
+  function formatNumber(value){
+    return new Intl.NumberFormat('bg-BG').format(Number(value || 0));
+  }
+
+  function analyticsSince(days){
+    const since = new Date();
+    since.setHours(0,0,0,0);
+    since.setDate(since.getDate() - Math.max(0, Number(days || 1) - 1));
+    return since;
+  }
+
+  function pageLabel(path){
+    const raw=String(path || '/');
+    const names={
+      '/':'Начало','/index.html':'Начало','/uslugi.html':'Услуги','/traurni-stoki.html':'Траурни стоки',
+      '/kontakti.html':'Контакти','/faq.html':'Често задавани въпроси','/za-nas.html':'За нас',
+      '/pri-smarten-sluchai.html':'При смъртен случай','/organizirane-na-pogrebenie.html':'Организиране на погребение',
+      '/kremacia.html':'Кремация','/pomeni.html':'Помен и панихида','/pogrebalen-transport.html':'Погребален транспорт',
+      '/nekrolozi.html':'Некролози','/politika-za-poveritelnost.html':'Политика за поверителност',
+      '/politika-za-biskvitki.html':'Политика за бисквитки','/404.html':'404'
+    };
+    if(names[raw]) return names[raw];
+    if(raw.startsWith('/kategoriya.html?category=')){
+      const slug=raw.split('category=')[1] || '';
+      const cats={kovchezi:'Ковчези',urni:'Урни',krastove:'Кръстове','ritualni-prinadlezhnosti':'Ритуални принадлежности','grobni-prinadlezhnosti':'Гробни принадлежности','venci-i-cvetya':'Венци и цветя',pametnici:'Паметници'};
+      return 'Категория: ' + (cats[slug] || slug.replace(/-/g,' '));
+    }
+    return raw;
+  }
+
+  function sourceLabel(source){
+    const value=String(source || 'direct').toLowerCase();
+    const names={direct:'Директно',google:'Google',facebook:'Facebook',instagram:'Instagram',bing:'Bing',other:'Друг източник'};
+    return names[value] || value;
+  }
+
+  function phoneLabel(phone){
+    const digits=String(phone || '').replace(/\D/g,'');
+    if(digits.endsWith('893646668')) return '0893 64 66 68';
+    if(digits.endsWith('898242434')) return '0898 24 24 34';
+    return phone || 'Неуточнен';
+  }
+
+  function setAnalyticsKpis(row){
+    row=row || {};
+    $('analytics-pageviews').textContent=formatNumber(row.page_views);
+    $('analytics-phone-clicks').textContent=formatNumber(row.phone_clicks);
+    $('analytics-contact-views').textContent=formatNumber(row.contact_page_views);
+    $('analytics-map-opens').textContent=formatNumber(row.map_opens);
+    $('analytics-faq-opens').textContent=formatNumber(row.faq_opens);
+  }
+
+  function renderAnalyticsList(element, rows, labelFn, valueKey){
+    if(!element) return;
+    element.replaceChildren();
+    if(!Array.isArray(rows) || !rows.length){
+      const empty=document.createElement('div'); empty.className='analytics-empty'; empty.textContent='Още няма данни за този период.'; element.appendChild(empty); return;
+    }
+    rows.forEach((row)=>{
+      const item=document.createElement('div'); item.className='analytics-list-row';
+      const label=document.createElement('div'); label.className='analytics-list-label'; label.textContent=labelFn(row);
+      const value=document.createElement('div'); value.className='analytics-list-value'; value.textContent=formatNumber(row[valueKey]);
+      item.append(label,value); element.appendChild(item);
+    });
+  }
+
+  function localDateKey(date){
+    const y=date.getFullYear(); const m=String(date.getMonth()+1).padStart(2,'0'); const d=String(date.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+d;
+  }
+
+  function renderAnalyticsChart(rows, days){
+    const chart=$('analytics-daily-chart'); if(!chart) return;
+    chart.replaceChildren();
+    const map=new Map((Array.isArray(rows)?rows:[]).map((r)=>[String(r.day),r]));
+    const start=analyticsSince(days); const today=new Date(); today.setHours(0,0,0,0);
+    const series=[];
+    for(let d=new Date(start); d<=today; d.setDate(d.getDate()+1)){
+      const key=localDateKey(d); const r=map.get(key)||{};
+      series.push({date:new Date(d),page_views:Number(r.page_views||0),contact_actions:Number(r.contact_actions||0)});
+    }
+    const max=Math.max(1,...series.map((r)=>Math.max(r.page_views,r.contact_actions)));
+    series.forEach((row,index)=>{
+      const col=document.createElement('div'); col.className='analytics-day';
+      col.title=row.date.toLocaleDateString('bg-BG')+' — '+row.page_views+' преглеждания, '+row.contact_actions+' контактни действия';
+      const top=document.createElement('span'); top.className='analytics-day-value';
+      if(days<=7 || row.page_views>0 || row.contact_actions>0) top.textContent=row.page_views;
+      const bars=document.createElement('div'); bars.className='analytics-bars';
+      const page=document.createElement('span'); page.className='analytics-bar page'; page.style.height=Math.max(2,(row.page_views/max)*135)+'px'; page.setAttribute('aria-label',row.page_views+' преглеждания');
+      const contact=document.createElement('span'); contact.className='analytics-bar contact'; contact.style.height=Math.max(2,(row.contact_actions/max)*135)+'px'; contact.setAttribute('aria-label',row.contact_actions+' контактни действия');
+      bars.append(page,contact);
+      const label=document.createElement('span'); label.className='analytics-day-label';
+      const showLabel=days<=7 || index===0 || index===series.length-1 || (days<=30 ? index%5===0 : index%14===0);
+      label.textContent=showLabel ? row.date.toLocaleDateString('bg-BG',{day:'2-digit',month:'2-digit'}) : '';
+      col.append(top,bars,label); chart.appendChild(col);
+    });
+  }
+
+  function analyticsSchemaMissing(error){
+    return /admin_analytics|analytics_events|record_analytics|PGRST202|schema cache|could not find the function|does not exist|404/i.test(String(error && error.message || error || ''));
+  }
+
+  async function loadAnalytics(){
+    if(analyticsLoading || !analyticsAdminView || analyticsAdminView.hidden) return;
+    analyticsLoading=true;
+    if(analyticsRefresh){ analyticsRefresh.disabled=true; analyticsRefresh.textContent='Обновяване…'; }
+    if(analyticsSetup) analyticsSetup.hidden=true;
+    message(analyticsMessage,'Зареждане на статистиката…');
+    try{
+      const since=analyticsSince(analyticsDays).toISOString();
+      const [kpis,daily,pages,sources,phones]=await Promise.all([
+        analyticsRpc('admin_analytics_kpis',{p_since:since}),
+        analyticsRpc('admin_analytics_daily',{p_since:since}),
+        analyticsRpc('admin_analytics_top_pages',{p_since:since,p_limit:10}),
+        analyticsRpc('admin_analytics_sources',{p_since:since,p_limit:10}),
+        analyticsRpc('admin_analytics_phones',{p_since:since})
+      ]);
+      setAnalyticsKpis(Array.isArray(kpis)?kpis[0]:kpis);
+      renderAnalyticsChart(daily,analyticsDays);
+      renderAnalyticsList($('analytics-top-pages'),pages,(r)=>pageLabel(r.page_path),'views');
+      renderAnalyticsList($('analytics-sources'),sources,(r)=>sourceLabel(r.source),'views');
+      renderAnalyticsList($('analytics-phones'),phones,(r)=>phoneLabel(r.phone),'clicks');
+      message(analyticsMessage,'Последно обновяване: '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'}),'success');
+    } catch(error){
+      setAnalyticsKpis({});
+      renderAnalyticsChart([],analyticsDays);
+      renderAnalyticsList($('analytics-top-pages'),[],()=>'', 'views');
+      renderAnalyticsList($('analytics-sources'),[],()=>'', 'views');
+      renderAnalyticsList($('analytics-phones'),[],()=>'', 'clicks');
+      if(analyticsSchemaMissing(error)){
+        if(analyticsSetup) analyticsSetup.hidden=false;
+        message(analyticsMessage,'Нужно е еднократното SQL активиране за v1.52.','error');
+      }else message(analyticsMessage,'Статистиката не се зареди: '+error.message,'error');
+    } finally {
+      analyticsLoading=false;
+      if(analyticsRefresh){ analyticsRefresh.disabled=false; analyticsRefresh.textContent='Обнови'; }
+    }
+  }
+
+  function switchAdminView(view){
+    const analytics=view==='analytics';
+    if(productsAdminView) productsAdminView.hidden=analytics;
+    if(analyticsAdminView) analyticsAdminView.hidden=!analytics;
+    document.querySelectorAll('[data-admin-view]').forEach((btn)=>{
+      const active=btn.dataset.adminView===view; btn.classList.toggle('is-active',active); btn.setAttribute('aria-pressed',String(active));
+    });
+    if(dashboardTitle) dashboardTitle.textContent=analytics?'Статистика':'Траурни стоки';
+    if(dashboardIntro) dashboardIntro.textContent=analytics?'Следете преглежданията, входящите източници и действията към контакт.':'Управлявайте продуктите от едно място — наличност, видимост, подредба, архив и снимки.';
+    if(newProductButton) newProductButton.hidden=analytics;
+    if(analytics) loadAnalytics();
   }
 
   async function loadTopTickerSetting(){
@@ -577,7 +747,7 @@
   $('logout-button').addEventListener('click', async ()=>{
     const session=readSession();
     if (session&&session.access_token){ try{ await fetch(cfg.url+'/auth/v1/logout',{method:'POST',headers:{apikey:cfg.publishableKey,Authorization:'Bearer '+session.access_token}}); } catch(_){} }
-    clearSession(); setLoggedIn(false); products=[]; productList.replaceChildren(); message(loginMessage,'Излязохте от админ панела.','success');
+    clearSession(); setLoggedIn(false); products=[]; productList.replaceChildren(); switchAdminView('products'); message(loginMessage,'Излязохте от админ панела.','success');
   });
 
   if (saveTopTickerButton){
@@ -617,6 +787,14 @@
   statusFilter.addEventListener('change',renderProducts);
   productSearch.addEventListener('input',renderProducts);
   document.querySelectorAll('[data-stat-filter]').forEach((btn)=>btn.addEventListener('click',()=>{ statusFilter.value=btn.dataset.statFilter; renderProducts(); }));
+
+  document.querySelectorAll('[data-admin-view]').forEach((btn)=>btn.addEventListener('click',()=>switchAdminView(btn.dataset.adminView)));
+  document.querySelectorAll('[data-analytics-days]').forEach((btn)=>btn.addEventListener('click',()=>{
+    analyticsDays=Number(btn.dataset.analyticsDays)||30;
+    document.querySelectorAll('[data-analytics-days]').forEach((b)=>b.classList.toggle('is-active',b===btn));
+    loadAnalytics();
+  }));
+  if(analyticsRefresh) analyticsRefresh.addEventListener('click',loadAnalytics);
 
   $('product-image').addEventListener('change',(event)=>{
     resetPreview(); const file=event.target.files&&event.target.files[0];
@@ -666,6 +844,8 @@
       message(editorMessage,error.message||'Възникна грешка при записването.','error');
     } finally{ saveButton.disabled=false; productForm.classList.remove('loading'); }
   });
+
+  switchAdminView('products');
 
   async function boot(){
     const session=await ensureSession(); const loggedIn=Boolean(session&&session.access_token); setLoggedIn(loggedIn); if(!loggedIn)return;
