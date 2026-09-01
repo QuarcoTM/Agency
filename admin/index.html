@@ -16,7 +16,7 @@
   </a>
   <div class="admin-header-copy">
     <strong>Админ панел</strong>
-    <span>Траурни стоки</span>
+    <span>Управление на сайта</span>
   </div>
   <a class="admin-site-link" href="../traurni-stoki.html">Към каталога</a>
 </header>
@@ -58,6 +58,7 @@
     <nav class="admin-tabs" aria-label="Раздели в админ панела">
       <button class="admin-tab is-active" id="products-tab" type="button" data-admin-view="products" aria-pressed="true">Траурни стоки</button>
       <button class="admin-tab" id="analytics-tab" type="button" data-admin-view="analytics" aria-pressed="false">Статистика</button>
+      <button class="admin-tab" id="booklet-tab" type="button" data-admin-view="booklet" aria-pressed="false">Книжка за панихиди</button>
     </nav>
 
     <div id="products-admin-view">
@@ -134,17 +135,9 @@
         <button class="range-button" type="button" data-analytics-days="90">90 дни</button>
       </div>
 
-      <div class="analytics-device-control">
-        <div>
-          <strong>Това устройство</strong>
-          <p id="analytics-device-status">Проверка на настройката…</p>
-        </div>
-        <button class="admin-button secondary" id="analytics-device-toggle" type="button">Не отчитай това устройство</button>
-      </div>
-
       <div class="analytics-setup" id="analytics-setup" hidden>
         <strong>Статистиката още не е активирана в Supabase.</strong>
-        <p>Пуснете еднократно файла <code>supabase-analytics-v1.53.sql</code> в Supabase SQL Editor. След това натиснете „Обнови“.</p>
+        <p>Пуснете еднократно файла <code>supabase-analytics-v1.52.sql</code> в Supabase SQL Editor. След това натиснете „Обнови“.</p>
       </div>
       <div class="admin-message" id="analytics-message" role="status" aria-live="polite"></div>
 
@@ -154,7 +147,6 @@
         <article class="analytics-kpi"><span id="analytics-contact-views">0</span><small>Отваряния на Контакти</small></article>
         <article class="analytics-kpi"><span id="analytics-map-opens">0</span><small>Отваряния на карта</small></article>
         <article class="analytics-kpi"><span id="analytics-faq-opens">0</span><small>Отворени FAQ</small></article>
-        <article class="analytics-kpi"><span id="analytics-404-hits">0</span><small>404 посещения</small></article>
       </div>
 
       <section class="analytics-card analytics-chart-card">
@@ -177,32 +169,77 @@
         </section>
       </div>
 
-      <div class="analytics-columns">
-        <section class="analytics-card">
-          <div class="analytics-card-head"><div><p class="admin-eyebrow">SEO</p><h3>Google landing pages</h3></div></div>
-          <div class="analytics-list" id="analytics-google-landings"></div>
-          <p class="analytics-note">Показва страниците, на които посетителите са влезли директно от Google.</p>
-        </section>
-        <section class="analytics-card">
-          <div class="analytics-card-head"><div><p class="admin-eyebrow">Кампании</p><h3>UTM кампании</h3></div></div>
-          <div class="analytics-list" id="analytics-campaigns"></div>
-          <p class="analytics-note">Отчита utm_source, utm_medium и utm_campaign, когато присъстват в линка.</p>
-        </section>
-      </div>
-
-      <div class="analytics-columns">
-        <section class="analytics-card">
-          <div class="analytics-card-head"><div><p class="admin-eyebrow">Контакт</p><h3>Кликове по телефон</h3></div></div>
-          <div class="analytics-list analytics-phone-list" id="analytics-phones"></div>
-        </section>
-        <section class="analytics-card">
-          <div class="analytics-card-head"><div><p class="admin-eyebrow">Технически</p><h3>404 адреси</h3></div></div>
-          <div class="analytics-list" id="analytics-not-found"></div>
-          <p class="analytics-note">Показва липсващи URL адреси, които реално са били отваряни.</p>
-        </section>
-      </div>
+      <section class="analytics-card">
+        <div class="analytics-card-head"><div><p class="admin-eyebrow">Контакт</p><h3>Кликове по телефон</h3></div></div>
+        <div class="analytics-list analytics-phone-list" id="analytics-phones"></div>
+      </section>
 
       <p class="analytics-privacy-note">Не показваме „уникални посетители“, защото нарочно не създаваме tracking cookie, fingerprint или постоянен visitor ID. Така данните са по-щадящи към поверителността, но остават достатъчни за следене на SEO трафика и реалните действия към контакт.</p>
+    </section>
+
+    <section class="booklet-admin-view" id="booklet-admin-view" hidden aria-labelledby="booklet-heading">
+      <div class="booklet-intro-card">
+        <p class="admin-eyebrow">Готово за сгъване и телбод</p>
+        <h2 id="booklet-heading">Книжка за панихиди</h2>
+        <p>Въведете датата на смъртта. Датите се смятат автоматично, а при нужда всяка може да бъде поправена ръчно след уговорка със свещеник.</p>
+        <p class="booklet-privacy">Името и датите не се записват в сайта и не се изпращат никъде.</p>
+      </div>
+
+      <div class="booklet-workspace">
+        <form class="booklet-form" id="booklet-form">
+          <div class="booklet-main-fields">
+            <label for="booklet-name">Име на покойника <span>(незадължително)</span>
+              <input id="booklet-name" type="text" maxlength="100" autocomplete="off" placeholder="Напр. Иван Иванов"/>
+            </label>
+            <label for="booklet-death-date">Дата на смъртта *
+              <input id="booklet-death-date" type="date" required/>
+            </label>
+          </div>
+
+          <div class="booklet-date-head">
+            <div>
+              <h3>Изчислени дати</h3>
+              <p>Денят на смъртта се брои за първи ден.</p>
+            </div>
+            <button class="admin-button secondary" id="booklet-calculate" type="button">Преизчисли</button>
+          </div>
+
+          <div class="booklet-date-grid">
+            <label for="booklet-date-day3">3-ти ден<input id="booklet-date-day3" data-booklet-date="day3" type="date" required/></label>
+            <label for="booklet-date-day9">9-ти ден<input id="booklet-date-day9" data-booklet-date="day9" type="date" required/></label>
+            <label for="booklet-date-day20">20-ти ден<input id="booklet-date-day20" data-booklet-date="day20" type="date" required/></label>
+            <label for="booklet-date-day40">40-ти ден<input id="booklet-date-day40" data-booklet-date="day40" type="date" required/></label>
+            <label for="booklet-date-month3">3 месеца<input id="booklet-date-month3" data-booklet-date="month3" type="date" required/></label>
+            <label for="booklet-date-month6">6 месеца<input id="booklet-date-month6" data-booklet-date="month6" type="date" required/></label>
+            <label for="booklet-date-month9">9 месеца<input id="booklet-date-month9" data-booklet-date="month9" type="date" required/></label>
+            <label for="booklet-date-year1">1 година<input id="booklet-date-year1" data-booklet-date="year1" type="date" required/></label>
+          </div>
+
+          <div class="booklet-actions">
+            <button class="admin-button" id="booklet-preview-button" type="submit">Създай преглед</button>
+            <button class="admin-button secondary" id="booklet-print-button" type="button" disabled>Печат / Запази като PDF</button>
+          </div>
+          <div class="admin-message" id="booklet-message" role="status" aria-live="polite"></div>
+        </form>
+
+        <aside class="booklet-print-help">
+          <strong>Настройки при печат</strong>
+          <ol>
+            <li>Хартия: A4, хоризонтално</li>
+            <li>Двустранно: обръщане по късия ръб</li>
+            <li>Мащаб: 100%</li>
+            <li>Сгънете трите листа заедно и захванете по средата</li>
+          </ol>
+        </aside>
+      </div>
+
+      <div class="booklet-preview-area" id="booklet-preview-area" hidden>
+        <div class="booklet-preview-head">
+          <div><p class="admin-eyebrow">Предварителен преглед</p><h3>6 страни A4 · 12 страници A5</h3></div>
+          <span>Показани са в правилния ред за двустранен печат.</span>
+        </div>
+        <div class="booklet-print-root" id="booklet-print-root"></div>
+      </div>
     </section>
   </section>
 </main>
@@ -257,7 +294,7 @@
   </section>
 </div>
 
-<script src="../supabase-config.js?v=1.53"></script>
+<script src="../supabase-config.js?v=1.52"></script>
 <script src="admin.js?v=1.53"></script>
 </body>
 </html>

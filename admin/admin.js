@@ -5,7 +5,6 @@
   };
   const bucket = 'product-images';
   const sessionKey = 'deninosht_admin_session_v1';
-  const analyticsOptOutKey = 'deninosht_analytics_do_not_count_device_v1';
   let categories = [];
   let products = [];
   let currentObjectUrl = '';
@@ -40,14 +39,20 @@
   const resetTopTickerButton = $('reset-top-ticker');
   const productsAdminView = $('products-admin-view');
   const analyticsAdminView = $('analytics-admin-view');
+  const bookletAdminView = $('booklet-admin-view');
   const dashboardTitle = $('dashboard-title');
   const dashboardIntro = $('dashboard-intro');
   const newProductButton = $('new-product-button');
   const analyticsMessage = $('analytics-message');
   const analyticsSetup = $('analytics-setup');
   const analyticsRefresh = $('analytics-refresh');
-  const analyticsDeviceToggle = $('analytics-device-toggle');
-  const analyticsDeviceStatus = $('analytics-device-status');
+  const bookletForm = $('booklet-form');
+  const bookletName = $('booklet-name');
+  const bookletDeathDate = $('booklet-death-date');
+  const bookletMessage = $('booklet-message');
+  const bookletPrintButton = $('booklet-print-button');
+  const bookletPreviewArea = $('booklet-preview-area');
+  const bookletPrintRoot = $('booklet-print-root');
 
   function message(el, text, type){
     if (!el) return;
@@ -189,38 +194,6 @@
     return phone || 'Неуточнен';
   }
 
-  function campaignLabel(row){
-    const campaign=String(row && row.utm_campaign || 'Без име');
-    const source=String(row && row.utm_source || 'неуточнен');
-    const medium=String(row && row.utm_medium || '');
-    return campaign + ' — ' + source + (medium ? ' / ' + medium : '');
-  }
-
-  function analyticsDeviceExcluded(){
-    try{ return localStorage.getItem(analyticsOptOutKey)==='1'; }
-    catch(_){ return false; }
-  }
-
-  function renderAnalyticsDeviceControl(){
-    if(!analyticsDeviceToggle || !analyticsDeviceStatus) return;
-    const excluded=analyticsDeviceExcluded();
-    analyticsDeviceStatus.textContent=excluded
-      ? 'Това устройство НЕ се отчита в статистиката.'
-      : 'Това устройство се отчита в статистиката.';
-    analyticsDeviceToggle.textContent=excluded
-      ? 'Отчитай това устройство'
-      : 'Не отчитай това устройство';
-    analyticsDeviceToggle.classList.toggle('is-excluded',excluded);
-  }
-
-  function toggleAnalyticsDevice(){
-    try{
-      if(analyticsDeviceExcluded()) localStorage.removeItem(analyticsOptOutKey);
-      else localStorage.setItem(analyticsOptOutKey,'1');
-    }catch(_){}
-    renderAnalyticsDeviceControl();
-  }
-
   function setAnalyticsKpis(row){
     row=row || {};
     $('analytics-pageviews').textContent=formatNumber(row.page_views);
@@ -228,7 +201,6 @@
     $('analytics-contact-views').textContent=formatNumber(row.contact_page_views);
     $('analytics-map-opens').textContent=formatNumber(row.map_opens);
     $('analytics-faq-opens').textContent=formatNumber(row.faq_opens);
-    $('analytics-404-hits').textContent=formatNumber(row.not_found_hits);
   }
 
   function renderAnalyticsList(element, rows, labelFn, valueKey){
@@ -289,24 +261,18 @@
     message(analyticsMessage,'Зареждане на статистиката…');
     try{
       const since=analyticsSince(analyticsDays).toISOString();
-      const [kpis,daily,pages,sources,phones,googleLandings,campaigns,notFound]=await Promise.all([
-        analyticsRpc('admin_analytics_kpis_v153',{p_since:since}),
-        analyticsRpc('admin_analytics_daily_v153',{p_since:since}),
-        analyticsRpc('admin_analytics_top_pages_v153',{p_since:since,p_limit:10}),
-        analyticsRpc('admin_analytics_sources_v153',{p_since:since,p_limit:10}),
-        analyticsRpc('admin_analytics_phones_v153',{p_since:since}),
-        analyticsRpc('admin_analytics_google_landings_v153',{p_since:since,p_limit:10}),
-        analyticsRpc('admin_analytics_campaigns_v153',{p_since:since,p_limit:10}),
-        analyticsRpc('admin_analytics_not_found_v153',{p_since:since,p_limit:10})
+      const [kpis,daily,pages,sources,phones]=await Promise.all([
+        analyticsRpc('admin_analytics_kpis',{p_since:since}),
+        analyticsRpc('admin_analytics_daily',{p_since:since}),
+        analyticsRpc('admin_analytics_top_pages',{p_since:since,p_limit:10}),
+        analyticsRpc('admin_analytics_sources',{p_since:since,p_limit:10}),
+        analyticsRpc('admin_analytics_phones',{p_since:since})
       ]);
       setAnalyticsKpis(Array.isArray(kpis)?kpis[0]:kpis);
       renderAnalyticsChart(daily,analyticsDays);
       renderAnalyticsList($('analytics-top-pages'),pages,(r)=>pageLabel(r.page_path),'views');
       renderAnalyticsList($('analytics-sources'),sources,(r)=>sourceLabel(r.source),'views');
       renderAnalyticsList($('analytics-phones'),phones,(r)=>phoneLabel(r.phone),'clicks');
-      renderAnalyticsList($('analytics-google-landings'),googleLandings,(r)=>pageLabel(r.page_path),'views');
-      renderAnalyticsList($('analytics-campaigns'),campaigns,(r)=>campaignLabel(r),'views');
-      renderAnalyticsList($('analytics-not-found'),notFound,(r)=>String(r.page_path || 'Неизвестен адрес'),'hits');
       message(analyticsMessage,'Последно обновяване: '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'}),'success');
     } catch(error){
       setAnalyticsKpis({});
@@ -314,12 +280,9 @@
       renderAnalyticsList($('analytics-top-pages'),[],()=>'', 'views');
       renderAnalyticsList($('analytics-sources'),[],()=>'', 'views');
       renderAnalyticsList($('analytics-phones'),[],()=>'', 'clicks');
-      renderAnalyticsList($('analytics-google-landings'),[],()=>'', 'views');
-      renderAnalyticsList($('analytics-campaigns'),[],()=>'', 'views');
-      renderAnalyticsList($('analytics-not-found'),[],()=>'', 'hits');
       if(analyticsSchemaMissing(error)){
         if(analyticsSetup) analyticsSetup.hidden=false;
-        message(analyticsMessage,'Нужно е еднократното SQL активиране за v1.53.','error');
+        message(analyticsMessage,'Нужно е еднократното SQL активиране за v1.52.','error');
       }else message(analyticsMessage,'Статистиката не се зареди: '+error.message,'error');
     } finally {
       analyticsLoading=false;
@@ -327,16 +290,186 @@
     }
   }
 
+  function parseBookletDate(value){
+    const match=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!match) return null;
+    const date=new Date(Number(match[1]),Number(match[2])-1,Number(match[3]),12,0,0,0);
+    return Number.isNaN(date.getTime())?null:date;
+  }
+
+  function bookletDateValue(date){
+    return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  }
+
+  function addBookletDays(date,days){
+    const result=new Date(date); result.setDate(result.getDate()+days); return result;
+  }
+
+  function addBookletMonths(date,months){
+    const targetMonth=date.getMonth()+months;
+    const year=date.getFullYear()+Math.floor(targetMonth/12);
+    const month=((targetMonth%12)+12)%12;
+    const lastDay=new Date(year,month+1,0,12).getDate();
+    return new Date(year,month,Math.min(date.getDate(),lastDay),12);
+  }
+
+  function formatBookletDate(date){
+    if(!date) return '—';
+    return new Intl.DateTimeFormat('bg-BG',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(date);
+  }
+
+  function calculateBookletDates(){
+    const death=parseBookletDate(bookletDeathDate&&bookletDeathDate.value);
+    if(!death){
+      invalidateBookletPreview();
+      message(bookletMessage,'Въведете дата на смъртта.','error');
+      return false;
+    }
+    const values={
+      day3:addBookletDays(death,2), day9:addBookletDays(death,8), day20:addBookletDays(death,19), day40:addBookletDays(death,39),
+      month3:addBookletMonths(death,3), month6:addBookletMonths(death,6), month9:addBookletMonths(death,9), year1:addBookletMonths(death,12)
+    };
+    Object.keys(values).forEach((key)=>{ const input=document.querySelector('[data-booklet-date="'+key+'"]'); if(input) input.value=bookletDateValue(values[key]); });
+    invalidateBookletPreview();
+    message(bookletMessage,'Датите са изчислени. Може да ги поправите ръчно преди печат.','success');
+    return true;
+  }
+
+  function invalidateBookletPreview(){
+    if(bookletPrintButton) bookletPrintButton.disabled=true;
+    if(bookletPreviewArea) bookletPreviewArea.hidden=true;
+  }
+
+  function readBookletModel(){
+    const death=parseBookletDate(bookletDeathDate&&bookletDeathDate.value);
+    if(!death) throw new Error('Въведете дата на смъртта.');
+    const dates={};
+    document.querySelectorAll('[data-booklet-date]').forEach((input)=>{ dates[input.dataset.bookletDate]=parseBookletDate(input.value); });
+    const missing=Object.keys(dates).find((key)=>!dates[key]);
+    if(missing || Object.keys(dates).length!==8) throw new Error('Попълнете всички дати за панихидите.');
+    return {name:String(bookletName&&bookletName.value||'').trim(),death,dates};
+  }
+
+  function appendBookletText(parent,tag,text,className){
+    const element=document.createElement(tag); if(className) element.className=className; element.textContent=text; parent.appendChild(element); return element;
+  }
+
+  function appendBookletList(parent,items){
+    const list=document.createElement('ul'); list.className='booklet-page-list';
+    items.forEach((text)=>appendBookletText(list,'li',text)); parent.appendChild(list);
+  }
+
+  function createBookletPage(pageNumber,model){
+    const page=document.createElement('article'); page.className='booklet-page booklet-page-'+pageNumber; page.dataset.page=String(pageNumber);
+    const content=document.createElement('div'); content.className='booklet-page-content'; page.appendChild(content);
+    const dateLine=(key)=>formatBookletDate(model.dates[key]);
+
+    if(pageNumber===1){
+      page.classList.add('booklet-cover');
+      appendBookletText(content,'h1','Панихиди и възпоменателни дни');
+      return page;
+    }
+    if(pageNumber===2){
+      appendBookletText(content,'p','В памет на','booklet-kicker');
+      appendBookletText(content,'h2',model.name||'нашия близък','booklet-person-name');
+      appendBookletText(content,'p','Дата на смъртта: '+formatBookletDate(model.death),'booklet-lead');
+      const overview=document.createElement('div'); overview.className='booklet-overview'; content.appendChild(overview);
+      [['3-ти ден','day3'],['9-ти ден','day9'],['20-ти ден','day20'],['40-ти ден','day40'],['3 месеца','month3'],['6 месеца','month6'],['9 месеца','month9'],['1 година','year1']].forEach((row)=>{
+        const item=document.createElement('div'); appendBookletText(item,'strong',row[0]); appendBookletText(item,'span',dateLine(row[1])); overview.appendChild(item);
+      });
+    }
+    if(pageNumber===3){
+      appendBookletText(content,'p','Първи възпоменателни дни','booklet-kicker'); appendBookletText(content,'h2','Трети и девети ден');
+      const earlyDates=document.createElement('div'); earlyDates.className='booklet-early-dates'; content.appendChild(earlyDates);
+      const third=document.createElement('div'); appendBookletText(third,'strong','Трети ден'); appendBookletText(third,'span',dateLine('day3')); earlyDates.appendChild(third);
+      const ninth=document.createElement('div'); appendBookletText(ninth,'strong','Девети ден'); appendBookletText(ninth,'span',dateLine('day9')); earlyDates.appendChild(ninth);
+      appendBookletText(content,'p','Третият и деветият ден са сред основните ранни възпоменателни дни. Близките се събират за молитва и почит към покойника.');
+      appendBookletList(content,['Уговорете часа със свещеник.','Подгответе свещи и необходимото според указанията му.','По желание подгответе малки раздавки.']);
+    }
+    if(pageNumber===4){
+      appendBookletText(content,'p','Панихида','booklet-kicker'); appendBookletText(content,'h2','Двадесети ден'); appendBookletText(content,'p',dateLine('day20'),'booklet-page-date');
+      appendBookletText(content,'p','На двадесетия ден в българската православна традиция се прави панихида. Тя може да бъде в храм или на гроба според уговорката със свещеника.');
+      appendBookletList(content,['Свържете се предварително с храма или свещеника.','Подгответе жито, хляб или погача, вино и свещи.','Уведомете близките за часа и мястото.']);
+    }
+    if(pageNumber===5){
+      appendBookletText(content,'p','Основна панихида','booklet-kicker'); appendBookletText(content,'h2','Четиридесети ден'); appendBookletText(content,'p',dateLine('day40'),'booklet-page-date');
+      appendBookletText(content,'p','Четиридесетият ден е един от най-важните дни за възпоменание. Обичайно се отслужва панихида в храм или на гроба.');
+      appendBookletList(content,['Запазете свещеник и уточнете мястото.','Подгответе жито, хляб или погача, вино и свещи.','При нужда поръчайте некролози, цветя и раздавки.','Уточнете с гробищния парк дали предстои оформяне на гроба.']);
+    }
+    if(pageNumber===6){
+      appendBookletText(content,'p','Възпоменание','booklet-kicker'); appendBookletText(content,'h2','Три месеца'); appendBookletText(content,'p',dateLine('month3'),'booklet-page-date');
+      appendBookletText(content,'p','Тримесечният помен се прави според семейната и местната традиция. Може да бъде отбелязан с молитва, посещение на гроба и раздаване за помен.');
+      appendBookletList(content,['Проверете датата и часа със свещеник.','Почистете и подредете гробното място.','Подгответе само необходимото за избрания начин на помен.']);
+    }
+    if(pageNumber===7){
+      appendBookletText(content,'p','Възпоменание','booklet-kicker'); appendBookletText(content,'h2','Шест месеца'); appendBookletText(content,'p',dateLine('month6'),'booklet-page-date');
+      appendBookletText(content,'p','На шест месеца много семейства организират панихида или по-малък помен. Най-важни остават молитвата, паметта и грижата за гробното място.');
+      appendBookletList(content,['Уговорете панихида, ако семейството желае.','Подгответе свещи, цветя и раздавки.','Съобразете всичко с указанията на свещеника.']);
+    }
+    if(pageNumber===8){
+      appendBookletText(content,'p','Възпоменание','booklet-kicker'); appendBookletText(content,'h2','Девет месеца'); appendBookletText(content,'p',dateLine('month9'),'booklet-page-date');
+      appendBookletText(content,'p','Деветмесечният помен също се спазва от много семейства. Той може да бъде отбелязан в тесен кръг с молитва и посещение на гроба.');
+      appendBookletList(content,['Уточнете деня със свещеник при съмнение.','Уведомете най-близките хора.','Подгответе свещи, цветя и раздавки по желание.']);
+    }
+    if(pageNumber===9){
+      appendBookletText(content,'p','Годишнина','booklet-kicker'); appendBookletText(content,'h2','Една година'); appendBookletText(content,'p',dateLine('year1'),'booklet-page-date');
+      appendBookletText(content,'p','Първата годишнина е основен ден за възпоменание. Обичайно се отслужва панихида и се събират роднини и близки.');
+      appendBookletList(content,['Уговорете храм, свещеник и час.','Подгответе жито, хляб или погача, вино и свещи.','Предвидете цветя, некролози и раздавки според желанието на семейството.']);
+    }
+    if(pageNumber===10){
+      appendBookletText(content,'p','След първата година','booklet-kicker'); appendBookletText(content,'h2','Годишнини и Задушници');
+      appendBookletText(content,'p','След първата година близките могат да отбелязват годишнината от смъртта и общите дни за почит към починалите — Задушниците.');
+      appendBookletList(content,['Датите на Задушниците са различни всяка година.','За точната дата и реда на службата попитайте в храма.','Поменът може да бъде скромен — молитва, свещ, цвете и добра дума в памет на човека.']);
+      appendBookletText(content,'p','Ако възпоменателният ден съвпада с празник или има друга причина за промяна, следвайте указанието на свещеника.','booklet-note');
+    }
+    if(pageNumber===11){
+      appendBookletText(content,'p','Кратък списък','booklet-kicker'); appendBookletText(content,'h2','Какво обичайно се подготвя');
+      appendBookletList(content,['Варено жито','Хляб или погача','Червено вино','Свещи','Цветя','Раздавки за помен','Некролози — когато семейството желае','Уговорка със свещеник и уточнен час']);
+      appendBookletText(content,'p','Обичаите се различават. Не е необходимо всичко от списъка — съобразете се със семейството, местната традиция и свещеника.','booklet-note');
+    }
+    if(pageNumber===12){
+      page.classList.add('booklet-back-cover');
+      const logo=document.createElement('img'); logo.src='../assets/logo-den-i-nosht.webp'; logo.alt='Траурна агенция „Ден и Нощ“'; content.appendChild(logo);
+      appendBookletText(content,'p','Денонощна траурна агенция','booklet-back-label');
+      const phone1=document.createElement('a'); phone1.href='tel:+359893646668'; phone1.textContent='0893 64 66 68'; content.appendChild(phone1);
+      const phone2=document.createElement('a'); phone2.href='tel:+359898242434'; phone2.textContent='0898 24 24 34'; content.appendChild(phone2);
+      appendBookletText(content,'p','deninosht.bg','booklet-site');
+      const qr=document.createElement('img'); qr.className='booklet-qr'; qr.src='../assets/qr-deninosht.svg'; qr.alt='QR код към deninosht.bg'; content.appendChild(qr);
+    }
+    if(pageNumber!==12) appendBookletText(page,'span',String(pageNumber),'booklet-page-number');
+    return page;
+  }
+
+  function renderBooklet(){
+    const model=readBookletModel();
+    const pages={}; for(let page=1;page<=12;page+=1) pages[page]=createBookletPage(page,model);
+    const sides=[[12,1],[2,11],[10,3],[4,9],[8,5],[6,7]];
+    const labels=['Лист 1 — лице','Лист 1 — гръб','Лист 2 — лице','Лист 2 — гръб','Лист 3 — лице','Лист 3 — гръб'];
+    bookletPrintRoot.replaceChildren();
+    sides.forEach((pair,index)=>{
+      const side=document.createElement('section'); side.className='booklet-side';
+      appendBookletText(side,'div',labels[index],'booklet-sheet-label');
+      const sheet=document.createElement('div'); sheet.className='booklet-sheet';
+      sheet.append(pages[pair[0]].cloneNode(true),pages[pair[1]].cloneNode(true)); side.appendChild(sheet); bookletPrintRoot.appendChild(side);
+    });
+    bookletPreviewArea.hidden=false; bookletPrintButton.disabled=false;
+    message(bookletMessage,'Книжката е готова за печат или запис като PDF.','success');
+    bookletPreviewArea.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
   function switchAdminView(view){
     const analytics=view==='analytics';
-    if(productsAdminView) productsAdminView.hidden=analytics;
+    const booklet=view==='booklet';
+    const products=!analytics&&!booklet;
+    if(productsAdminView) productsAdminView.hidden=!products;
     if(analyticsAdminView) analyticsAdminView.hidden=!analytics;
+    if(bookletAdminView) bookletAdminView.hidden=!booklet;
     document.querySelectorAll('[data-admin-view]').forEach((btn)=>{
       const active=btn.dataset.adminView===view; btn.classList.toggle('is-active',active); btn.setAttribute('aria-pressed',String(active));
     });
-    if(dashboardTitle) dashboardTitle.textContent=analytics?'Статистика':'Траурни стоки';
-    if(dashboardIntro) dashboardIntro.textContent=analytics?'Следете преглежданията, входящите източници и действията към контакт.':'Управлявайте продуктите от едно място — наличност, видимост, подредба, архив и снимки.';
-    if(newProductButton) newProductButton.hidden=analytics;
+    if(dashboardTitle) dashboardTitle.textContent=analytics?'Статистика':booklet?'Книжка за панихиди':'Траурни стоки';
+    if(dashboardIntro) dashboardIntro.textContent=analytics?'Следете преглежданията, входящите източници и действията към контакт.':booklet?'Създайте персонализирана книжка, подредена за двустранен печат, сгъване и телбод.':'Управлявайте продуктите от едно място — наличност, видимост, подредба, архив и снимки.';
+    if(newProductButton) newProductButton.hidden=!products;
     if(analytics) loadAnalytics();
   }
 
@@ -840,8 +973,30 @@
     loadAnalytics();
   }));
   if(analyticsRefresh) analyticsRefresh.addEventListener('click',loadAnalytics);
-  if(analyticsDeviceToggle) analyticsDeviceToggle.addEventListener('click',toggleAnalyticsDevice);
-  renderAnalyticsDeviceControl();
+
+  if(bookletDeathDate){
+    bookletDeathDate.addEventListener('input',invalidateBookletPreview);
+    bookletDeathDate.addEventListener('change',calculateBookletDates);
+  }
+  if(bookletName) bookletName.addEventListener('input',invalidateBookletPreview);
+  document.querySelectorAll('[data-booklet-date]').forEach((input)=>input.addEventListener('input',invalidateBookletPreview));
+  const bookletCalculateButton=$('booklet-calculate');
+  if(bookletCalculateButton) bookletCalculateButton.addEventListener('click',calculateBookletDates);
+  if(bookletForm) bookletForm.addEventListener('submit',(event)=>{
+    event.preventDefault();
+    try{
+      const hasEmpty=Array.from(document.querySelectorAll('[data-booklet-date]')).some((input)=>!input.value);
+      if(hasEmpty && !calculateBookletDates()) return;
+      renderBooklet();
+    }catch(error){ message(bookletMessage,error.message||'Книжката не можа да бъде създадена.','error'); }
+  });
+  if(bookletPrintButton) bookletPrintButton.addEventListener('click',()=>{
+    try{
+      renderBooklet();
+      const previousTitle=document.title; document.title='Книжка за панихиди - Ден и Нощ';
+      window.setTimeout(()=>{ window.print(); document.title=previousTitle; },60);
+    }catch(error){ message(bookletMessage,error.message||'Книжката не можа да бъде отпечатана.','error'); }
+  });
 
   $('product-image').addEventListener('change',(event)=>{
     resetPreview(); const file=event.target.files&&event.target.files[0];
