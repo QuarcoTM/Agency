@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.55" rel="stylesheet"/>
+<link href="admin.css?v=1.56" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -58,6 +58,7 @@
     <nav class="admin-tabs" aria-label="Раздели в админ панела">
       <button class="admin-tab is-active" id="products-tab" type="button" data-admin-view="products" aria-pressed="true">Траурни стоки</button>
       <button class="admin-tab" id="analytics-tab" type="button" data-admin-view="analytics" aria-pressed="false">Статистика</button>
+      <button class="admin-tab" id="obituary-tab" type="button" data-admin-view="obituary" aria-pressed="false">Некролози</button>
       <button class="admin-tab" id="booklet-tab" type="button" data-admin-view="booklet" aria-pressed="false">Книжка за панихиди</button>
     </nav>
 
@@ -175,6 +176,160 @@
       </section>
 
       <p class="analytics-privacy-note">Не показваме „уникални посетители“, защото нарочно не създаваме tracking cookie, fingerprint или постоянен visitor ID. Така данните са по-щадящи към поверителността, но остават достатъчни за следене на SEO трафика и реалните действия към контакт.</p>
+    </section>
+
+    <section class="obituary-admin-view" id="obituary-admin-view" hidden aria-labelledby="obituary-heading">
+      <div class="obituary-intro-card">
+        <p class="admin-eyebrow">Готов за печат за няколко минути</p>
+        <h2 id="obituary-heading">Създаване на некролог</h2>
+        <p>Изберете вид, добавете снимка и попълнете данните. Оформлението, размерите и PDF файлът се подготвят автоматично.</p>
+        <p class="obituary-privacy">Снимката и личните данни не се записват и не се изпращат никъде. Обработват се само на това устройство.</p>
+      </div>
+
+      <div class="obituary-workspace">
+        <form class="obituary-form" id="obituary-form">
+          <div class="obituary-choice-grid">
+            <label for="obituary-type">Вид некролог
+              <select id="obituary-type">
+                <option value="death">Скръбна вест</option>
+                <option value="day40">40 дни</option>
+                <option value="year1">Една година</option>
+                <option value="memorial">Възпоменание</option>
+              </select>
+            </label>
+            <label for="obituary-design">Оформление
+              <select id="obituary-design">
+                <option value="classic">Класическо</option>
+                <option value="clean">Изчистено</option>
+              </select>
+            </label>
+            <label for="obituary-output">Формат за печат
+              <select id="obituary-output">
+                <option value="a4">1 некролог на A4</option>
+                <option value="a5x2">2 еднакви некролога на A4</option>
+              </select>
+            </label>
+            <label for="obituary-gender">Обръщение
+              <select id="obituary-gender">
+                <option value="male">Мъж</option>
+                <option value="female">Жена</option>
+                <option value="neutral">Без обръщение по пол</option>
+              </select>
+            </label>
+          </div>
+
+          <section class="obituary-form-section" aria-labelledby="obituary-photo-heading">
+            <div class="obituary-section-head">
+              <div><h3 id="obituary-photo-heading">Снимка</h3><p>Незадължителна. Системата я поставя автоматично в овална рамка.</p></div>
+              <button class="small-button danger" id="obituary-remove-photo" type="button" hidden>Премахни</button>
+            </div>
+            <label class="obituary-photo-picker" for="obituary-photo">
+              <input id="obituary-photo" type="file" accept="image/*"/>
+              <span>Избери снимка</span>
+              <small id="obituary-photo-name">Няма избрана снимка</small>
+            </label>
+            <div class="obituary-photo-controls" id="obituary-photo-controls" hidden>
+              <label for="obituary-photo-zoom">Увеличение <output id="obituary-photo-zoom-value">100%</output>
+                <input id="obituary-photo-zoom" type="range" min="100" max="220" step="1" value="100"/>
+              </label>
+              <label for="obituary-photo-x">Наляво / надясно
+                <input id="obituary-photo-x" type="range" min="-100" max="100" step="1" value="0"/>
+              </label>
+              <label for="obituary-photo-y">Нагоре / надолу
+                <input id="obituary-photo-y" type="range" min="-100" max="100" step="1" value="0"/>
+              </label>
+            </div>
+          </section>
+
+          <section class="obituary-form-section" aria-labelledby="obituary-person-heading">
+            <div class="obituary-section-head"><div><h3 id="obituary-person-heading">Данни за човека</h3></div></div>
+            <label for="obituary-title">Заглавие
+              <input id="obituary-title" type="text" maxlength="60" value="СКРЪБНА ВЕСТ" required/>
+            </label>
+            <label for="obituary-intro">Текст над името
+              <textarea id="obituary-intro" rows="2" maxlength="220">С дълбока скръб съобщаваме, че почина</textarea>
+            </label>
+            <label for="obituary-name">Име на покойника *
+              <input id="obituary-name" type="text" maxlength="100" autocomplete="off" placeholder="Напр. Иван Иванов" required/>
+            </label>
+            <div class="obituary-dates-grid">
+              <label for="obituary-birth-date">Дата на раждане <span>(незадължително)</span>
+                <input id="obituary-birth-date" type="date"/>
+              </label>
+              <label for="obituary-death-date">Дата на смъртта <span>(незадължително)</span>
+                <input id="obituary-death-date" type="date"/>
+              </label>
+              <label for="obituary-age">Възраст <span>(незадължително)</span>
+                <input id="obituary-age" type="number" min="0" max="130" inputmode="numeric" placeholder="Автоматично от датите"/>
+              </label>
+            </div>
+          </section>
+
+          <section class="obituary-form-section" aria-labelledby="obituary-ceremony-heading">
+            <div class="obituary-section-head"><div><h3 id="obituary-ceremony-heading">Церемония</h3><p>Оставете празно, ако не трябва да се изписва.</p></div></div>
+            <div class="obituary-ceremony-grid">
+              <label for="obituary-ceremony-kind">Вид
+                <select id="obituary-ceremony-kind">
+                  <option value="viewing">Поклонение</option>
+                  <option value="funeral">Погребение</option>
+                  <option value="memorial">Панихида</option>
+                  <option value="custom">Само допълнителния текст</option>
+                  <option value="none">Без церемония</option>
+                </select>
+              </label>
+              <label for="obituary-ceremony-date">Дата
+                <input id="obituary-ceremony-date" type="date"/>
+              </label>
+              <label for="obituary-ceremony-time">Час
+                <input id="obituary-ceremony-time" type="time"/>
+              </label>
+            </div>
+            <label for="obituary-ceremony-place">Място
+              <input id="obituary-ceremony-place" type="text" maxlength="180" placeholder="Напр. храм „Св. Мина“, Кюстендил"/>
+            </label>
+            <label for="obituary-extra-text">Допълнителен текст <span>(незадължително)</span>
+              <textarea id="obituary-extra-text" rows="3" maxlength="420" placeholder="Напр. Погребението ще се извърши в Новия гробищен парк."></textarea>
+            </label>
+          </section>
+
+          <section class="obituary-form-section" aria-labelledby="obituary-closing-heading">
+            <div class="obituary-section-head"><div><h3 id="obituary-closing-heading">Завършек</h3></div></div>
+            <label for="obituary-closing">Прощален текст
+              <textarea id="obituary-closing" rows="2" maxlength="220">ПОКЛОН ПРЕД СВЕТЛАТА МУ ПАМЕТ!</textarea>
+            </label>
+            <label for="obituary-from">От кого <span>(незадължително)</span>
+              <input id="obituary-from" type="text" maxlength="180" value="От опечаленото семейство"/>
+            </label>
+            <label class="switch-label obituary-footer-switch"><input id="obituary-agency-footer" type="checkbox" checked/><span>Добави малко лого и телефоните на „Ден и Нощ“ в долната част</span></label>
+          </section>
+
+          <div class="obituary-actions">
+            <button class="admin-button" id="obituary-preview-button" type="submit">Създай преглед</button>
+            <button class="admin-button secondary" id="obituary-download-button" type="button" disabled>Изтегли готов PDF</button>
+            <button class="admin-button secondary" id="obituary-reset-button" type="button">Нов некролог</button>
+          </div>
+          <div class="admin-message" id="obituary-message" role="status" aria-live="polite"></div>
+        </form>
+
+        <aside class="obituary-help">
+          <strong>Как се използва</strong>
+          <ol>
+            <li>Изберете вида на некролога.</li>
+            <li>Качете снимка и я наместете при нужда.</li>
+            <li>Попълнете името и информацията за церемонията.</li>
+            <li>Проверете прегледа и изтеглете PDF.</li>
+            <li>Печатайте на 100% или „Действителен размер“.</li>
+          </ol>
+        </aside>
+      </div>
+
+      <div class="obituary-preview-area" id="obituary-preview-area" hidden>
+        <div class="obituary-preview-head">
+          <div><p class="admin-eyebrow">Предварителен преглед</p><h3>Готовият некролог</h3></div>
+          <span id="obituary-preview-format">A4 — една страница</span>
+        </div>
+        <div class="obituary-canvas-shell"><canvas id="obituary-preview-canvas" width="1240" height="1754" aria-label="Преглед на некролога"></canvas></div>
+      </div>
     </section>
 
     <section class="booklet-admin-view" id="booklet-admin-view" hidden aria-labelledby="booklet-heading">
@@ -308,7 +463,7 @@
 </div>
 
 <script src="../supabase-config.js?v=1.52"></script>
-<script src="vendor/pdf-lib.min.js?v=1.55"></script>
-<script src="admin.js?v=1.55"></script>
+<script src="vendor/pdf-lib.min.js?v=1.56"></script>
+<script src="admin.js?v=1.56"></script>
 </body>
 </html>

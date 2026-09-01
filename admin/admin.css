@@ -87,6 +87,47 @@
 @media(max-width:980px){.booklet-reading-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.booklet-zadushnitsa-row{grid-template-columns:1fr 1fr}.booklet-zadushnitsa-remove{grid-column:1/-1}}
 @media(max-width:640px){.booklet-reading-preview{grid-template-columns:1fr}.booklet-zadushnitsa-row{grid-template-columns:1fr}.booklet-zadushnitsa-remove{grid-column:auto}.booklet-reading-page>.booklet-page{margin:0}.booklet-page-list{padding-left:0}.booklet-logo-badge{width:48%}}
 
+/* v1.56 — print-ready obituary generator */
+.obituary-admin-view{display:block}
+.obituary-intro-card{border:1px solid var(--line);background:#090909;padding:22px;margin-bottom:18px}
+.obituary-intro-card h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(28px,4vw,38px);font-weight:500;margin:0}
+.obituary-intro-card>p:not(.admin-eyebrow){max-width:850px;color:var(--muted);line-height:1.55;margin:9px 0 0}
+.obituary-intro-card .obituary-privacy{font-size:13px;color:#d7c0ad!important;border-left:2px solid var(--brown);padding-left:12px;margin-top:15px!important}
+.obituary-workspace{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
+.obituary-form,.obituary-help{border:1px solid var(--line);background:#090909;padding:22px}
+.obituary-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
+.obituary-choice-grid label{margin-top:0}
+.obituary-form-section{border-top:1px solid rgba(255,255,255,.1);padding-top:20px;margin-top:10px}
+.obituary-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:8px}
+.obituary-section-head h3{font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:500;margin:0}
+.obituary-section-head p{color:var(--muted);font-size:13px;line-height:1.45;margin:5px 0 0}
+.obituary-form-section label span,.obituary-dates-grid label span{color:var(--muted);font-weight:400}
+.obituary-photo-picker{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 14px;border:1px dashed rgba(179,131,94,.7);background:#070707;padding:17px 18px;cursor:pointer;margin:14px 0}
+.obituary-photo-picker:hover{border-color:var(--brown)}
+.obituary-photo-picker input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.obituary-photo-picker span{grid-row:1/3;border:1px solid var(--red);background:var(--red);color:#fff;padding:10px 15px;font-weight:800}
+.obituary-photo-picker small{color:var(--muted);font-weight:400;overflow-wrap:anywhere}
+.obituary-photo-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border:1px solid rgba(255,255,255,.09);background:#070707;padding:14px}
+.obituary-photo-controls label{margin:0;font-size:12px;color:#d6d1cb}
+.obituary-photo-controls input[type="range"]{height:34px;padding:0;border:0;background:transparent;accent-color:var(--brown)}
+.obituary-photo-controls output{color:#d7c0ad;font-weight:800}
+.obituary-dates-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 12px}
+.obituary-ceremony-grid{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:0 12px}
+.obituary-footer-switch{border:1px solid rgba(255,255,255,.1);background:#070707;padding:14px;margin:18px 0 4px;line-height:1.45}
+.obituary-actions{display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1);padding-top:20px;margin-top:22px}
+.obituary-help{color:#e9e5e0;line-height:1.55}
+.obituary-help strong{font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:500}
+.obituary-help ol{padding-left:20px;margin:13px 0 0;color:var(--muted);font-size:14px}
+.obituary-help li+li{margin-top:8px}
+.obituary-preview-area{margin-top:28px;border-top:1px solid var(--line);padding-top:24px}
+.obituary-preview-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:16px}
+.obituary-preview-head h3{font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:500;margin:0}
+.obituary-preview-head>span{font-size:13px;color:var(--muted)}
+.obituary-canvas-shell{width:min(660px,100%);margin:0 auto;background:#111;border:1px solid var(--line);padding:14px;box-shadow:0 12px 34px rgba(0,0,0,.42)}
+.obituary-canvas-shell canvas{display:block;width:100%;height:auto;background:#fff}
+@media(max-width:980px){.obituary-workspace{grid-template-columns:1fr}.obituary-help{order:-1}}
+@media(max-width:700px){.obituary-choice-grid,.obituary-dates-grid,.obituary-ceremony-grid,.obituary-photo-controls{grid-template-columns:1fr}.obituary-form,.obituary-help,.obituary-intro-card{padding:16px}.obituary-actions{display:grid}.obituary-actions .admin-button{width:100%}.obituary-preview-head{display:block}.obituary-preview-head>span{display:block;margin-top:7px}.obituary-photo-picker{grid-template-columns:1fr}.obituary-photo-picker span{grid-row:auto;text-align:center}.obituary-section-head{align-items:center}}
+
 @page{size:A4 landscape;margin:0}
 @media print{
   html,body{width:297mm;height:auto;background:#fff!important;color:#000!important;color-scheme:light}

@@ -39,6 +39,7 @@
   const resetTopTickerButton = $('reset-top-ticker');
   const productsAdminView = $('products-admin-view');
   const analyticsAdminView = $('analytics-admin-view');
+  const obituaryAdminView = $('obituary-admin-view');
   const bookletAdminView = $('booklet-admin-view');
   const dashboardTitle = $('dashboard-title');
   const dashboardIntro = $('dashboard-intro');
@@ -56,6 +57,32 @@
   const bookletPrintRoot = $('booklet-print-root');
   const bookletZadushnitsiList = $('booklet-zadushnitsi-list');
   const bookletAddZadushnitsa = $('booklet-add-zadushnitsa');
+  const obituaryForm = $('obituary-form');
+  const obituaryType = $('obituary-type');
+  const obituaryDesign = $('obituary-design');
+  const obituaryOutput = $('obituary-output');
+  const obituaryGender = $('obituary-gender');
+  const obituaryPhoto = $('obituary-photo');
+  const obituaryPhotoName = $('obituary-photo-name');
+  const obituaryPhotoControls = $('obituary-photo-controls');
+  const obituaryPhotoZoom = $('obituary-photo-zoom');
+  const obituaryPhotoZoomValue = $('obituary-photo-zoom-value');
+  const obituaryPhotoX = $('obituary-photo-x');
+  const obituaryPhotoY = $('obituary-photo-y');
+  const obituaryRemovePhoto = $('obituary-remove-photo');
+  const obituaryBirthDate = $('obituary-birth-date');
+  const obituaryDeathDate = $('obituary-death-date');
+  const obituaryAge = $('obituary-age');
+  const obituaryMessage = $('obituary-message');
+  const obituaryDownloadButton = $('obituary-download-button');
+  const obituaryPreviewArea = $('obituary-preview-area');
+  const obituaryPreviewCanvas = $('obituary-preview-canvas');
+  const obituaryPreviewFormat = $('obituary-preview-format');
+  let obituaryPhotoUrl = '';
+  let obituaryPhotoImage = null;
+  let obituaryPreviewTimer = 0;
+  let obituaryAgeIsAutomatic = true;
+  let obituaryCeremonyDateIsAutomatic = true;
 
   function message(el, text, type){
     if (!el) return;
@@ -291,6 +318,359 @@
       analyticsLoading=false;
       if(analyticsRefresh){ analyticsRefresh.disabled=false; analyticsRefresh.textContent='Обнови'; }
     }
+  }
+
+  const OBITUARY_PRESETS = {
+    death: {
+      title: 'СКРЪБНА ВЕСТ',
+      intro: 'С дълбока скръб съобщаваме, че почина',
+      ceremony: 'viewing',
+      closing: {male:'ПОКЛОН ПРЕД СВЕТЛАТА МУ ПАМЕТ!',female:'ПОКЛОН ПРЕД СВЕТЛАТА Ѝ ПАМЕТ!',neutral:'ПОКЛОН ПРЕД СВЕТЛАТА ПАМЕТ!'}
+    },
+    day40: {
+      title: '40 ДНИ БЕЗ ТЕБ',
+      intro: 'С тъга и обич си спомняме за',
+      ceremony: 'memorial',
+      closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
+    },
+    year1: {
+      title: 'ЕДНА ГОДИНА БЕЗ ТЕБ',
+      intro: 'С болка и обич пазим спомена за',
+      ceremony: 'memorial',
+      closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
+    },
+    memorial: {
+      title: 'ВЪЗПОМЕНАНИЕ',
+      intro: 'С обич и признателност си спомняме за',
+      ceremony: 'memorial',
+      closing: {male:'ПОКЛОН ПРЕД СВЕТЛАТА МУ ПАМЕТ!',female:'ПОКЛОН ПРЕД СВЕТЛАТА Ѝ ПАМЕТ!',neutral:'ПОКЛОН ПРЕД СВЕТЛАТА ПАМЕТ!'}
+    }
+  };
+
+  function applyObituaryPreset(){
+    if(!obituaryType) return;
+    const preset=OBITUARY_PRESETS[obituaryType.value]||OBITUARY_PRESETS.death;
+    $('obituary-title').value=preset.title;
+    $('obituary-intro').value=preset.intro;
+    $('obituary-closing').value=preset.closing[obituaryGender&&obituaryGender.value||'male']||preset.closing.neutral;
+    $('obituary-ceremony-kind').value=preset.ceremony;
+    updateObituaryCeremonyDateFromDeath(true);
+    scheduleObituaryPreview();
+  }
+
+  function parseObituaryDate(value){
+    return parseBookletDate(value);
+  }
+
+  function formatObituaryShortDate(date){
+    if(!date) return '';
+    return new Intl.DateTimeFormat('bg-BG',{day:'2-digit',month:'2-digit',year:'numeric'}).format(date);
+  }
+
+  function formatObituaryLongDate(date){
+    if(!date) return '';
+    return new Intl.DateTimeFormat('bg-BG',{day:'numeric',month:'long',year:'numeric'}).format(date);
+  }
+
+  function calculateObituaryAge(birth,death){
+    if(!birth||!death||death<birth) return null;
+    let age=death.getFullYear()-birth.getFullYear();
+    const beforeBirthday=death.getMonth()<birth.getMonth()||(death.getMonth()===birth.getMonth()&&death.getDate()<birth.getDate());
+    if(beforeBirthday) age-=1;
+    return age>=0&&age<=130?age:null;
+  }
+
+  function updateObituaryAgeFromDates(){
+    const birth=parseObituaryDate(obituaryBirthDate&&obituaryBirthDate.value);
+    const death=parseObituaryDate(obituaryDeathDate&&obituaryDeathDate.value);
+    const calculated=calculateObituaryAge(birth,death);
+    if(calculated!==null){ obituaryAge.value=String(calculated); obituaryAgeIsAutomatic=true; }
+    else if(obituaryAgeIsAutomatic&&obituaryAge) obituaryAge.value='';
+    updateObituaryCeremonyDateFromDeath(false);
+    scheduleObituaryPreview();
+  }
+
+  function updateObituaryCeremonyDateFromDeath(force){
+    const input=$('obituary-ceremony-date');
+    const death=parseObituaryDate(obituaryDeathDate&&obituaryDeathDate.value);
+    if(!input) return;
+    if(!death){ if(force&&obituaryCeremonyDateIsAutomatic) input.value=''; return; }
+    let calculated=null;
+    if(obituaryType&&obituaryType.value==='day40') calculated=addBookletDays(death,39);
+    if(obituaryType&&obituaryType.value==='year1') calculated=addBookletMonths(death,12);
+    if(calculated&&(force||obituaryCeremonyDateIsAutomatic||!input.value)){
+      input.value=bookletDateValue(calculated); obituaryCeremonyDateIsAutomatic=true;
+    }else if(force&&obituaryCeremonyDateIsAutomatic) input.value='';
+  }
+
+  function resetObituaryPhoto(){
+    if(obituaryPhotoUrl) URL.revokeObjectURL(obituaryPhotoUrl);
+    obituaryPhotoUrl=''; obituaryPhotoImage=null;
+    if(obituaryPhoto) obituaryPhoto.value='';
+    if(obituaryPhotoName) obituaryPhotoName.textContent='Няма избрана снимка';
+    if(obituaryPhotoControls) obituaryPhotoControls.hidden=true;
+    if(obituaryRemovePhoto) obituaryRemovePhoto.hidden=true;
+    if(obituaryPhotoZoom) obituaryPhotoZoom.value='100';
+    if(obituaryPhotoZoomValue) obituaryPhotoZoomValue.textContent='100%';
+    if(obituaryPhotoX) obituaryPhotoX.value='0';
+    if(obituaryPhotoY) obituaryPhotoY.value='0';
+    scheduleObituaryPreview();
+  }
+
+  async function setObituaryPhoto(file){
+    if(!file){ resetObituaryPhoto(); return; }
+    if(file.size>25*1024*1024) throw new Error('Снимката е прекалено голяма. Изберете файл до 25 MB.');
+    const url=URL.createObjectURL(file);
+    let image;
+    try{
+      image=await new Promise((resolve,reject)=>{
+        const candidate=new Image();
+        candidate.onload=()=>resolve(candidate);
+        candidate.onerror=()=>reject(new Error('Снимката не може да бъде отворена. Изберете JPG, PNG или WebP файл.'));
+        candidate.src=url;
+      });
+    }catch(error){ URL.revokeObjectURL(url); throw error; }
+    if(obituaryPhotoUrl) URL.revokeObjectURL(obituaryPhotoUrl);
+    obituaryPhotoUrl=url; obituaryPhotoImage=image;
+    if(obituaryPhotoName) obituaryPhotoName.textContent=file.name;
+    if(obituaryPhotoControls) obituaryPhotoControls.hidden=false;
+    if(obituaryRemovePhoto) obituaryRemovePhoto.hidden=false;
+    if(obituaryPhotoZoom) obituaryPhotoZoom.value='100';
+    if(obituaryPhotoZoomValue) obituaryPhotoZoomValue.textContent='100%';
+    if(obituaryPhotoX) obituaryPhotoX.value='0';
+    if(obituaryPhotoY) obituaryPhotoY.value='0';
+    scheduleObituaryPreview();
+  }
+
+  function readObituaryModel(){
+    const title=String($('obituary-title').value||'').trim();
+    const name=String($('obituary-name').value||'').trim();
+    if(!title) throw new Error('Въведете заглавие на некролога.');
+    if(!name) throw new Error('Въведете името на покойника.');
+    const birth=parseObituaryDate(obituaryBirthDate&&obituaryBirthDate.value);
+    const death=parseObituaryDate(obituaryDeathDate&&obituaryDeathDate.value);
+    if(birth&&death&&death<birth) throw new Error('Датата на смъртта не може да бъде преди датата на раждане.');
+    const rawAge=String(obituaryAge&&obituaryAge.value||'').trim();
+    const age=rawAge===''?null:Number(rawAge);
+    if(age!==null&&(!Number.isInteger(age)||age<0||age>130)) throw new Error('Проверете въведената възраст.');
+    return {
+      type:obituaryType.value,
+      design:obituaryDesign.value,
+      output:obituaryOutput.value,
+      gender:obituaryGender.value,
+      title,
+      intro:String($('obituary-intro').value||'').trim(),
+      name,
+      birth,
+      death,
+      age,
+      ceremonyKind:$('obituary-ceremony-kind').value,
+      ceremonyDate:parseObituaryDate($('obituary-ceremony-date').value),
+      ceremonyTime:String($('obituary-ceremony-time').value||'').trim(),
+      ceremonyPlace:String($('obituary-ceremony-place').value||'').trim(),
+      extraText:String($('obituary-extra-text').value||'').trim(),
+      closing:String($('obituary-closing').value||'').trim(),
+      from:String($('obituary-from').value||'').trim(),
+      agencyFooter:Boolean($('obituary-agency-footer').checked),
+      photo:obituaryPhotoImage,
+      photoZoom:Number(obituaryPhotoZoom&&obituaryPhotoZoom.value||100),
+      photoX:Number(obituaryPhotoX&&obituaryPhotoX.value||0),
+      photoY:Number(obituaryPhotoY&&obituaryPhotoY.value||0)
+    };
+  }
+
+  function buildObituaryCeremonyText(model){
+    if(model.ceremonyKind==='none'||model.ceremonyKind==='custom') return '';
+    if(!model.ceremonyDate&&!model.ceremonyTime&&!model.ceremonyPlace) return '';
+    const names={viewing:'Поклонението',funeral:'Погребението',memorial:'Панихидата'};
+    let text=(names[model.ceremonyKind]||'Церемонията')+' ще се състои';
+    if(model.ceremonyDate) text+=' на '+formatObituaryLongDate(model.ceremonyDate);
+    if(model.ceremonyTime) text+=' от '+model.ceremonyTime+' ч.';
+    if(model.ceremonyPlace) text+=' в '+model.ceremonyPlace;
+    if(!/[.!?]$/.test(text)) text+='.';
+    return text;
+  }
+
+  function obituaryWrappedLines(ctx,text,maxWidth){
+    const lines=[];
+    String(text||'').split(/\r?\n/).forEach((paragraph,index,all)=>{
+      const words=paragraph.trim().split(/\s+/).filter(Boolean);
+      if(!words.length){ if(index<all.length-1) lines.push(''); return; }
+      let line='';
+      words.forEach((word)=>{
+        const test=line?line+' '+word:word;
+        if(line&&ctx.measureText(test).width>maxWidth){ lines.push(line); line=word; }
+        else line=test;
+      });
+      if(line) lines.push(line);
+    });
+    return lines;
+  }
+
+  function drawObituaryText(ctx,text,y,options){
+    if(!String(text||'').trim()) return y;
+    const opts=Object.assign({x:620,maxWidth:1000,size:28,lineHeight:38,gapAfter:18,family:'Georgia',weight:'normal',color:'#181515',uppercase:false},options||{});
+    const value=opts.uppercase?String(text).toLocaleUpperCase('bg-BG'):String(text);
+    ctx.font=opts.weight+' '+Math.round(opts.size)+'px '+opts.family;
+    ctx.fillStyle=opts.color; ctx.textAlign='center'; ctx.textBaseline='top';
+    const lines=obituaryWrappedLines(ctx,value,opts.maxWidth);
+    lines.forEach((line,index)=>{ if(line) ctx.fillText(line,opts.x,y+index*opts.lineHeight); });
+    return y+lines.length*opts.lineHeight+opts.gapAfter;
+  }
+
+  function drawObituaryCross(ctx,cx,y,height,color,lineWidth){
+    const width=height*.58; const barY=y+height*.38;
+    ctx.save(); ctx.strokeStyle=color||'#171313'; ctx.lineWidth=lineWidth||8; ctx.lineCap='square';
+    ctx.beginPath(); ctx.moveTo(cx,y); ctx.lineTo(cx,y+height); ctx.moveTo(cx-width/2,barY); ctx.lineTo(cx+width/2,barY); ctx.stroke(); ctx.restore();
+  }
+
+  function drawObituaryFrame(ctx,design){
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,1240,1754);
+    ctx.save();
+    if(design==='clean'){
+      ctx.strokeStyle='#6f2d31'; ctx.lineWidth=4; ctx.strokeRect(42,42,1156,1670);
+      ctx.strokeStyle='#c3a58d'; ctx.lineWidth=2; ctx.strokeRect(55,55,1130,1644);
+    }else{
+      ctx.strokeStyle='#161313'; ctx.lineWidth=7; ctx.strokeRect(38,38,1164,1678);
+      ctx.lineWidth=2; ctx.strokeRect(54,54,1132,1646);
+      const corners=[[74,74,1,1],[1166,74,-1,1],[74,1680,1,-1],[1166,1680,-1,-1]];
+      ctx.lineWidth=4;
+      corners.forEach(([x,y,dx,dy])=>{ ctx.beginPath(); ctx.moveTo(x,y+dy*42); ctx.lineTo(x,y); ctx.lineTo(x+dx*42,y); ctx.stroke(); });
+    }
+    ctx.restore();
+  }
+
+  function drawObituaryPortrait(ctx,image,cx,y,width,height,model){
+    const base=Math.max(width/image.naturalWidth,height/image.naturalHeight);
+    const scale=base*Math.max(1,model.photoZoom/100);
+    const drawWidth=image.naturalWidth*scale; const drawHeight=image.naturalHeight*scale;
+    const overflowX=Math.max(0,drawWidth-width); const overflowY=Math.max(0,drawHeight-height);
+    const offsetX=(Math.max(-100,Math.min(100,model.photoX))/100)*(overflowX/2);
+    const offsetY=(Math.max(-100,Math.min(100,model.photoY))/100)*(overflowY/2);
+    const x=cx-width/2;
+    ctx.save(); ctx.beginPath(); ctx.ellipse(cx,y+height/2,width/2,height/2,0,0,Math.PI*2); ctx.clip();
+    ctx.drawImage(image,x+(width-drawWidth)/2+offsetX,y+(height-drawHeight)/2+offsetY,drawWidth,drawHeight); ctx.restore();
+    ctx.save(); ctx.strokeStyle=model.design==='clean'?'#6f2d31':'#181515'; ctx.lineWidth=6; ctx.beginPath(); ctx.ellipse(cx,y+height/2,width/2,height/2,0,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='#c2a58f'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx,y+height/2,width/2-12,height/2-12,0,0,Math.PI*2); ctx.stroke(); ctx.restore();
+  }
+
+  function drawObituaryAgencyFooter(ctx,logo){
+    ctx.save(); ctx.strokeStyle='#b99b84'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(90,1560); ctx.lineTo(1150,1560); ctx.stroke();
+    if(logo){
+      ctx.fillStyle='#080808'; ctx.fillRect(96,1580,126,96);
+      drawImageContained(ctx,logo,105,1588,108,80);
+    }
+    const textX=logo?255:620; ctx.textAlign=logo?'left':'center'; ctx.textBaseline='top';
+    ctx.fillStyle='#4d282a'; ctx.font='bold 22px Arial'; ctx.fillText('ТРАУРНА АГЕНЦИЯ „ДЕН И НОЩ“ — КЮСТЕНДИЛ',textX,1590);
+    ctx.fillStyle='#241d1c'; ctx.font='bold 22px Arial'; ctx.fillText('0893 64 66 68  •  0898 24 24 34',textX,1627);
+    ctx.fillStyle='#5e5550'; ctx.font='19px Arial'; ctx.fillText('deninosht.bg',textX,1662); ctx.restore();
+  }
+
+  function paintObituary(ctx,model,logo,scale){
+    drawObituaryFrame(ctx,model.design);
+    const accent=model.design==='clean'?'#6f2d31':'#171313';
+    const maxWidth=1000; let y=78;
+    drawObituaryCross(ctx,620,y,58*scale,accent,7*scale); y+=82*scale;
+    const titleSize=(model.title.length>28?43:52)*scale;
+    y=drawObituaryText(ctx,model.title,y,{size:titleSize,lineHeight:titleSize*1.16,gapAfter:14*scale,maxWidth,weight:'bold',family:'Arial',color:accent,uppercase:true});
+    ctx.strokeStyle='#b99b84'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(145,y); ctx.lineTo(1095,y); ctx.stroke(); y+=28*scale;
+    y=drawObituaryText(ctx,model.intro,y,{size:27*scale,lineHeight:37*scale,gapAfter:22*scale,maxWidth:930,color:'#332a28'});
+
+    if(model.photo){
+      const photoWidth=285*scale; const photoHeight=355*scale;
+      drawObituaryPortrait(ctx,model.photo,620,y,photoWidth,photoHeight,model); y+=photoHeight+28*scale;
+    }else{
+      drawObituaryCross(ctx,620,y+12*scale,135*scale,'#6f2d31',11*scale); y+=182*scale;
+    }
+
+    const nameSize=(model.name.length>42?49:model.name.length>28?57:66)*scale;
+    y=drawObituaryText(ctx,model.name,y,{size:nameSize,lineHeight:nameSize*1.08,gapAfter:16*scale,maxWidth:1040,weight:'bold',uppercase:true});
+    const dateParts=[];
+    if(model.birth) dateParts.push('* '+formatObituaryShortDate(model.birth));
+    if(model.death) dateParts.push('† '+formatObituaryShortDate(model.death));
+    if(dateParts.length) y=drawObituaryText(ctx,dateParts.join('     '),y,{size:24*scale,lineHeight:32*scale,gapAfter:7*scale,maxWidth:950,weight:'bold',family:'Arial',color:'#514744'});
+    if(model.age!==null) y=drawObituaryText(ctx,'на '+model.age+' години',y,{size:23*scale,lineHeight:31*scale,gapAfter:18*scale,maxWidth:900,family:'Arial',color:'#514744'});
+
+    const ceremony=buildObituaryCeremonyText(model);
+    if(ceremony||model.extraText){ ctx.strokeStyle='#d1bdaa'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(205,y); ctx.lineTo(1035,y); ctx.stroke(); y+=24*scale; }
+    if(ceremony) y=drawObituaryText(ctx,ceremony,y,{size:27*scale,lineHeight:37*scale,gapAfter:18*scale,maxWidth:1010});
+    if(model.extraText) y=drawObituaryText(ctx,model.extraText,y,{size:25*scale,lineHeight:35*scale,gapAfter:18*scale,maxWidth:1010,color:'#332a28'});
+
+    const closingAnchor=model.photo?1260:1120;
+    y=Math.max(y+22*scale,closingAnchor);
+    if(model.closing){
+      ctx.strokeStyle='#b99b84'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(280,y); ctx.lineTo(960,y); ctx.stroke(); y+=25*scale;
+      y=drawObituaryText(ctx,model.closing,y,{size:30*scale,lineHeight:41*scale,gapAfter:22*scale,maxWidth:960,weight:'bold',family:'Arial',color:'#6f2d31',uppercase:true});
+    }
+    if(model.from) y=drawObituaryText(ctx,model.from,y,{size:23*scale,lineHeight:32*scale,gapAfter:12*scale,maxWidth:950,family:'Arial',color:'#4f4642'});
+    if(model.agencyFooter) drawObituaryAgencyFooter(ctx,logo);
+    return y;
+  }
+
+  async function createObituaryCanvas(model,targetCanvas){
+    const canvas=targetCanvas||document.createElement('canvas'); canvas.width=1240; canvas.height=1754;
+    const ctx=canvas.getContext('2d',{alpha:false});
+    let logo=null;
+    if(model.agencyFooter){ try{ logo=await loadBookletImage('../assets/logo-den-i-nosht.webp'); }catch(_){ logo=null; } }
+    const limit=model.agencyFooter?1525:1660;
+    let fitted=false;
+    for(const scale of [1,.91,.83,.76]){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const bottom=paintObituary(ctx,model,logo,scale);
+      if(bottom<=limit){ fitted=true; break; }
+    }
+    if(!fitted) throw new Error('Текстът е прекалено дълъг за една страница. Съкратете допълнителния или прощалния текст.');
+    return canvas;
+  }
+
+  function scheduleObituaryPreview(){
+    if(!obituaryPreviewArea||obituaryPreviewArea.hidden) return;
+    if(obituaryDownloadButton) obituaryDownloadButton.disabled=true;
+    window.clearTimeout(obituaryPreviewTimer);
+    obituaryPreviewTimer=window.setTimeout(()=>{
+      renderObituaryPreview(false).catch((error)=>message(obituaryMessage,error.message||'Прегледът не можа да бъде обновен.','error'));
+    },120);
+  }
+
+  async function renderObituaryPreview(scroll){
+    const model=readObituaryModel();
+    message(obituaryMessage,'Създаване на преглед…');
+    await createObituaryCanvas(model,obituaryPreviewCanvas);
+    obituaryPreviewArea.hidden=false;
+    obituaryDownloadButton.disabled=false;
+    obituaryPreviewFormat.textContent=model.output==='a5x2'?'A4 хоризонтално — два еднакви некролога за изрязване':'A4 — една страница';
+    message(obituaryMessage,'Некрологът е готов за проверка и изтегляне.','success');
+    if(scroll!==false) obituaryPreviewArea.scrollIntoView({behavior:'smooth',block:'start'});
+    return model;
+  }
+
+  async function downloadObituaryPdf(){
+    if(!window.PDFLib||!window.PDFLib.PDFDocument) throw new Error('PDF модулът не е зареден. Обновете страницата и опитайте отново.');
+    const model=readObituaryModel(); const canvas=await createObituaryCanvas(model);
+    const pdf=await window.PDFLib.PDFDocument.create();
+    pdf.setTitle('Некролог - '+model.name); pdf.setAuthor('Траурна агенция Ден и Нощ'); pdf.setCreator('deninosht.bg');
+    const image=await pdf.embedJpg(canvas.toDataURL('image/jpeg',.98));
+    if(model.output==='a5x2'){
+      const page=pdf.addPage([841.89,595.28]);
+      page.drawImage(image,{x:0,y:0,width:420.945,height:595.28});
+      page.drawImage(image,{x:420.945,y:0,width:420.945,height:595.28});
+      page.drawLine({start:{x:420.945,y:0},end:{x:420.945,y:595.28},thickness:.7,color:window.PDFLib.rgb(.72,.69,.66),dashArray:[5,5]});
+    }else{
+      const page=pdf.addPage([595.28,841.89]); page.drawImage(image,{x:0,y:0,width:595.28,height:841.89});
+    }
+    const bytes=await pdf.save({useObjectStreams:true}); const blob=new Blob([bytes],{type:'application/pdf'}); const url=URL.createObjectURL(blob);
+    const link=document.createElement('a'); link.href=url; link.download='nekrolog-'+slugify(model.name)+'.pdf'; link.rel='noopener';
+    if(/iPad|iPhone|iPod/i.test(navigator.userAgent||'')) link.target='_blank';
+    document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }
+
+  function resetObituaryForm(){
+    if(!obituaryForm) return;
+    obituaryForm.reset(); resetObituaryPhoto(); obituaryAgeIsAutomatic=true; obituaryCeremonyDateIsAutomatic=true; applyObituaryPreset();
+    window.clearTimeout(obituaryPreviewTimer);
+    if(obituaryPreviewArea) obituaryPreviewArea.hidden=true;
+    if(obituaryDownloadButton) obituaryDownloadButton.disabled=true;
+    message(obituaryMessage,'Формата е изчистена.');
   }
 
   function parseBookletDate(value){
@@ -661,16 +1041,18 @@
 
   function switchAdminView(view){
     const analytics=view==='analytics';
+    const obituary=view==='obituary';
     const booklet=view==='booklet';
-    const products=!analytics&&!booklet;
+    const products=!analytics&&!obituary&&!booklet;
     if(productsAdminView) productsAdminView.hidden=!products;
     if(analyticsAdminView) analyticsAdminView.hidden=!analytics;
+    if(obituaryAdminView) obituaryAdminView.hidden=!obituary;
     if(bookletAdminView) bookletAdminView.hidden=!booklet;
     document.querySelectorAll('[data-admin-view]').forEach((btn)=>{
       const active=btn.dataset.adminView===view; btn.classList.toggle('is-active',active); btn.setAttribute('aria-pressed',String(active));
     });
-    if(dashboardTitle) dashboardTitle.textContent=analytics?'Статистика':booklet?'Книжка за панихиди':'Траурни стоки';
-    if(dashboardIntro) dashboardIntro.textContent=analytics?'Следете преглежданията, входящите източници и действията към контакт.':booklet?'Създайте персонализирана книжка, подредена за двустранен печат, сгъване и телбод.':'Управлявайте продуктите от едно място — наличност, видимост, подредба, архив и снимки.';
+    if(dashboardTitle) dashboardTitle.textContent=analytics?'Статистика':obituary?'Некролози':booklet?'Книжка за панихиди':'Траурни стоки';
+    if(dashboardIntro) dashboardIntro.textContent=analytics?'Следете преглежданията, входящите източници и действията към контакт.':obituary?'Създайте професионално оформен некролог и готов PDF за печат.':booklet?'Създайте персонализирана книжка, подредена за двустранен печат, сгъване и телбод.':'Управлявайте продуктите от едно място — наличност, видимост, подредба, архив и снимки.';
     if(newProductButton) newProductButton.hidden=!products;
     if(analytics) loadAnalytics();
   }
@@ -1175,6 +1557,55 @@
     loadAnalytics();
   }));
   if(analyticsRefresh) analyticsRefresh.addEventListener('click',loadAnalytics);
+
+  if(obituaryType) obituaryType.addEventListener('change',applyObituaryPreset);
+  if(obituaryGender) obituaryGender.addEventListener('change',()=>{
+    const preset=OBITUARY_PRESETS[obituaryType.value]||OBITUARY_PRESETS.death;
+    $('obituary-closing').value=preset.closing[obituaryGender.value]||preset.closing.neutral;
+    scheduleObituaryPreview();
+  });
+  if(obituaryBirthDate) obituaryBirthDate.addEventListener('change',updateObituaryAgeFromDates);
+  if(obituaryDeathDate) obituaryDeathDate.addEventListener('change',updateObituaryAgeFromDates);
+  if(obituaryAge) obituaryAge.addEventListener('input',()=>{ obituaryAgeIsAutomatic=obituaryAge.value===''; scheduleObituaryPreview(); });
+  const obituaryCeremonyDateInput=$('obituary-ceremony-date');
+  if(obituaryCeremonyDateInput) obituaryCeremonyDateInput.addEventListener('input',()=>{ obituaryCeremonyDateIsAutomatic=false; scheduleObituaryPreview(); });
+  if(obituaryPhoto) obituaryPhoto.addEventListener('change',async(event)=>{
+    const file=event.target.files&&event.target.files[0];
+    try{
+      message(obituaryMessage,file?'Обработка на снимката…':'');
+      await setObituaryPhoto(file);
+      if(file) message(obituaryMessage,'Снимката е добавена. Използвайте плъзгачите, ако трябва да я наместите.','success');
+    }catch(error){
+      event.target.value=''; message(obituaryMessage,error.message||'Снимката не можа да бъде добавена.','error');
+    }
+  });
+  if(obituaryRemovePhoto) obituaryRemovePhoto.addEventListener('click',()=>{ resetObituaryPhoto(); message(obituaryMessage,'Снимката е премахната.','success'); });
+  [obituaryPhotoZoom,obituaryPhotoX,obituaryPhotoY].filter(Boolean).forEach((input)=>input.addEventListener('input',()=>{
+    if(obituaryPhotoZoomValue) obituaryPhotoZoomValue.textContent=obituaryPhotoZoom.value+'%';
+    scheduleObituaryPreview();
+  }));
+  if(obituaryForm){
+    obituaryForm.querySelectorAll('input:not([type="file"]):not([type="range"]),textarea,select').forEach((input)=>input.addEventListener('input',scheduleObituaryPreview));
+    obituaryForm.addEventListener('submit',async(event)=>{
+      event.preventDefault();
+      try{ await renderObituaryPreview(true); }
+      catch(error){ message(obituaryMessage,error.message||'Некрологът не можа да бъде създаден.','error'); }
+    });
+  }
+  if(obituaryDownloadButton) obituaryDownloadButton.addEventListener('click',async()=>{
+    const originalLabel='Изтегли готов PDF';
+    try{
+      obituaryDownloadButton.disabled=true; obituaryDownloadButton.textContent='Създаване на PDF…'; message(obituaryMessage,'Създаване на готовия PDF…');
+      await downloadObituaryPdf(); message(obituaryMessage,'PDF файлът е готов за печат.','success');
+    }catch(error){ message(obituaryMessage,error.message||'PDF файлът не можа да бъде създаден.','error'); }
+    finally{ obituaryDownloadButton.disabled=false; obituaryDownloadButton.textContent=originalLabel; }
+  });
+  const obituaryResetButton=$('obituary-reset-button');
+  if(obituaryResetButton) obituaryResetButton.addEventListener('click',()=>{
+    const hasData=String($('obituary-name').value||'').trim()||obituaryPhotoImage;
+    if(hasData&&!window.confirm('Да изчистя ли текущия некролог и да започна нов?')) return;
+    resetObituaryForm();
+  });
 
   if(bookletDeathDate){
     bookletDeathDate.addEventListener('input',invalidateBookletPreview);
