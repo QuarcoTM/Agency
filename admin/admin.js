@@ -52,7 +52,10 @@
   const bookletMessage = $('booklet-message');
   const bookletPrintButton = $('booklet-print-button');
   const bookletPreviewArea = $('booklet-preview-area');
+  const bookletReadingPreview = $('booklet-reading-preview');
   const bookletPrintRoot = $('booklet-print-root');
+  const bookletZadushnitsiList = $('booklet-zadushnitsi-list');
+  const bookletAddZadushnitsa = $('booklet-add-zadushnitsa');
 
   function message(el, text, type){
     if (!el) return;
@@ -340,6 +343,34 @@
     if(bookletPreviewArea) bookletPreviewArea.hidden=true;
   }
 
+  function addZadushnitsaRow(name,date){
+    if(!bookletZadushnitsiList) return;
+    if(bookletZadushnitsiList.children.length>=6){
+      message(bookletMessage,'Може да добавите до 6 Задушници в една книжка.','error');
+      return;
+    }
+    const row=document.createElement('div'); row.className='booklet-zadushnitsa-row';
+    const nameLabel=document.createElement('label'); nameLabel.textContent='Наименование';
+    const nameInput=document.createElement('input'); nameInput.type='text'; nameInput.maxLength=70; nameInput.placeholder='Напр. Месопустна Задушница'; nameInput.className='booklet-zadushnitsa-name'; nameInput.value=name||''; nameLabel.appendChild(nameInput);
+    const dateLabel=document.createElement('label'); dateLabel.textContent='Дата';
+    const dateInput=document.createElement('input'); dateInput.type='date'; dateInput.className='booklet-zadushnitsa-date'; dateInput.value=date||''; dateLabel.appendChild(dateInput);
+    const remove=document.createElement('button'); remove.type='button'; remove.className='small-button danger booklet-zadushnitsa-remove'; remove.textContent='Премахни'; remove.setAttribute('aria-label','Премахни Задушницата');
+    nameInput.addEventListener('input',invalidateBookletPreview); dateInput.addEventListener('input',invalidateBookletPreview);
+    remove.addEventListener('click',()=>{ row.remove(); invalidateBookletPreview(); });
+    row.append(nameLabel,dateLabel,remove); bookletZadushnitsiList.appendChild(row); invalidateBookletPreview();
+  }
+
+  function readZadushnitsi(){
+    if(!bookletZadushnitsiList) return [];
+    return Array.from(bookletZadushnitsiList.querySelectorAll('.booklet-zadushnitsa-row')).map((row)=>{
+      const name=String(row.querySelector('.booklet-zadushnitsa-name').value||'').trim();
+      const value=row.querySelector('.booklet-zadushnitsa-date').value;
+      const date=parseBookletDate(value);
+      if((name&&!date)||(!name&&value)) throw new Error('За всяка Задушница попълнете и наименование, и дата.');
+      return name&&date?{name,date}:null;
+    }).filter(Boolean);
+  }
+
   function readBookletModel(){
     const death=parseBookletDate(bookletDeathDate&&bookletDeathDate.value);
     if(!death) throw new Error('Въведете дата на смъртта.');
@@ -347,7 +378,7 @@
     document.querySelectorAll('[data-booklet-date]').forEach((input)=>{ dates[input.dataset.bookletDate]=parseBookletDate(input.value); });
     const missing=Object.keys(dates).find((key)=>!dates[key]);
     if(missing || Object.keys(dates).length!==8) throw new Error('Попълнете всички дати за панихидите.');
-    return {name:String(bookletName&&bookletName.value||'').trim(),death,dates};
+    return {name:String(bookletName&&bookletName.value||'').trim(),death,dates,zadushnitsi:readZadushnitsi()};
   }
 
   function appendBookletText(parent,tag,text,className){
@@ -357,6 +388,10 @@
   function appendBookletList(parent,items){
     const list=document.createElement('ul'); list.className='booklet-page-list';
     items.forEach((text)=>appendBookletText(list,'li',text)); parent.appendChild(list);
+  }
+
+  function appendAgencyHelp(parent){
+    appendBookletText(parent,'p','Траурна агенция „Ден и Нощ“ може да съдейства със свещеник, некролози, раздавки, свещи, цветя и всичко необходимо за панихидата.','booklet-agency-help');
   }
 
   function createBookletPage(pageNumber,model){
@@ -419,8 +454,16 @@
     if(pageNumber===10){
       appendBookletText(content,'p','След първата година','booklet-kicker'); appendBookletText(content,'h2','Годишнини и Задушници');
       appendBookletText(content,'p','След първата година близките могат да отбелязват годишнината от смъртта и общите дни за почит към починалите — Задушниците.');
-      appendBookletList(content,['Датите на Задушниците са различни всяка година.','За точната дата и реда на службата попитайте в храма.','Поменът може да бъде скромен — молитва, свещ, цвете и добра дума в памет на човека.']);
-      appendBookletText(content,'p','Ако възпоменателният ден съвпада с празник или има друга причина за промяна, следвайте указанието на свещеника.','booklet-note');
+      if(model.zadushnitsi.length){
+        appendBookletText(content,'h3','Добавени Задушници','booklet-subheading');
+        const memorials=document.createElement('div'); memorials.className='booklet-zadushnitsi-print'; content.appendChild(memorials);
+        model.zadushnitsi.forEach((item)=>{
+          const row=document.createElement('div'); appendBookletText(row,'strong',item.name); appendBookletText(row,'span',formatBookletDate(item.date)); memorials.appendChild(row);
+        });
+      }else{
+        appendBookletList(content,['Датите на Задушниците са различни всяка година.','За точната дата и реда на службата попитайте в храма.']);
+      }
+      appendBookletText(content,'p','Ако денят съвпада с голям празник, уточнете със свещеник дали панихидата трябва да бъде по-рано.','booklet-note');
     }
     if(pageNumber===11){
       appendBookletText(content,'p','Кратък списък','booklet-kicker'); appendBookletText(content,'h2','Какво обичайно се подготвя');
@@ -429,13 +472,15 @@
     }
     if(pageNumber===12){
       page.classList.add('booklet-back-cover');
-      const logo=document.createElement('img'); logo.src='../assets/logo-den-i-nosht.webp'; logo.alt='Траурна агенция „Ден и Нощ“'; content.appendChild(logo);
+      const logoBadge=document.createElement('div'); logoBadge.className='booklet-logo-badge';
+      const logo=document.createElement('img'); logo.src='../assets/logo-den-i-nosht.webp'; logo.alt='Траурна агенция „Ден и Нощ“'; logoBadge.appendChild(logo); content.appendChild(logoBadge);
       appendBookletText(content,'p','Денонощна траурна агенция','booklet-back-label');
       const phone1=document.createElement('a'); phone1.href='tel:+359893646668'; phone1.textContent='0893 64 66 68'; content.appendChild(phone1);
       const phone2=document.createElement('a'); phone2.href='tel:+359898242434'; phone2.textContent='0898 24 24 34'; content.appendChild(phone2);
       appendBookletText(content,'p','deninosht.bg','booklet-site');
       const qr=document.createElement('img'); qr.className='booklet-qr'; qr.src='../assets/qr-deninosht.svg'; qr.alt='QR код към deninosht.bg'; content.appendChild(qr);
     }
+    if(pageNumber>=3&&pageNumber<=11) appendAgencyHelp(content);
     if(pageNumber!==12) appendBookletText(page,'span',String(pageNumber),'booklet-page-number');
     return page;
   }
@@ -445,6 +490,12 @@
     const pages={}; for(let page=1;page<=12;page+=1) pages[page]=createBookletPage(page,model);
     const sides=[[12,1],[2,11],[10,3],[4,9],[8,5],[6,7]];
     const labels=['Лист 1 — лице','Лист 1 — гръб','Лист 2 — лице','Лист 2 — гръб','Лист 3 — лице','Лист 3 — гръб'];
+    bookletReadingPreview.replaceChildren();
+    for(let page=1;page<=12;page+=1){
+      const preview=document.createElement('div'); preview.className='booklet-reading-page';
+      appendBookletText(preview,'div','Страница '+page,'booklet-reading-label');
+      preview.appendChild(pages[page].cloneNode(true)); bookletReadingPreview.appendChild(preview);
+    }
     bookletPrintRoot.replaceChildren();
     sides.forEach((pair,index)=>{
       const side=document.createElement('section'); side.className='booklet-side';
@@ -982,6 +1033,8 @@
   document.querySelectorAll('[data-booklet-date]').forEach((input)=>input.addEventListener('input',invalidateBookletPreview));
   const bookletCalculateButton=$('booklet-calculate');
   if(bookletCalculateButton) bookletCalculateButton.addEventListener('click',calculateBookletDates);
+  if(bookletAddZadushnitsa) bookletAddZadushnitsa.addEventListener('click',()=>addZadushnitsaRow('',''));
+  if(bookletZadushnitsiList&&!bookletZadushnitsiList.children.length) addZadushnitsaRow('','');
   if(bookletForm) bookletForm.addEventListener('submit',(event)=>{
     event.preventDefault();
     try{

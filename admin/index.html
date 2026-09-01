@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.53" rel="stylesheet"/>
+<link href="admin.css?v=1.54" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -215,6 +215,17 @@
             <label for="booklet-date-year1">1 година<input id="booklet-date-year1" data-booklet-date="year1" type="date" required/></label>
           </div>
 
+          <section class="booklet-zadushnitsi" aria-labelledby="booklet-zadushnitsi-title">
+            <div class="booklet-date-head">
+              <div>
+                <h3 id="booklet-zadushnitsi-title">Задушници</h3>
+                <p>Добавете само тези, които искате да присъстват в книжката.</p>
+              </div>
+              <button class="admin-button secondary" id="booklet-add-zadushnitsa" type="button">+ Добави Задушница</button>
+            </div>
+            <div class="booklet-zadushnitsi-list" id="booklet-zadushnitsi-list"></div>
+          </section>
+
           <div class="booklet-actions">
             <button class="admin-button" id="booklet-preview-button" type="submit">Създай преглед</button>
             <button class="admin-button secondary" id="booklet-print-button" type="button" disabled>Печат / Запази като PDF</button>
@@ -228,6 +239,7 @@
             <li>Хартия: A4, хоризонтално</li>
             <li>Двустранно: обръщане по късия ръб</li>
             <li>Мащаб: 100%</li>
+            <li>Не размествате страниците — при печат се подреждат автоматично</li>
             <li>Сгънете трите листа заедно и захванете по средата</li>
           </ol>
         </aside>
@@ -235,10 +247,11 @@
 
       <div class="booklet-preview-area" id="booklet-preview-area" hidden>
         <div class="booklet-preview-head">
-          <div><p class="admin-eyebrow">Предварителен преглед</p><h3>6 страни A4 · 12 страници A5</h3></div>
-          <span>Показани са в правилния ред за двустранен печат.</span>
+          <div><p class="admin-eyebrow">Предварителен преглед</p><h3>Страници 1–12 в реда за четене</h3></div>
+          <span>При печат системата ги пренарежда автоматично за сгъване.</span>
         </div>
-        <div class="booklet-print-root" id="booklet-print-root"></div>
+        <div class="booklet-reading-preview" id="booklet-reading-preview"></div>
+        <div class="booklet-print-root" id="booklet-print-root" aria-hidden="true"></div>
       </div>
     </section>
   </section>
@@ -295,6 +308,6 @@
 </div>
 
 <script src="../supabase-config.js?v=1.52"></script>
-<script src="admin.js?v=1.53"></script>
+<script src="admin.js?v=1.54"></script>
 </body>
 </html>
