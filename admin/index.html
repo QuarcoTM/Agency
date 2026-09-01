@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.54" rel="stylesheet"/>
+<link href="admin.css?v=1.55" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -228,18 +228,18 @@
 
           <div class="booklet-actions">
             <button class="admin-button" id="booklet-preview-button" type="submit">Създай преглед</button>
-            <button class="admin-button secondary" id="booklet-print-button" type="button" disabled>Печат / Запази като PDF</button>
+            <button class="admin-button secondary" id="booklet-print-button" type="button" disabled>Изтегли готов PDF</button>
           </div>
           <div class="admin-message" id="booklet-message" role="status" aria-live="polite"></div>
         </form>
 
         <aside class="booklet-print-help">
-          <strong>Настройки при печат</strong>
+          <strong>Готовият PDF</strong>
           <ol>
-            <li>Хартия: A4, хоризонтално</li>
-            <li>Двустранно: обръщане по късия ръб</li>
-            <li>Мащаб: 100%</li>
-            <li>Не размествате страниците — при печат се подреждат автоматично</li>
+            <li>Вече е A4, хоризонтално — не избирайте ориентация от телефона</li>
+            <li>При печат изберете двустранно и обръщане по късия ръб</li>
+            <li>Мащаб: 100% или „Действителен размер“</li>
+            <li>Не размествате страниците — PDF файлът е подреден автоматично</li>
             <li>Сгънете трите листа заедно и захванете по средата</li>
           </ol>
         </aside>
@@ -308,6 +308,7 @@
 </div>
 
 <script src="../supabase-config.js?v=1.52"></script>
-<script src="admin.js?v=1.54"></script>
+<script src="vendor/pdf-lib.min.js?v=1.55"></script>
+<script src="admin.js?v=1.55"></script>
 </body>
 </html>

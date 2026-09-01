@@ -401,6 +401,9 @@
 
     if(pageNumber===1){
       page.classList.add('booklet-cover');
+      const coverLogoBadge=document.createElement('div'); coverLogoBadge.className='booklet-logo-badge booklet-cover-logo';
+      const coverLogo=document.createElement('img'); coverLogo.src='../assets/logo-den-i-nosht.webp'; coverLogo.alt='Траурна агенция „Ден и Нощ“'; coverLogoBadge.appendChild(coverLogo); content.appendChild(coverLogoBadge);
+      appendBookletText(content,'p','Траурна агенция „Ден и Нощ“','booklet-cover-brand');
       appendBookletText(content,'h1','Панихиди и възпоменателни дни');
       return page;
     }
@@ -506,6 +509,154 @@
     bookletPreviewArea.hidden=false; bookletPrintButton.disabled=false;
     message(bookletMessage,'Книжката е готова за печат или запис като PDF.','success');
     bookletPreviewArea.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  const bookletImageCache=new Map();
+
+  function loadBookletImage(src){
+    if(bookletImageCache.has(src)) return bookletImageCache.get(src);
+    const promise=new Promise((resolve,reject)=>{
+      const image=new Image(); image.onload=()=>resolve(image); image.onerror=()=>reject(new Error('Неуспешно зареждане на изображение за PDF.'));
+      image.src=src;
+    });
+    bookletImageCache.set(src,promise); return promise;
+  }
+
+  function wrapCanvasText(ctx,text,maxWidth){
+    const words=String(text||'').trim().split(/\s+/).filter(Boolean); if(!words.length) return [];
+    const lines=[]; let line='';
+    words.forEach((word)=>{
+      const test=line?line+' '+word:word;
+      if(line&&ctx.measureText(test).width>maxWidth){ lines.push(line); line=word; }
+      else line=test;
+    });
+    if(line) lines.push(line); return lines;
+  }
+
+  function drawCanvasText(ctx,text,y,options){
+    const opts=Object.assign({font:'28px Georgia',color:'#24191a',maxWidth:1000,lineHeight:38,gapAfter:16},options||{});
+    ctx.font=opts.font;
+    ctx.fillStyle=opts.color; ctx.textAlign='center'; ctx.textBaseline='top';
+    const lines=wrapCanvasText(ctx,text,opts.maxWidth);
+    lines.forEach((line,index)=>ctx.fillText(line,620,y+index*opts.lineHeight));
+    return y+lines.length*opts.lineHeight+opts.gapAfter;
+  }
+
+  function drawCanvasRule(ctx,y,width,color){
+    ctx.strokeStyle=color||'#b98a68'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo((1240-width)/2,y); ctx.lineTo((1240+width)/2,y); ctx.stroke();
+  }
+
+  function drawImageContained(ctx,image,x,y,width,height){
+    const scale=Math.min(width/image.naturalWidth,height/image.naturalHeight); const w=image.naturalWidth*scale; const h=image.naturalHeight*scale;
+    ctx.drawImage(image,x+(width-w)/2,y+(height-h)/2,w,h);
+  }
+
+  async function drawLogoBadgeToCanvas(ctx,src,y,width){
+    const image=await loadBookletImage(src); const x=(1240-width)/2;
+    ctx.fillStyle='#080808'; ctx.fillRect(x,y,width,width);
+    drawImageContained(ctx,image,x+34,y+34,width-68,width-68); return y+width;
+  }
+
+  async function renderBookletPageCanvas(pageNumber,model){
+    const pageElement=createBookletPage(pageNumber,model); const content=pageElement.querySelector('.booklet-page-content');
+    const canvas=document.createElement('canvas'); canvas.width=1240; canvas.height=1754; const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    if(pageNumber===1){
+      const logo=content.querySelector('img'); let y=520;
+      y=await drawLogoBadgeToCanvas(ctx,logo.src,y,350)+55;
+      y=drawCanvasText(ctx,'Траурна агенция „Ден и Нощ“',y,{font:'bold 32px Arial',color:'#7b3337',maxWidth:1000,lineHeight:42,gapAfter:65});
+      drawCanvasText(ctx,'Панихиди и възпоменателни дни',y,{font:'58px Georgia',color:'#24191a',maxWidth:940,lineHeight:70,gapAfter:0});
+      return canvas;
+    }
+
+    if(pageNumber===12){
+      const logo=content.querySelector('.booklet-logo-badge img'); const qr=content.querySelector('.booklet-qr'); let y=215;
+      y=await drawLogoBadgeToCanvas(ctx,logo.src,y,360)+38;
+      y=drawCanvasText(ctx,'Денонощна траурна агенция',y,{font:'bold 25px Arial',color:'#66564b',maxWidth:900,lineHeight:34,gapAfter:28});
+      y=drawCanvasText(ctx,'0893 64 66 68',y,{font:'bold 46px Georgia',maxWidth:900,lineHeight:56,gapAfter:8});
+      y=drawCanvasText(ctx,'0898 24 24 34',y,{font:'bold 46px Georgia',maxWidth:900,lineHeight:56,gapAfter:32});
+      y=drawCanvasText(ctx,'deninosht.bg',y,{font:'bold 28px Arial',maxWidth:900,lineHeight:38,gapAfter:24});
+      const qrImage=await loadBookletImage(qr.src); drawImageContained(ctx,qrImage,510,y,220,220);
+      return canvas;
+    }
+
+    let y=105; const agencyHelp=content.querySelector('.booklet-agency-help');
+    for(const child of Array.from(content.children)){
+      if(child===agencyHelp) continue;
+      const classes=child.classList;
+      if(classes.contains('booklet-kicker')){
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 22px Arial',color:'#7b3337',maxWidth:1000,lineHeight:30,gapAfter:18});
+      }else if(classes.contains('booklet-person-name')){
+        y=drawCanvasText(ctx,child.textContent,y,{font:'50px Georgia',maxWidth:1000,lineHeight:58,gapAfter:22});
+      }else if(child.tagName==='H2'){
+        y=drawCanvasText(ctx,child.textContent,y,{font:'50px Georgia',maxWidth:1040,lineHeight:60,gapAfter:24});
+      }else if(classes.contains('booklet-subheading')||child.tagName==='H3'){
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 27px Georgia',color:'#7b3337',maxWidth:1000,lineHeight:36,gapAfter:14});
+      }else if(classes.contains('booklet-page-date')){
+        drawCanvasRule(ctx,y,920,'#bd9d85'); y+=20;
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 29px Georgia',color:'#7b3337',maxWidth:940,lineHeight:38,gapAfter:16});
+        drawCanvasRule(ctx,y,920,'#bd9d85'); y+=34;
+      }else if(classes.contains('booklet-overview')){
+        drawCanvasRule(ctx,y,940,'#bd9d85'); y+=10;
+        for(const row of Array.from(child.children)){
+          const strong=row.querySelector('strong'); const span=row.querySelector('span');
+          y=drawCanvasText(ctx,strong.textContent,y,{font:'bold 22px Arial',color:'#7b3337',maxWidth:950,lineHeight:28,gapAfter:1});
+          y=drawCanvasText(ctx,span.textContent,y,{font:'21px Arial',color:'#4d4240',maxWidth:950,lineHeight:27,gapAfter:6});
+          drawCanvasRule(ctx,y,940,'#ded4c8'); y+=7;
+        }
+      }else if(classes.contains('booklet-early-dates')){
+        drawCanvasRule(ctx,y,940,'#bd9d85'); y+=16;
+        const rows=Array.from(child.children); const colWidth=470;
+        rows.forEach((row,index)=>{
+          const cx=index===0?385:855; const strong=row.querySelector('strong'); const span=row.querySelector('span');
+          ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='#7b3337'; ctx.font='bold 25px Georgia'; ctx.fillText(strong.textContent,cx,y);
+          ctx.fillStyle='#24191a'; ctx.font='24px Georgia'; const lines=wrapCanvasText(ctx,span.textContent,colWidth-30); lines.forEach((line,i)=>ctx.fillText(line,cx,y+40+i*31));
+        });
+        y+=105; drawCanvasRule(ctx,y,940,'#bd9d85'); y+=36;
+      }else if(classes.contains('booklet-zadushnitsi-print')){
+        drawCanvasRule(ctx,y,940,'#bd9d85'); y+=10;
+        for(const row of Array.from(child.children)){
+          y=drawCanvasText(ctx,row.querySelector('strong').textContent,y,{font:'bold 21px Arial',color:'#7b3337',maxWidth:950,lineHeight:27,gapAfter:1});
+          y=drawCanvasText(ctx,row.querySelector('span').textContent,y,{font:'20px Arial',color:'#4d4240',maxWidth:950,lineHeight:26,gapAfter:6});
+          drawCanvasRule(ctx,y,940,'#ded4c8'); y+=6;
+        }
+      }else if(child.tagName==='UL'){
+        for(const item of Array.from(child.children)) y=drawCanvasText(ctx,'• '+item.textContent,y,{font:'26px Georgia',maxWidth:1010,lineHeight:34,gapAfter:10});
+        y+=8;
+      }else if(classes.contains('booklet-note')){
+        drawCanvasRule(ctx,y,900,'#bd9d85'); y+=17;
+        y=drawCanvasText(ctx,child.textContent,y,{font:'22px Georgia',color:'#5d5148',maxWidth:940,lineHeight:30,gapAfter:22});
+      }else if(child.tagName==='P'){
+        const isLead=classes.contains('booklet-lead');
+        y=drawCanvasText(ctx,child.textContent,y,{font:(isLead?'26px':'27px')+' Georgia',color:isLead?'#66564b':'#24191a',maxWidth:1020,lineHeight:36,gapAfter:24});
+      }
+    }
+
+    if(agencyHelp){
+      drawCanvasRule(ctx,1500,960,'#9a6546');
+      drawCanvasText(ctx,agencyHelp.textContent,1520,{font:'bold 21px Arial',color:'#7b3337',maxWidth:980,lineHeight:28,gapAfter:0});
+    }
+    ctx.font='18px Arial'; ctx.fillStyle='#877a72'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(String(pageNumber),620,1690);
+    return canvas;
+  }
+
+  async function downloadBookletPdf(){
+    if(!window.PDFLib||!window.PDFLib.PDFDocument) throw new Error('PDF модулът не е зареден. Обновете страницата и опитайте отново.');
+    const model=readBookletModel(); const pdf=await window.PDFLib.PDFDocument.create();
+    pdf.setTitle('Книжка за панихиди - Ден и Нощ'); pdf.setAuthor('Траурна агенция Ден и Нощ'); pdf.setCreator('deninosht.bg');
+    const sides=[[12,1],[2,11],[10,3],[4,9],[8,5],[6,7]];
+    for(const pair of sides){
+      const left=await renderBookletPageCanvas(pair[0],model); const right=await renderBookletPageCanvas(pair[1],model);
+      const sheet=document.createElement('canvas'); sheet.width=2480; sheet.height=1754; const ctx=sheet.getContext('2d');
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,sheet.width,sheet.height); ctx.drawImage(left,0,0); ctx.drawImage(right,1240,0);
+      ctx.strokeStyle='#d2cbc4'; ctx.lineWidth=2; ctx.setLineDash([10,10]); ctx.beginPath(); ctx.moveTo(1240,0); ctx.lineTo(1240,1754); ctx.stroke(); ctx.setLineDash([]);
+      const image=await pdf.embedJpg(sheet.toDataURL('image/jpeg',0.94)); const page=pdf.addPage([841.89,595.28]); page.drawImage(image,{x:0,y:0,width:841.89,height:595.28});
+    }
+    const bytes=await pdf.save({useObjectStreams:true}); const blob=new Blob([bytes],{type:'application/pdf'}); const url=URL.createObjectURL(blob);
+    const link=document.createElement('a'); link.href=url; link.download='knizhka-za-panihidi-den-i-nosht.pdf'; link.rel='noopener';
+    if(/iPad|iPhone|iPod/i.test(navigator.userAgent||'')) link.target='_blank';
+    document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(()=>URL.revokeObjectURL(url),60000);
   }
 
   function switchAdminView(view){
@@ -1043,12 +1194,14 @@
       renderBooklet();
     }catch(error){ message(bookletMessage,error.message||'Книжката не можа да бъде създадена.','error'); }
   });
-  if(bookletPrintButton) bookletPrintButton.addEventListener('click',()=>{
+  if(bookletPrintButton) bookletPrintButton.addEventListener('click',async()=>{
+    const originalLabel='Изтегли готов PDF';
     try{
       renderBooklet();
-      const previousTitle=document.title; document.title='Книжка за панихиди - Ден и Нощ';
-      window.setTimeout(()=>{ window.print(); document.title=previousTitle; },60);
-    }catch(error){ message(bookletMessage,error.message||'Книжката не можа да бъде отпечатана.','error'); }
+      bookletPrintButton.disabled=true; bookletPrintButton.textContent='Създаване на PDF…'; message(bookletMessage,'Създаване на готовия PDF…');
+      await downloadBookletPdf(); message(bookletMessage,'PDF файлът е готов. Отворете го и го отпечатайте без промяна на ориентацията.','success');
+    }catch(error){ message(bookletMessage,error.message||'PDF файлът не можа да бъде създаден.','error'); }
+    finally{ bookletPrintButton.disabled=false; bookletPrintButton.textContent=originalLabel; }
   });
 
   $('product-image').addEventListener('change',(event)=>{
