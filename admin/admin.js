@@ -554,12 +554,20 @@
   }
 
   function drawObituaryCornerCross(ctx,cx,y,size,color){
-    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle='#fff'; ctx.lineWidth=Math.max(5,size*.11); ctx.lineCap='round';
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=Math.max(5,size*.105); ctx.lineCap='round';
     const top=y-size*.42; const bottom=y+size*.42; const left=cx-size*.32; const right=cx+size*.32; const barY=y-size*.12;
     ctx.beginPath(); ctx.moveTo(cx,top); ctx.lineTo(cx,bottom); ctx.moveTo(left,barY); ctx.lineTo(right,barY); ctx.stroke();
-    ctx.strokeStyle='#fff'; ctx.lineWidth=Math.max(2,size*.042); ctx.beginPath(); ctx.moveTo(cx,top); ctx.lineTo(cx,bottom); ctx.moveTo(left,barY); ctx.lineTo(right,barY); ctx.stroke();
-    ctx.strokeStyle=color; ctx.lineWidth=Math.max(3,size*.045);
-    [[cx,top],[cx,bottom],[left,barY],[right,barY]].forEach(([px,py])=>{ ctx.beginPath(); ctx.arc(px,py,size*.07,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+    const r=size*.073,side=size*.068,forward=size*.026,inward=size*.052;
+    const lobes=[
+      [cx,top-forward],[cx-side,top+inward],[cx+side,top+inward],
+      [cx,bottom+forward],[cx-side,bottom-inward],[cx+side,bottom-inward],
+      [left-forward,barY],[left+inward,barY-side],[left+inward,barY+side],
+      [right+forward,barY],[right-inward,barY-side],[right-inward,barY+side]
+    ];
+    lobes.forEach(([px,py])=>{ ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2); ctx.fill(); });
+    ctx.strokeStyle='#fff'; ctx.lineWidth=Math.max(2,size*.04); ctx.beginPath(); ctx.moveTo(cx,top-size*.015); ctx.lineTo(cx,bottom+size*.015); ctx.moveTo(left-size*.015,barY); ctx.lineTo(right+size*.015,barY); ctx.stroke();
+    ctx.fillStyle='#fff'; const innerR=r*.39;
+    lobes.forEach(([px,py])=>{ ctx.beginPath(); ctx.arc(px,py,innerR,0,Math.PI*2); ctx.fill(); });
     ctx.restore();
   }
 
@@ -608,7 +616,7 @@
   function drawObituaryAgencyFooter(ctx,dark){
     ctx.save(); ctx.strokeStyle=dark?'#9d7843':'#555'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(78,1638); ctx.lineTo(1162,1638); ctx.stroke();
     ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle=dark?'#ead1a4':'#292929'; ctx.font='italic bold 18px Georgia';
-    ctx.fillText('Траурна агенция „Ден и Нощ“ (срещу полицията)   0898 24 24 34   0893 64 66 68',620,1652); ctx.restore();
+    ctx.fillText('Траурна агенция „Ден и Нощ“ (срещу полицията)   0898 24 24 34   0893 64 66 68   deninosht.bg',620,1652); ctx.restore();
   }
 
   function obituaryNameParts(name){
@@ -635,6 +643,7 @@
       const born=model.gender==='female'?'родена':'роден';
       drawObituaryText(ctx,born+' '+model.birth.getFullYear()+' година',nameY+4*scale,{size:22*scale,lineHeight:30*scale,gapAfter:0,maxWidth:760,style:'italic',color:'#37312f'});
     }
+    if(model.age!==null) drawObituaryText(ctx,'на '+model.age+' години',nameY+38*scale,{size:23*scale,lineHeight:31*scale,gapAfter:0,maxWidth:760,weight:'bold',style:'italic',color:'#37312f'});
 
     const poem=model.extraText||'Мъка къса ни сърцата,\nпред твоя гроб стоим, стоим\nи ниско свели сме челата,\nдокато сме живи ще скърбим!';
     drawObituaryText(ctx,poem,940,{size:33*scale,lineHeight:44*scale,gapAfter:0,maxWidth:830,color:ink});
