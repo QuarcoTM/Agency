@@ -34,15 +34,30 @@
   }
 
   function bindTouchNavigation(link, slug){
-    let touchHandled = false;
+    let startX = 0;
+    let startY = 0;
+    let moved = false;
+    let suppressClickUntil = 0;
+    link.addEventListener('touchstart',(event)=>{
+      const touch = event.touches && event.touches[0];
+      if(!touch) return;
+      startX = touch.clientX;
+      startY = touch.clientY;
+      moved = false;
+    },{passive:true});
+    link.addEventListener('touchmove',(event)=>{
+      const touch = event.touches && event.touches[0];
+      if(!touch) return;
+      if(Math.hypot(touch.clientX - startX, touch.clientY - startY) > 10) moved = true;
+    },{passive:true});
     link.addEventListener('touchend',(event)=>{
+      suppressClickUntil = Date.now() + 700;
+      if(moved) return;
       if(event.cancelable) event.preventDefault();
-      touchHandled = true;
       navigateToCategory(slug);
-      setTimeout(()=>{ touchHandled = false; },700);
     },{passive:false});
     link.addEventListener('click',(event)=>{
-      if(touchHandled){
+      if(Date.now() < suppressClickUntil){
         event.preventDefault();
         return;
       }
@@ -123,7 +138,7 @@
     const article = make('article', 'product-card');
     article.id = 'product-' + product.id;
     article.appendChild(make('h3', 'product-name', product.name || 'Артикул'));
-    if (product.product_code){
+    if (product.product_code && product.show_product_code === true){
       article.appendChild(make('div', 'product-code', 'Код: ' + product.product_code));
     }
 
@@ -242,7 +257,7 @@
       try{
         products = await getRows(
           'products',
-          'select=id,name,product_code,slug,description,image_url,is_available,sort_order,category_id,is_active,is_archived&is_active=eq.true&is_archived=eq.false&category_id=eq.' + encodeURIComponent(category.id) + '&order=sort_order.asc,created_at.asc',
+          'select=id,name,product_code,show_product_code,slug,description,image_url,is_available,sort_order,category_id,is_active,is_archived&is_active=eq.true&is_archived=eq.false&category_id=eq.' + encodeURIComponent(category.id) + '&order=sort_order.asc,created_at.asc',
           controller.signal
         );
       } catch (schemaError){

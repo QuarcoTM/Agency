@@ -2,25 +2,13 @@
   const cfg = window.DENINOSHT_SUPABASE;
   if (!cfg || !cfg.url || !cfg.publishableKey) return;
 
-  const DEVICE_OPT_OUT_KEY = 'deninosht_analytics_do_not_count_device_v1';
-
   function isLikelyBot(){
     const ua = (typeof navigator !== 'undefined' && navigator.userAgent) ? navigator.userAgent : '';
     return /bot|crawler|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegrambot|headless|lighthouse/i.test(ua);
   }
-
-  function deviceOptedOut(){
-    try { return localStorage.getItem(DEVICE_OPT_OUT_KEY) === '1'; }
-    catch (_) { return false; }
-  }
-
-  if (isLikelyBot() || deviceOptedOut()) return;
+  if (isLikelyBot()) return;
 
   let disabled = false;
-
-  function clean(value, max){
-    return String(value || '').replace(/\s+/g,' ').trim().slice(0,max);
-  }
 
   function currentPagePath(){
     let path = location.pathname || '/';
@@ -30,15 +18,6 @@
       if (/^[a-z0-9-]{1,60}$/i.test(category)) path += '?category=' + category.toLowerCase();
     }
     return path;
-  }
-
-  function campaignInfo(){
-    const params = new URLSearchParams(location.search);
-    return {
-      source: clean(params.get('utm_source'),80),
-      medium: clean(params.get('utm_medium'),80),
-      campaign: clean(params.get('utm_campaign'),120)
-    };
   }
 
   function referrerInfo(){
@@ -59,29 +38,22 @@
     }
   }
 
+  function cleanLabel(value){
+    return String(value || '').replace(/\s+/g,' ').trim().slice(0,180);
+  }
+
   function track(eventType, label){
-    if (disabled || deviceOptedOut()) return;
+    if (disabled) return;
     const ref = referrerInfo();
-    const campaign = campaignInfo();
-
-    // A UTM source describes the external acquisition source more precisely than
-    // an empty/direct referrer, but internal navigation must stay "internal".
-    let source = ref.source;
-    if (source !== 'internal' && campaign.source) source = campaign.source.toLowerCase();
-
     const payload = {
-      p_event_type: clean(eventType,40),
+      p_event_type: String(eventType || '').slice(0,40),
       p_page_path: currentPagePath(),
-      p_source: clean(source,120) || 'direct',
-      p_referrer_host: clean(ref.host,160),
-      p_label: clean(label,180),
-      p_utm_source: campaign.source,
-      p_utm_medium: campaign.medium,
-      p_utm_campaign: campaign.campaign
+      p_source: ref.source,
+      p_referrer_host: ref.host,
+      p_label: cleanLabel(label)
     };
-
     try{
-      fetch(cfg.url + '/rest/v1/rpc/record_analytics_event_v153', {
+      fetch(cfg.url + '/rest/v1/rpc/record_analytics_event', {
         method:'POST',
         headers:{
           apikey:cfg.publishableKey,
@@ -97,19 +69,12 @@
     } catch(_){}
   }
 
-  window.DenINoshtAnalytics = Object.freeze({
-    track:track,
-    isDeviceExcluded:deviceOptedOut,
-    optOutKey:DEVICE_OPT_OUT_KEY
-  });
+  window.DenINoshtAnalytics = Object.freeze({track:track});
 
-  // Cookie-free page view. No visitor ID, fingerprint or persistent tracking ID.
+  // Cookie-free page view. No visitor ID, browser fingerprint or persistent storage is created.
   track('page_view','');
 
-  // GitHub Pages serves 404.html at the requested path; this extra event lets
-  // the admin panel show exactly which missing URLs are being requested.
-  if (window.DENINOSHT_IS_404 === true) track('not_found','404');
-
+  // Track only the agency phone link that was intentionally pressed.
   document.addEventListener('click',(event)=>{
     const link = event.target && event.target.closest ? event.target.closest('a[href^="tel:"]') : null;
     if (!link) return;

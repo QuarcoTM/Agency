@@ -3,4 +3,3 @@ Allow: /
 Disallow: /admin/
 
 Sitemap: https://deninosht.bg/sitemap.xml
-Sitemap: https://deninosht.bg/image-sitemap.xml
