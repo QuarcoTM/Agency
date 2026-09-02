@@ -9,6 +9,7 @@
   let products = [];
   let currentObjectUrl = '';
   let schemaReady = true;
+  let codeVisibilityReady = true;
   const ORIGINAL_TICKER = 'ДЕНОНОЩНА ТРАУРНА АГЕНЦИЯ — 0893 64 66 68 — 0898 24 24 34';
   let siteSettingsRowId = null;
   let siteSettingsReady = true;
@@ -1320,18 +1321,31 @@
     const catPromise = request('/rest/v1/categories?select=id,name,slug,sort_order,is_active&order=sort_order.asc', {}, true);
     let prodResult;
     schemaReady = true;
+    codeVisibilityReady = true;
     try{
-      prodResult = await request('/rest/v1/products?select=id,name,product_code,slug,description,image_url,is_available,sort_order,is_active,is_archived,category_id,created_at&order=category_id.asc,sort_order.asc,created_at.asc', {}, true);
+      prodResult = await request('/rest/v1/products?select=id,name,product_code,show_product_code,slug,description,image_url,is_available,sort_order,is_active,is_archived,category_id,created_at&order=category_id.asc,sort_order.asc,created_at.asc', {}, true);
     } catch (error){
-      if (/product_code|is_archived|column/i.test(error.message || '')){
+      if (/show_product_code/i.test(error.message || '')){
+        codeVisibilityReady = false;
+        try{
+          prodResult = await request('/rest/v1/products?select=id,name,product_code,slug,description,image_url,is_available,sort_order,is_active,is_archived,category_id,created_at&order=category_id.asc,sort_order.asc,created_at.asc', {}, true);
+          prodResult = (prodResult || []).map((p)=>Object.assign({show_product_code:false}, p));
+        } catch (fallbackError){
+          if (!/product_code|is_archived|column/i.test(fallbackError.message || '')) throw fallbackError;
+          schemaReady = false;
+          prodResult = await request('/rest/v1/products?select=id,name,slug,description,image_url,is_available,sort_order,is_active,category_id,created_at&order=category_id.asc,sort_order.asc,created_at.asc', {}, true);
+          prodResult = (prodResult || []).map((p)=>Object.assign({product_code:'',show_product_code:false,is_archived:false}, p));
+        }
+      } else if (/product_code|is_archived|column/i.test(error.message || '')){
         schemaReady = false;
         prodResult = await request('/rest/v1/products?select=id,name,slug,description,image_url,is_available,sort_order,is_active,category_id,created_at&order=category_id.asc,sort_order.asc,created_at.asc', {}, true);
-        prodResult = (prodResult || []).map((p)=>Object.assign({product_code:'',is_archived:false}, p));
+        prodResult = (prodResult || []).map((p)=>Object.assign({product_code:'',show_product_code:false,is_archived:false}, p));
       } else throw error;
     }
     categories = (await catPromise) || [];
     products = prodResult || [];
     $('schema-warning').hidden = schemaReady;
+    $('code-visibility-warning').hidden = !schemaReady || codeVisibilityReady;
     populateCategoryControls();
     updateStats();
     renderProducts();
@@ -1466,6 +1480,8 @@
     $('product-description').value=editing?(product.description||''):'';
     $('product-available').checked=editing?Boolean(product.is_available):true;
     $('product-active').checked=editing?Boolean(product.is_active):true;
+    $('product-show-code').checked=editing?Boolean(product.show_product_code):false;
+    $('product-show-code').disabled=!codeVisibilityReady;
     $('product-slug').value=editing?(product.slug||''):'';
     $('product-current-image').value=editing?(product.image_url||''):'';
     const sameCat = products.filter((p)=>!p.is_archived && (!editing || String(p.category_id)===String(product.category_id)));
@@ -1484,7 +1500,7 @@
     const wrap=$('preview-content'); wrap.replaceChildren();
     const card=document.createElement('article'); card.className='preview-product-card';
     const name=document.createElement('h3'); name.textContent=data.name||'Име на продукта'; card.appendChild(name);
-    if (data.product_code){ const code=document.createElement('div'); code.className='preview-product-code'; code.textContent='Код: '+data.product_code; card.appendChild(code); }
+    if (data.product_code && data.show_product_code){ const code=document.createElement('div'); code.className='preview-product-code'; code.textContent='Код: '+data.product_code; card.appendChild(code); }
     if (data.image_url){ const img=document.createElement('img'); img.src=data.image_url; img.alt=data.name||'Продукт'; card.appendChild(img); }
     if (data.description){ const d=document.createElement('p'); d.textContent=data.description; card.appendChild(d); }
     const a=document.createElement('div'); a.className='preview-availability '+(data.is_available?'is-available':'is-unavailable'); a.textContent=data.is_available?'В наличност':'Временно неналичен'; card.appendChild(a);
@@ -1495,7 +1511,7 @@
 
   function editorDraft(){
     return {
-      name:$('product-name').value.trim(), product_code:$('product-code').value.trim(), description:$('product-description').value.trim(),
+      name:$('product-name').value.trim(), product_code:$('product-code').value.trim(), show_product_code:$('product-show-code').checked, description:$('product-description').value.trim(),
       image_url:$('image-preview-img').getAttribute('src')||$('product-current-image').value||'', is_available:$('product-available').checked
     };
   }
@@ -1570,6 +1586,7 @@
         description:product.description||null, image_url:copiedImage||null, is_available:Boolean(product.is_available),
         is_active:false, is_archived:false, sort_order:maxOrder+10
       };
+      if (codeVisibilityReady) payload.show_product_code = false;
       const created=await request('/rest/v1/products', {
         method:'POST',headers:{'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)
       }, true);
@@ -1779,6 +1796,7 @@
         description:description||null, image_url:newImage||oldImage||null, is_available:$('product-available').checked,
         is_active:$('product-active').checked, is_archived:false, sort_order:sortOrder
       };
+      if (codeVisibilityReady) payload.show_product_code = $('product-show-code').checked;
       if (editing){
         await request('/rest/v1/products?id=eq.'+encodeURIComponent(id), {method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(payload)}, true);
       } else {

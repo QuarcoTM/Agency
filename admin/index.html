@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.60" rel="stylesheet"/>
+<link href="admin.css?v=1.61" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -84,6 +84,9 @@
 
     <div class="schema-warning" id="schema-warning" hidden>
       За продуктовите функции са нужни колоните <strong>product_code</strong> и <strong>is_archived</strong> в Supabase.
+    </div>
+    <div class="schema-warning" id="code-visibility-warning" hidden>
+      Кодовете са скрити от сайта. За избор по продукт пуснете файла <strong>supabase-product-code-visibility-v1.61.sql</strong> в Supabase.
     </div>
 
     <div class="stats-grid" aria-label="Обобщение">
@@ -452,6 +455,7 @@
       <div class="switch-row">
         <label class="switch-label"><input id="product-available" type="checkbox" checked/><span>В наличност</span></label>
         <label class="switch-label"><input id="product-active" type="checkbox" checked/><span>Показвай в сайта</span></label>
+        <label class="switch-label"><input id="product-show-code" type="checkbox"/><span>Показвай кода в сайта</span></label>
       </div>
 
       <div class="editor-actions">
@@ -476,6 +480,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.60"></script>
+<script src="admin.js?v=1.61"></script>
 </body>
 </html>
