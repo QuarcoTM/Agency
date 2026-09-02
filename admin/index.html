@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.57" rel="stylesheet"/>
+<link href="admin.css?v=1.58" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -202,8 +202,8 @@
             </label>
             <label for="obituary-design">Оформление
               <select id="obituary-design">
+                <option value="crosses" selected>Класически с кръстове — по образеца</option>
                 <option value="photo">Класически със снимка</option>
-                <option value="crosses">Класически с кръстове</option>
                 <option value="doves">Класически с гълъби</option>
                 <option value="candle">Тъмен със свещ</option>
               </select>
@@ -251,8 +251,8 @@
             <label for="obituary-title">Заглавие
               <input id="obituary-title" type="text" maxlength="60" value="СКРЪБНА ВЕСТ" required/>
             </label>
-            <label for="obituary-intro">Текст над името
-              <textarea id="obituary-intro" rows="2" maxlength="220">С дълбока скръб съобщаваме, че почина</textarea>
+            <label for="obituary-intro">Готов увод <span>(зарежда се автоматично)</span>
+              <textarea id="obituary-intro" rows="2" maxlength="220">С много болка съобщаваме,</textarea>
             </label>
             <label for="obituary-name">Име на покойника *
               <input id="obituary-name" type="text" maxlength="100" autocomplete="off" placeholder="Напр. Иван Иванов" required/>
@@ -276,6 +276,7 @@
               <label for="obituary-ceremony-kind">Вид
                 <select id="obituary-ceremony-kind">
                   <option value="viewing">Поклонение</option>
+                  <option value="service">Опело</option>
                   <option value="funeral">Погребение</option>
                   <option value="memorial">Панихида</option>
                   <option value="custom">Само допълнителния текст</option>
@@ -292,7 +293,7 @@
             <label for="obituary-ceremony-place">Място
               <input id="obituary-ceremony-place" type="text" maxlength="180" placeholder="Напр. храм „Св. Мина“, Кюстендил"/>
             </label>
-            <label for="obituary-extra-text">Допълнителен текст <span>(незадължително)</span>
+            <label for="obituary-extra-text">Готов възпоменателен текст <span>(зарежда се автоматично)</span>
               <textarea id="obituary-extra-text" rows="3" maxlength="420" placeholder="Напр. Погребението ще се извърши в Новия гробищен парк."></textarea>
             </label>
           </section>
@@ -300,10 +301,10 @@
           <section class="obituary-form-section" aria-labelledby="obituary-closing-heading">
             <div class="obituary-section-head"><div><h3 id="obituary-closing-heading">Завършек</h3></div></div>
             <label for="obituary-closing">Прощален текст
-              <textarea id="obituary-closing" rows="2" maxlength="220">ПОКЛОН ПРЕД СВЕТЛАТА МУ ПАМЕТ!</textarea>
+              <textarea id="obituary-closing" rows="2" maxlength="220"></textarea>
             </label>
             <label for="obituary-from">От кого <span>(незадължително)</span>
-              <input id="obituary-from" type="text" maxlength="180" value="От опечаленото семейство"/>
+              <input id="obituary-from" type="text" maxlength="180" value="От семейството"/>
             </label>
             <label class="switch-label obituary-footer-switch"><input id="obituary-agency-footer" type="checkbox" checked/><span>Добави името, телефоните и сайта на „Ден и Нощ“ в долната част</span></label>
           </section>
@@ -468,7 +469,7 @@
 </div>
 
 <script src="../supabase-config.js?v=1.52"></script>
-<script src="vendor/pdf-lib.min.js?v=1.57"></script>
-<script src="admin.js?v=1.57"></script>
+<script src="vendor/pdf-lib.min.js?v=1.58"></script>
+<script src="admin.js?v=1.58"></script>
 </body>
 </html>

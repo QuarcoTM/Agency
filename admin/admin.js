@@ -323,10 +323,10 @@
   const OBITUARY_PRESETS = {
     death: {
       title: 'СКРЪБНА ВЕСТ',
-      intro: 'С дълбока скръб съобщаваме, че почина',
-      extra: 'Добрите хора никога не умират. След себе си оставят светла диря и спомен, който остава завинаги.',
-      ceremony: 'viewing',
-      closing: {male:'ПОКЛОН ПРЕД СВЕТЛАТА МУ ПАМЕТ!',female:'ПОКЛОН ПРЕД СВЕТЛАТА Ѝ ПАМЕТ!',neutral:'ПОКЛОН ПРЕД СВЕТЛАТА ПАМЕТ!'}
+      intro: 'С много болка съобщаваме,',
+      extra: 'Мъка къса ни сърцата,\nпред твоя гроб стоим, стоим\nи ниско свели сме челата,\nдокато сме живи ще скърбим!',
+      ceremony: 'service',
+      closing: {male:'',female:'',neutral:''}
     },
     day40: {
       title: '40 ДНИ БЕЗ ТЕБ',
@@ -511,8 +511,8 @@
   function buildObituaryCeremonyText(model){
     if(model.ceremonyKind==='none'||model.ceremonyKind==='custom') return '';
     if(!model.ceremonyDate&&!model.ceremonyTime&&!model.ceremonyPlace) return '';
-    const names={viewing:'Поклонението',funeral:'Погребението',memorial:'Панихидата'};
-    let text=(names[model.ceremonyKind]||'Церемонията')+' ще се състои';
+    const names={viewing:'Поклонението',service:'Опелото',funeral:'Погребението',memorial:'Панихидата'};
+    let text=model.ceremonyKind==='service'?'Опелото ще се отслужи':(names[model.ceremonyKind]||'Церемонията')+' ще се състои';
     if(model.ceremonyDate) text+=' на '+formatObituaryLongDate(model.ceremonyDate);
     if(model.ceremonyTime) text+=' от '+model.ceremonyTime+' ч.';
     if(model.ceremonyPlace) text+=' в '+model.ceremonyPlace;
@@ -554,10 +554,12 @@
   }
 
   function drawObituaryCornerCross(ctx,cx,y,size,color){
-    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=Math.max(3,size*.065); ctx.lineCap='round';
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle='#fff'; ctx.lineWidth=Math.max(5,size*.11); ctx.lineCap='round';
     const top=y-size*.42; const bottom=y+size*.42; const left=cx-size*.32; const right=cx+size*.32; const barY=y-size*.12;
     ctx.beginPath(); ctx.moveTo(cx,top); ctx.lineTo(cx,bottom); ctx.moveTo(left,barY); ctx.lineTo(right,barY); ctx.stroke();
-    [[cx,top],[cx,bottom],[left,barY],[right,barY]].forEach(([px,py])=>{ ctx.beginPath(); ctx.arc(px,py,size*.055,0,Math.PI*2); ctx.stroke(); });
+    ctx.strokeStyle='#fff'; ctx.lineWidth=Math.max(2,size*.042); ctx.beginPath(); ctx.moveTo(cx,top); ctx.lineTo(cx,bottom); ctx.moveTo(left,barY); ctx.lineTo(right,barY); ctx.stroke();
+    ctx.strokeStyle=color; ctx.lineWidth=Math.max(3,size*.045);
+    [[cx,top],[cx,bottom],[left,barY],[right,barY]].forEach(([px,py])=>{ ctx.beginPath(); ctx.arc(px,py,size*.07,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
     ctx.restore();
   }
 
@@ -606,10 +608,53 @@
   function drawObituaryAgencyFooter(ctx,dark){
     ctx.save(); ctx.strokeStyle=dark?'#9d7843':'#555'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(78,1638); ctx.lineTo(1162,1638); ctx.stroke();
     ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle=dark?'#ead1a4':'#292929'; ctx.font='italic bold 18px Georgia';
-    ctx.fillText('Траурна агенция „Ден и Нощ“ — Кюстендил   0898 24 24 34   0893 64 66 68   deninosht.bg',620,1652); ctx.restore();
+    ctx.fillText('Траурна агенция „Ден и Нощ“ (срещу полицията)   0898 24 24 34   0893 64 66 68',620,1652); ctx.restore();
+  }
+
+  function obituaryNameParts(name){
+    return String(name||'').trim().split(/\s+/).filter(Boolean).map((part)=>{
+      const lower=part.toLocaleLowerCase('bg-BG');
+      return lower.charAt(0).toLocaleUpperCase('bg-BG')+lower.slice(1);
+    });
+  }
+
+  function paintObituaryCrossTemplate(ctx,model,scale){
+    drawObituaryFrame(ctx,'crosses');
+    const ink='#171515';
+    drawObituaryText(ctx,model.title,145,{size:58*scale,lineHeight:66*scale,gapAfter:0,maxWidth:760,weight:'bold',family:'Georgia',color:ink,uppercase:true});
+
+    drawObituaryText(ctx,model.intro||'С много болка съобщаваме,',300,{size:26*scale,lineHeight:35*scale,gapAfter:0,maxWidth:850,style:'italic',color:'#302b29'});
+    const deathLine=model.death?'че на '+formatObituaryShortDate(model.death):'че';
+    drawObituaryText(ctx,deathLine,352,{size:25*scale,lineHeight:34*scale,gapAfter:0,maxWidth:850,style:'italic',color:'#302b29'});
+    drawObituaryText(ctx,'внезапно ни напусна',404,{size:26*scale,lineHeight:35*scale,gapAfter:0,maxWidth:850,weight:'bold',style:'italic',color:'#302b29'});
+
+    const parts=obituaryNameParts(model.name); const nameSize=(parts.length>3?55:63)*scale; const nameLine=80*scale;
+    let nameY=510;
+    parts.forEach((part)=>{ drawObituaryText(ctx,part,nameY,{size:nameSize,lineHeight:nameLine,gapAfter:0,maxWidth:820,weight:'bold',family:'Georgia',color:ink}); nameY+=nameLine; });
+    if(model.birth){
+      const born=model.gender==='female'?'родена':'роден';
+      drawObituaryText(ctx,born+' '+model.birth.getFullYear()+' година',nameY+4*scale,{size:22*scale,lineHeight:30*scale,gapAfter:0,maxWidth:760,style:'italic',color:'#37312f'});
+    }
+
+    const poem=model.extraText||'Мъка къса ни сърцата,\nпред твоя гроб стоим, стоим\nи ниско свели сме челата,\nдокато сме живи ще скърбим!';
+    drawObituaryText(ctx,poem,940,{size:33*scale,lineHeight:44*scale,gapAfter:0,maxWidth:830,color:ink});
+
+    let ceremony='';
+    if(model.ceremonyKind!=='none'&&model.ceremonyKind!=='custom'){
+      const labels={viewing:'Поклонението ще се състои',service:'Опелото ще се отслужи',funeral:'Погребението ще се състои',memorial:'Панихидата ще се състои'};
+      ceremony=labels[model.ceremonyKind]||'Церемонията ще се състои';
+      if(model.ceremonyDate) ceremony+=' на '+formatObituaryShortDate(model.ceremonyDate);
+      if(model.ceremonyTime) ceremony+=' от '+model.ceremonyTime+' часа';
+      if(model.ceremonyPlace) ceremony+='\nв '+model.ceremonyPlace;
+    }
+    if(ceremony) drawObituaryText(ctx,ceremony,1380,{size:24*scale,lineHeight:38*scale,gapAfter:0,maxWidth:930,style:'italic',color:'#302b29'});
+    drawObituaryText(ctx,'От семейството',1525,{x:1080,size:24*scale,lineHeight:32*scale,gapAfter:0,maxWidth:500,weight:'bold',style:'italic',align:'right',color:ink});
+    if(model.agencyFooter) drawObituaryAgencyFooter(ctx,false);
+    return 1580;
   }
 
   function paintObituary(ctx,model,scale){
+    if(model.design==='crosses') return paintObituaryCrossTemplate(ctx,model,scale);
     drawObituaryFrame(ctx,model.design);
     const dark=model.design==='candle'; const ink=dark?'#fff5e8':'#171515'; const accent=dark?'#e2b257':'#171515'; const secondary=dark?'#f1d7ad':'#36302d';
     const titleSize=(model.title.length>32?45:model.title.length>22?51:58)*scale; let y=105;
