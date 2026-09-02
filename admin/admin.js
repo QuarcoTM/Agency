@@ -324,24 +324,49 @@
     death: {
       title: 'СКРЪБНА ВЕСТ',
       intro: 'С дълбока скръб съобщаваме, че почина',
+      extra: 'Добрите хора никога не умират. След себе си оставят светла диря и спомен, който остава завинаги.',
       ceremony: 'viewing',
       closing: {male:'ПОКЛОН ПРЕД СВЕТЛАТА МУ ПАМЕТ!',female:'ПОКЛОН ПРЕД СВЕТЛАТА Ѝ ПАМЕТ!',neutral:'ПОКЛОН ПРЕД СВЕТЛАТА ПАМЕТ!'}
     },
     day40: {
       title: '40 ДНИ БЕЗ ТЕБ',
       intro: 'С тъга и обич си спомняме за',
+      extra: 'Липсваш ни всеки ден. Споменът за теб ще остане завинаги в сърцата ни.',
+      ceremony: 'memorial',
+      closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
+    },
+    month3: {
+      title: 'ТЪЖЕН ПОМЕН — ТРИ МЕСЕЦА',
+      intro: 'С болка и обич си спомняме за',
+      extra: 'Времето минава, но болката и споменът остават. Никога няма да те забравим.',
+      ceremony: 'memorial',
+      closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
+    },
+    month6: {
+      title: 'ТЪЖЕН ПОМЕН — ШЕСТ МЕСЕЦА',
+      intro: 'С болка и обич си спомняме за',
+      extra: 'Времето минава, но болката и споменът остават. Никога няма да те забравим.',
+      ceremony: 'memorial',
+      closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
+    },
+    month9: {
+      title: 'ТЪЖЕН ПОМЕН — ДЕВЕТ МЕСЕЦА',
+      intro: 'С болка и обич си спомняме за',
+      extra: 'Времето минава, но болката и споменът остават. Никога няма да те забравим.',
       ceremony: 'memorial',
       closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
     },
     year1: {
       title: 'ЕДНА ГОДИНА БЕЗ ТЕБ',
       intro: 'С болка и обич пазим спомена за',
+      extra: 'Измина една година, но ти оставаш завинаги в мислите и сърцата ни.',
       ceremony: 'memorial',
       closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
     },
     memorial: {
       title: 'ВЪЗПОМЕНАНИЕ',
       intro: 'С обич и признателност си спомняме за',
+      extra: 'Споменът за теб е жив и ще остане завинаги в сърцата ни.',
       ceremony: 'memorial',
       closing: {male:'ПОКЛОН ПРЕД СВЕТЛАТА МУ ПАМЕТ!',female:'ПОКЛОН ПРЕД СВЕТЛАТА Ѝ ПАМЕТ!',neutral:'ПОКЛОН ПРЕД СВЕТЛАТА ПАМЕТ!'}
     }
@@ -352,6 +377,7 @@
     const preset=OBITUARY_PRESETS[obituaryType.value]||OBITUARY_PRESETS.death;
     $('obituary-title').value=preset.title;
     $('obituary-intro').value=preset.intro;
+    $('obituary-extra-text').value=preset.extra||'';
     $('obituary-closing').value=preset.closing[obituaryGender&&obituaryGender.value||'male']||preset.closing.neutral;
     $('obituary-ceremony-kind').value=preset.ceremony;
     updateObituaryCeremonyDateFromDeath(true);
@@ -397,6 +423,9 @@
     if(!death){ if(force&&obituaryCeremonyDateIsAutomatic) input.value=''; return; }
     let calculated=null;
     if(obituaryType&&obituaryType.value==='day40') calculated=addBookletDays(death,39);
+    if(obituaryType&&obituaryType.value==='month3') calculated=addBookletMonths(death,3);
+    if(obituaryType&&obituaryType.value==='month6') calculated=addBookletMonths(death,6);
+    if(obituaryType&&obituaryType.value==='month9') calculated=addBookletMonths(death,9);
     if(obituaryType&&obituaryType.value==='year1') calculated=addBookletMonths(death,12);
     if(calculated&&(force||obituaryCeremonyDateIsAutomatic||!input.value)){
       input.value=bookletDateValue(calculated); obituaryCeremonyDateIsAutomatic=true;
@@ -509,10 +538,10 @@
 
   function drawObituaryText(ctx,text,y,options){
     if(!String(text||'').trim()) return y;
-    const opts=Object.assign({x:620,maxWidth:1000,size:28,lineHeight:38,gapAfter:18,family:'Georgia',weight:'normal',color:'#181515',uppercase:false},options||{});
+    const opts=Object.assign({x:620,maxWidth:1000,size:28,lineHeight:38,gapAfter:18,family:'Georgia',weight:'normal',style:'normal',color:'#181515',uppercase:false,align:'center'},options||{});
     const value=opts.uppercase?String(text).toLocaleUpperCase('bg-BG'):String(text);
-    ctx.font=opts.weight+' '+Math.round(opts.size)+'px '+opts.family;
-    ctx.fillStyle=opts.color; ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.font=opts.style+' '+opts.weight+' '+Math.round(opts.size)+'px '+opts.family;
+    ctx.fillStyle=opts.color; ctx.textAlign=opts.align; ctx.textBaseline='top';
     const lines=obituaryWrappedLines(ctx,value,opts.maxWidth);
     lines.forEach((line,index)=>{ if(line) ctx.fillText(line,opts.x,y+index*opts.lineHeight); });
     return y+lines.length*opts.lineHeight+opts.gapAfter;
@@ -524,99 +553,109 @@
     ctx.beginPath(); ctx.moveTo(cx,y); ctx.lineTo(cx,y+height); ctx.moveTo(cx-width/2,barY); ctx.lineTo(cx+width/2,barY); ctx.stroke(); ctx.restore();
   }
 
+  function drawObituaryCornerCross(ctx,cx,y,size,color){
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=Math.max(3,size*.065); ctx.lineCap='round';
+    const top=y-size*.42; const bottom=y+size*.42; const left=cx-size*.32; const right=cx+size*.32; const barY=y-size*.12;
+    ctx.beginPath(); ctx.moveTo(cx,top); ctx.lineTo(cx,bottom); ctx.moveTo(left,barY); ctx.lineTo(right,barY); ctx.stroke();
+    [[cx,top],[cx,bottom],[left,barY],[right,barY]].forEach(([px,py])=>{ ctx.beginPath(); ctx.arc(px,py,size*.055,0,Math.PI*2); ctx.stroke(); });
+    ctx.restore();
+  }
+
+  function drawObituaryDove(ctx,cx,cy,size,flip){
+    ctx.save(); ctx.translate(cx,cy); ctx.scale(flip?-1:1,1); ctx.fillStyle='#a5a7a8'; ctx.globalAlpha=.8;
+    ctx.beginPath(); ctx.moveTo(-.42*size,.14*size); ctx.bezierCurveTo(-.26*size,.02*size,-.08*size,-.02*size,.1*size,.03*size); ctx.bezierCurveTo(.2*size,.06*size,.3*size,.02*size,.35*size,-.07*size); ctx.arc(.34*size,-.13*size,.09*size,.55,Math.PI*2+.55); ctx.bezierCurveTo(.24*size,-.03*size,.16*size,.15*size,-.01*size,.23*size); ctx.bezierCurveTo(-.17*size,.3*size,-.31*size,.25*size,-.42*size,.14*size); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(.42*size,-.15*size); ctx.lineTo(.57*size,-.11*size); ctx.lineTo(.42*size,-.06*size); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-.05*size,.08*size); ctx.bezierCurveTo(-.2*size,-.08*size,-.19*size,-.38*size,-.08*size,-.55*size); ctx.bezierCurveTo(.02*size,-.39*size,.08*size,-.19*size,.12*size,.05*size); ctx.bezierCurveTo(.07*size,.12*size,.02*size,.14*size,-.05*size,.08*size); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-.34*size,.15*size); ctx.lineTo(-.57*size,.25*size); ctx.lineTo(-.45*size,.07*size); ctx.lineTo(-.62*size,.03*size); ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+
+  function drawObituaryCandleBackground(ctx){
+    const bg=ctx.createLinearGradient(0,0,1240,1754); bg.addColorStop(0,'#090807'); bg.addColorStop(.52,'#24201b'); bg.addColorStop(1,'#070707'); ctx.fillStyle=bg; ctx.fillRect(0,0,1240,1754);
+    const glow=ctx.createRadialGradient(620,650,20,620,650,520); glow.addColorStop(0,'rgba(255,215,135,.72)'); glow.addColorStop(.25,'rgba(204,133,61,.28)'); glow.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=glow; ctx.fillRect(80,100,1080,1200);
+    ctx.save(); ctx.globalAlpha=.5; ctx.fillStyle='#e6c18c'; ctx.fillRect(585,620,70,520); ctx.fillStyle='#fff2d5'; ctx.beginPath(); ctx.moveTo(620,555); ctx.bezierCurveTo(560,635,596,694,620,700); ctx.bezierCurveTo(648,674,681,620,620,555); ctx.fill(); ctx.restore();
+  }
+
   function drawObituaryFrame(ctx,design){
-    ctx.fillStyle='#fff'; ctx.fillRect(0,0,1240,1754);
-    ctx.save();
-    if(design==='clean'){
-      ctx.strokeStyle='#6f2d31'; ctx.lineWidth=4; ctx.strokeRect(42,42,1156,1670);
-      ctx.strokeStyle='#c3a58d'; ctx.lineWidth=2; ctx.strokeRect(55,55,1130,1644);
+    if(design==='candle') drawObituaryCandleBackground(ctx);
+    else{ ctx.fillStyle='#fff'; ctx.fillRect(0,0,1240,1754); }
+    const dark=design==='candle'; const color=dark?'#d5a85c':'#151515';
+    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=dark?5:4; ctx.strokeRect(44,44,1152,1666); ctx.lineWidth=2; ctx.strokeRect(58,58,1124,1638);
+    if(design==='crosses'){
+      drawObituaryCornerCross(ctx,130,145,90,color); drawObituaryCornerCross(ctx,1110,145,90,color);
+    }else if(design==='doves'){
+      drawObituaryDove(ctx,145,135,125,false); drawObituaryDove(ctx,1095,135,125,true);
     }else{
-      ctx.strokeStyle='#161313'; ctx.lineWidth=7; ctx.strokeRect(38,38,1164,1678);
-      ctx.lineWidth=2; ctx.strokeRect(54,54,1132,1646);
-      const corners=[[74,74,1,1],[1166,74,-1,1],[74,1680,1,-1],[1166,1680,-1,-1]];
-      ctx.lineWidth=4;
-      corners.forEach(([x,y,dx,dy])=>{ ctx.beginPath(); ctx.moveTo(x,y+dy*42); ctx.lineTo(x,y); ctx.lineTo(x+dx*42,y); ctx.stroke(); });
+      const corners=[[78,78,1,1],[1162,78,-1,1],[78,1676,1,-1],[1162,1676,-1,-1]]; ctx.lineWidth=4;
+      corners.forEach(([x,y,dx,dy])=>{ ctx.beginPath(); ctx.moveTo(x,y+dy*38); ctx.lineTo(x,y); ctx.lineTo(x+dx*38,y); ctx.stroke(); });
     }
     ctx.restore();
   }
 
-  function drawObituaryPortrait(ctx,image,cx,y,width,height,model){
+  function drawObituaryPortrait(ctx,image,x,y,width,height,model,dark){
     const base=Math.max(width/image.naturalWidth,height/image.naturalHeight);
     const scale=base*Math.max(1,model.photoZoom/100);
     const drawWidth=image.naturalWidth*scale; const drawHeight=image.naturalHeight*scale;
     const overflowX=Math.max(0,drawWidth-width); const overflowY=Math.max(0,drawHeight-height);
     const offsetX=(Math.max(-100,Math.min(100,model.photoX))/100)*(overflowX/2);
     const offsetY=(Math.max(-100,Math.min(100,model.photoY))/100)*(overflowY/2);
-    const x=cx-width/2;
-    ctx.save(); ctx.beginPath(); ctx.ellipse(cx,y+height/2,width/2,height/2,0,0,Math.PI*2); ctx.clip();
+    ctx.save(); ctx.beginPath(); ctx.rect(x,y,width,height); ctx.clip();
     ctx.drawImage(image,x+(width-drawWidth)/2+offsetX,y+(height-drawHeight)/2+offsetY,drawWidth,drawHeight); ctx.restore();
-    ctx.save(); ctx.strokeStyle=model.design==='clean'?'#6f2d31':'#181515'; ctx.lineWidth=6; ctx.beginPath(); ctx.ellipse(cx,y+height/2,width/2,height/2,0,0,Math.PI*2); ctx.stroke();
-    ctx.strokeStyle='#c2a58f'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx,y+height/2,width/2-12,height/2-12,0,0,Math.PI*2); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.strokeStyle=dark?'#d5a85c':'#171717'; ctx.lineWidth=5; ctx.strokeRect(x-8,y-8,width+16,height+16); ctx.lineWidth=2; ctx.strokeRect(x+4,y+4,width-8,height-8); ctx.restore();
   }
 
-  function drawObituaryAgencyFooter(ctx,logo){
-    ctx.save(); ctx.strokeStyle='#b99b84'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(90,1560); ctx.lineTo(1150,1560); ctx.stroke();
-    if(logo){
-      ctx.fillStyle='#080808'; ctx.fillRect(96,1580,126,96);
-      drawImageContained(ctx,logo,105,1588,108,80);
-    }
-    const textX=logo?255:620; ctx.textAlign=logo?'left':'center'; ctx.textBaseline='top';
-    ctx.fillStyle='#4d282a'; ctx.font='bold 22px Arial'; ctx.fillText('ТРАУРНА АГЕНЦИЯ „ДЕН И НОЩ“ — КЮСТЕНДИЛ',textX,1590);
-    ctx.fillStyle='#241d1c'; ctx.font='bold 22px Arial'; ctx.fillText('0893 64 66 68  •  0898 24 24 34',textX,1627);
-    ctx.fillStyle='#5e5550'; ctx.font='19px Arial'; ctx.fillText('deninosht.bg',textX,1662); ctx.restore();
+  function drawObituaryAgencyFooter(ctx,dark){
+    ctx.save(); ctx.strokeStyle=dark?'#9d7843':'#555'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(78,1638); ctx.lineTo(1162,1638); ctx.stroke();
+    ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle=dark?'#ead1a4':'#292929'; ctx.font='italic bold 18px Georgia';
+    ctx.fillText('Траурна агенция „Ден и Нощ“ — Кюстендил   0898 24 24 34   0893 64 66 68   deninosht.bg',620,1652); ctx.restore();
   }
 
-  function paintObituary(ctx,model,logo,scale){
+  function paintObituary(ctx,model,scale){
     drawObituaryFrame(ctx,model.design);
-    const accent=model.design==='clean'?'#6f2d31':'#171313';
-    const maxWidth=1000; let y=78;
-    drawObituaryCross(ctx,620,y,58*scale,accent,7*scale); y+=82*scale;
-    const titleSize=(model.title.length>28?43:52)*scale;
-    y=drawObituaryText(ctx,model.title,y,{size:titleSize,lineHeight:titleSize*1.16,gapAfter:14*scale,maxWidth,weight:'bold',family:'Arial',color:accent,uppercase:true});
-    ctx.strokeStyle='#b99b84'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(145,y); ctx.lineTo(1095,y); ctx.stroke(); y+=28*scale;
-    y=drawObituaryText(ctx,model.intro,y,{size:27*scale,lineHeight:37*scale,gapAfter:22*scale,maxWidth:930,color:'#332a28'});
+    const dark=model.design==='candle'; const ink=dark?'#fff5e8':'#171515'; const accent=dark?'#e2b257':'#171515'; const secondary=dark?'#f1d7ad':'#36302d';
+    const titleSize=(model.title.length>32?45:model.title.length>22?51:58)*scale; let y=105;
+    y=drawObituaryText(ctx,model.title,y,{size:titleSize,lineHeight:titleSize*1.08,gapAfter:45*scale,maxWidth:850,weight:'bold',family:'Arial',color:accent,uppercase:true});
+    y=drawObituaryText(ctx,model.intro,y,{size:27*scale,lineHeight:38*scale,gapAfter:34*scale,maxWidth:850,style:'italic',color:secondary});
 
-    if(model.photo){
-      const photoWidth=285*scale; const photoHeight=355*scale;
-      drawObituaryPortrait(ctx,model.photo,620,y,photoWidth,photoHeight,model); y+=photoHeight+28*scale;
-    }else{
-      drawObituaryCross(ctx,620,y+12*scale,135*scale,'#6f2d31',11*scale); y+=182*scale;
-    }
-
-    const nameSize=(model.name.length>42?49:model.name.length>28?57:66)*scale;
-    y=drawObituaryText(ctx,model.name,y,{size:nameSize,lineHeight:nameSize*1.08,gapAfter:16*scale,maxWidth:1040,weight:'bold',uppercase:true});
     const dateParts=[];
     if(model.birth) dateParts.push('* '+formatObituaryShortDate(model.birth));
     if(model.death) dateParts.push('† '+formatObituaryShortDate(model.death));
-    if(dateParts.length) y=drawObituaryText(ctx,dateParts.join('     '),y,{size:24*scale,lineHeight:32*scale,gapAfter:7*scale,maxWidth:950,weight:'bold',family:'Arial',color:'#514744'});
-    if(model.age!==null) y=drawObituaryText(ctx,'на '+model.age+' години',y,{size:23*scale,lineHeight:31*scale,gapAfter:18*scale,maxWidth:900,family:'Arial',color:'#514744'});
+    const nameSize=(model.name.length>42?48:model.name.length>28?55:64)*scale;
+    if(model.photo&&model.design!=='candle'){
+      const photoX=145,photoY=Math.max(y+12,445),photoWidth=370*scale,photoHeight=465*scale;
+      drawObituaryPortrait(ctx,model.photo,photoX,photoY,photoWidth,photoHeight,model,false);
+      let sideY=photoY+38*scale;
+      sideY=drawObituaryText(ctx,model.name,sideY,{x:825,size:nameSize,lineHeight:nameSize*1.08,gapAfter:18*scale,maxWidth:540,weight:'bold',color:ink,uppercase:true});
+      if(model.age!==null) sideY=drawObituaryText(ctx,model.age+' г.',sideY,{x:825,size:28*scale,lineHeight:35*scale,gapAfter:12*scale,maxWidth:500,weight:'bold',style:'italic',color:secondary});
+      if(dateParts.length) sideY=drawObituaryText(ctx,dateParts.join('   '),sideY,{x:825,size:21*scale,lineHeight:29*scale,gapAfter:8*scale,maxWidth:540,family:'Arial',color:secondary});
+      y=Math.max(photoY+photoHeight+55*scale,sideY+28*scale);
+    }else{
+      if(model.photo&&dark){ const pw=300*scale,ph=365*scale; drawObituaryPortrait(ctx,model.photo,620-pw/2,y,pw,ph,model,true); y+=ph+38*scale; }
+      else if(!dark){ drawObituaryCross(ctx,620,y+3*scale,105*scale,accent,9*scale); y+=140*scale; }
+      y=drawObituaryText(ctx,model.name,y,{size:nameSize,lineHeight:nameSize*1.08,gapAfter:13*scale,maxWidth:900,weight:'bold',color:ink,uppercase:true});
+      if(model.age!==null) y=drawObituaryText(ctx,model.age+' г.',y,{size:26*scale,lineHeight:34*scale,gapAfter:8*scale,maxWidth:700,weight:'bold',style:'italic',color:secondary});
+      if(dateParts.length) y=drawObituaryText(ctx,dateParts.join('     '),y,{size:21*scale,lineHeight:29*scale,gapAfter:20*scale,maxWidth:800,family:'Arial',color:secondary});
+    }
 
     const ceremony=buildObituaryCeremonyText(model);
-    if(ceremony||model.extraText){ ctx.strokeStyle='#d1bdaa'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(205,y); ctx.lineTo(1035,y); ctx.stroke(); y+=24*scale; }
-    if(ceremony) y=drawObituaryText(ctx,ceremony,y,{size:27*scale,lineHeight:37*scale,gapAfter:18*scale,maxWidth:1010});
-    if(model.extraText) y=drawObituaryText(ctx,model.extraText,y,{size:25*scale,lineHeight:35*scale,gapAfter:18*scale,maxWidth:1010,color:'#332a28'});
-
-    const closingAnchor=model.photo?1260:1120;
-    y=Math.max(y+22*scale,closingAnchor);
+    if(model.extraText) y=drawObituaryText(ctx,model.extraText,y,{size:30*scale,lineHeight:41*scale,gapAfter:36*scale,maxWidth:930,weight:'bold',style:'italic',color:ink});
+    if(ceremony) y=drawObituaryText(ctx,ceremony,y,{size:25*scale,lineHeight:35*scale,gapAfter:18*scale,maxWidth:950,style:'italic',color:secondary});
+    const closingAnchor=model.photo?1260:dark?1180:1110; y=Math.max(y+12*scale,closingAnchor);
     if(model.closing){
-      ctx.strokeStyle='#b99b84'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(280,y); ctx.lineTo(960,y); ctx.stroke(); y+=25*scale;
-      y=drawObituaryText(ctx,model.closing,y,{size:30*scale,lineHeight:41*scale,gapAfter:22*scale,maxWidth:960,weight:'bold',family:'Arial',color:'#6f2d31',uppercase:true});
+      y=drawObituaryText(ctx,model.closing,y,{size:31*scale,lineHeight:42*scale,gapAfter:25*scale,maxWidth:900,weight:'bold',style:'italic',color:accent,uppercase:true});
     }
-    if(model.from) y=drawObituaryText(ctx,model.from,y,{size:23*scale,lineHeight:32*scale,gapAfter:12*scale,maxWidth:950,family:'Arial',color:'#4f4642'});
-    if(model.agencyFooter) drawObituaryAgencyFooter(ctx,logo);
+    if(model.from) y=drawObituaryText(ctx,model.from,y,{x:1080,size:23*scale,lineHeight:31*scale,gapAfter:8*scale,maxWidth:820,weight:'bold',style:'italic',align:'right',color:secondary});
+    if(model.agencyFooter) drawObituaryAgencyFooter(ctx,dark);
     return y;
   }
 
   async function createObituaryCanvas(model,targetCanvas){
     const canvas=targetCanvas||document.createElement('canvas'); canvas.width=1240; canvas.height=1754;
     const ctx=canvas.getContext('2d',{alpha:false});
-    let logo=null;
-    if(model.agencyFooter){ try{ logo=await loadBookletImage('../assets/logo-den-i-nosht.webp'); }catch(_){ logo=null; } }
-    const limit=model.agencyFooter?1525:1660;
+    const limit=model.agencyFooter?1615:1680;
     let fitted=false;
-    for(const scale of [1,.91,.83,.76]){
+    for(const scale of [1,.92,.85,.78,.72]){
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      const bottom=paintObituary(ctx,model,logo,scale);
+      const bottom=paintObituary(ctx,model,scale);
       if(bottom<=limit){ fitted=true; break; }
     }
     if(!fitted) throw new Error('Текстът е прекалено дълъг за една страница. Съкратете допълнителния или прощалния текст.');

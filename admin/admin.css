@@ -87,7 +87,7 @@
 @media(max-width:980px){.booklet-reading-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.booklet-zadushnitsa-row{grid-template-columns:1fr 1fr}.booklet-zadushnitsa-remove{grid-column:1/-1}}
 @media(max-width:640px){.booklet-reading-preview{grid-template-columns:1fr}.booklet-zadushnitsa-row{grid-template-columns:1fr}.booklet-zadushnitsa-remove{grid-column:auto}.booklet-reading-page>.booklet-page{margin:0}.booklet-page-list{padding-left:0}.booklet-logo-badge{width:48%}}
 
-/* v1.56 — print-ready obituary generator */
+/* v1.57 — traditional print obituary templates */
 .obituary-admin-view{display:block}
 .obituary-intro-card{border:1px solid var(--line);background:#090909;padding:22px;margin-bottom:18px}
 .obituary-intro-card h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(28px,4vw,38px);font-weight:500;margin:0}

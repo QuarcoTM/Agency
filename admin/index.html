@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.56" rel="stylesheet"/>
+<link href="admin.css?v=1.57" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -193,14 +193,19 @@
               <select id="obituary-type">
                 <option value="death">Скръбна вест</option>
                 <option value="day40">40 дни</option>
+                <option value="month3">Три месеца</option>
+                <option value="month6">Шест месеца</option>
+                <option value="month9">Девет месеца</option>
                 <option value="year1">Една година</option>
                 <option value="memorial">Възпоменание</option>
               </select>
             </label>
             <label for="obituary-design">Оформление
               <select id="obituary-design">
-                <option value="classic">Класическо</option>
-                <option value="clean">Изчистено</option>
+                <option value="photo">Класически със снимка</option>
+                <option value="crosses">Класически с кръстове</option>
+                <option value="doves">Класически с гълъби</option>
+                <option value="candle">Тъмен със свещ</option>
               </select>
             </label>
             <label for="obituary-output">Формат за печат
@@ -220,7 +225,7 @@
 
           <section class="obituary-form-section" aria-labelledby="obituary-photo-heading">
             <div class="obituary-section-head">
-              <div><h3 id="obituary-photo-heading">Снимка</h3><p>Незадължителна. Системата я поставя автоматично в овална рамка.</p></div>
+              <div><h3 id="obituary-photo-heading">Снимка</h3><p>Незадължителна. Поставя се в традиционна правоъгълна рамка и може да се намести.</p></div>
               <button class="small-button danger" id="obituary-remove-photo" type="button" hidden>Премахни</button>
             </div>
             <label class="obituary-photo-picker" for="obituary-photo">
@@ -300,7 +305,7 @@
             <label for="obituary-from">От кого <span>(незадължително)</span>
               <input id="obituary-from" type="text" maxlength="180" value="От опечаленото семейство"/>
             </label>
-            <label class="switch-label obituary-footer-switch"><input id="obituary-agency-footer" type="checkbox" checked/><span>Добави малко лого и телефоните на „Ден и Нощ“ в долната част</span></label>
+            <label class="switch-label obituary-footer-switch"><input id="obituary-agency-footer" type="checkbox" checked/><span>Добави името, телефоните и сайта на „Ден и Нощ“ в долната част</span></label>
           </section>
 
           <div class="obituary-actions">
@@ -463,7 +468,7 @@
 </div>
 
 <script src="../supabase-config.js?v=1.52"></script>
-<script src="vendor/pdf-lib.min.js?v=1.56"></script>
-<script src="admin.js?v=1.56"></script>
+<script src="vendor/pdf-lib.min.js?v=1.57"></script>
+<script src="admin.js?v=1.57"></script>
 </body>
 </html>
