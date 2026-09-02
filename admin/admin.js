@@ -65,6 +65,7 @@
   const obituaryPhoto = $('obituary-photo');
   const obituaryPhotoName = $('obituary-photo-name');
   const obituaryPhotoControls = $('obituary-photo-controls');
+  const obituaryPhotoFit = $('obituary-photo-fit');
   const obituaryPhotoZoom = $('obituary-photo-zoom');
   const obituaryPhotoZoomValue = $('obituary-photo-zoom-value');
   const obituaryPhotoX = $('obituary-photo-x');
@@ -329,35 +330,35 @@
       closing: {male:'',female:'',neutral:''}
     },
     day40: {
-      title: '40 ДНИ БЕЗ ТЕБ',
+      title: 'ВЪЗПОМЕНАНИЕ',
       intro: 'С тъга и обич си спомняме за',
       extra: 'Липсваш ни всеки ден. Споменът за теб ще остане завинаги в сърцата ни.',
       ceremony: 'memorial',
       closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
     },
     month3: {
-      title: 'ТЪЖЕН ПОМЕН — ТРИ МЕСЕЦА',
+      title: 'ВЪЗПОМЕНАНИЕ',
       intro: 'С болка и обич си спомняме за',
       extra: 'Времето минава, но болката и споменът остават. Никога няма да те забравим.',
       ceremony: 'memorial',
       closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
     },
     month6: {
-      title: 'ТЪЖЕН ПОМЕН — ШЕСТ МЕСЕЦА',
+      title: 'ВЪЗПОМЕНАНИЕ',
       intro: 'С болка и обич си спомняме за',
       extra: 'Времето минава, но болката и споменът остават. Никога няма да те забравим.',
       ceremony: 'memorial',
       closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
     },
     month9: {
-      title: 'ТЪЖЕН ПОМЕН — ДЕВЕТ МЕСЕЦА',
+      title: 'ВЪЗПОМЕНАНИЕ',
       intro: 'С болка и обич си спомняме за',
       extra: 'Времето минава, но болката и споменът остават. Никога няма да те забравим.',
       ceremony: 'memorial',
       closing: {male:'СВЕТЛА И ВЕЧНА МУ ПАМЕТ!',female:'СВЕТЛА И ВЕЧНА Ѝ ПАМЕТ!',neutral:'СВЕТЛА И ВЕЧНА ПАМЕТ!'}
     },
     year1: {
-      title: 'ЕДНА ГОДИНА БЕЗ ТЕБ',
+      title: 'ВЪЗПОМЕНАНИЕ',
       intro: 'С болка и обич пазим спомена за',
       extra: 'Измина една година, но ти оставаш завинаги в мислите и сърцата ни.',
       ceremony: 'memorial',
@@ -440,6 +441,7 @@
     if(obituaryPhotoControls) obituaryPhotoControls.hidden=true;
     if(obituaryRemovePhoto) obituaryRemovePhoto.hidden=true;
     if(obituaryPhotoZoom) obituaryPhotoZoom.value='100';
+    if(obituaryPhotoFit) obituaryPhotoFit.value='contain';
     if(obituaryPhotoZoomValue) obituaryPhotoZoomValue.textContent='100%';
     if(obituaryPhotoX) obituaryPhotoX.value='0';
     if(obituaryPhotoY) obituaryPhotoY.value='0';
@@ -465,6 +467,7 @@
     if(obituaryPhotoControls) obituaryPhotoControls.hidden=false;
     if(obituaryRemovePhoto) obituaryRemovePhoto.hidden=false;
     if(obituaryPhotoZoom) obituaryPhotoZoom.value='100';
+    if(obituaryPhotoFit) obituaryPhotoFit.value='contain';
     if(obituaryPhotoZoomValue) obituaryPhotoZoomValue.textContent='100%';
     if(obituaryPhotoX) obituaryPhotoX.value='0';
     if(obituaryPhotoY) obituaryPhotoY.value='0';
@@ -502,6 +505,7 @@
       from:String($('obituary-from').value||'').trim(),
       agencyFooter:Boolean($('obituary-agency-footer').checked),
       photo:obituaryPhotoImage,
+      photoFit:obituaryPhotoFit&&obituaryPhotoFit.value||'contain',
       photoZoom:Number(obituaryPhotoZoom&&obituaryPhotoZoom.value||100),
       photoX:Number(obituaryPhotoX&&obituaryPhotoX.value||0),
       photoY:Number(obituaryPhotoY&&obituaryPhotoY.value||0)
@@ -602,9 +606,10 @@
   }
 
   function drawObituaryPortrait(ctx,image,x,y,width,height,model,dark){
-    const base=Math.max(width/image.naturalWidth,height/image.naturalHeight);
-    const scale=base*Math.max(1,model.photoZoom/100);
-    const drawWidth=image.naturalWidth*scale; const drawHeight=image.naturalHeight*scale;
+    const imageWidth=image.naturalWidth||image.width; const imageHeight=image.naturalHeight||image.height;
+    const base=model.photoFit==='cover'?Math.max(width/imageWidth,height/imageHeight):Math.min(width/imageWidth,height/imageHeight);
+    const scale=base*Math.max(.5,model.photoZoom/100);
+    const drawWidth=imageWidth*scale; const drawHeight=imageHeight*scale;
     const overflowX=Math.max(0,drawWidth-width); const overflowY=Math.max(0,drawHeight-height);
     const offsetX=(Math.max(-100,Math.min(100,model.photoX))/100)*(overflowX/2);
     const offsetY=(Math.max(-100,Math.min(100,model.photoY))/100)*(overflowY/2);
@@ -626,18 +631,27 @@
     });
   }
 
+  function obituaryHeadingParts(model){
+    if(model.type==='death') return {title:model.title||'СКРЪБНА ВЕСТ',period:''};
+    const periods={day40:'40 ДНИ',month3:'ТРИ МЕСЕЦА',month6:'ШЕСТ МЕСЕЦА',month9:'ДЕВЕТ МЕСЕЦА',year1:'ЕДНА ГОДИНА'};
+    return {title:'ВЪЗПОМЕНАНИЕ',period:periods[model.type]||''};
+  }
+
   function paintObituaryCrossTemplate(ctx,model,scale){
     drawObituaryFrame(ctx,'crosses');
-    const ink='#171515';
-    drawObituaryText(ctx,model.title,145,{size:58*scale,lineHeight:66*scale,gapAfter:0,maxWidth:760,weight:'bold',family:'Georgia',color:ink,uppercase:true});
+    const ink='#171515'; const heading=obituaryHeadingParts(model); const isDeath=model.type==='death';
+    drawObituaryText(ctx,heading.title,130,{size:58*scale,lineHeight:66*scale,gapAfter:0,maxWidth:780,weight:'bold',family:'Georgia',color:ink,uppercase:true});
+    if(heading.period) drawObituaryText(ctx,heading.period,208,{size:45*scale,lineHeight:53*scale,gapAfter:0,maxWidth:760,weight:'bold',family:'Georgia',color:ink,uppercase:true});
 
-    drawObituaryText(ctx,model.intro||'С много болка съобщаваме,',300,{size:26*scale,lineHeight:35*scale,gapAfter:0,maxWidth:850,style:'italic',color:'#302b29'});
-    const deathLine=model.death?'че на '+formatObituaryShortDate(model.death):'че';
-    drawObituaryText(ctx,deathLine,352,{size:25*scale,lineHeight:34*scale,gapAfter:0,maxWidth:850,style:'italic',color:'#302b29'});
-    drawObituaryText(ctx,'внезапно ни напусна',404,{size:26*scale,lineHeight:35*scale,gapAfter:0,maxWidth:850,weight:'bold',style:'italic',color:'#302b29'});
+    drawObituaryText(ctx,model.intro||(isDeath?'С много болка съобщаваме,':'С болка и обич си спомняме за'),isDeath?300:315,{size:26*scale,lineHeight:35*scale,gapAfter:0,maxWidth:850,style:'italic',color:'#302b29'});
+    if(isDeath){
+      const deathLine=model.death?'че на '+formatObituaryShortDate(model.death):'че';
+      drawObituaryText(ctx,deathLine,352,{size:25*scale,lineHeight:34*scale,gapAfter:0,maxWidth:850,style:'italic',color:'#302b29'});
+      drawObituaryText(ctx,'внезапно ни напусна',404,{size:26*scale,lineHeight:35*scale,gapAfter:0,maxWidth:850,weight:'bold',style:'italic',color:'#302b29'});
+    }
 
     const parts=obituaryNameParts(model.name); const nameSize=(parts.length>3?55:63)*scale; const nameLine=80*scale;
-    let nameY=510;
+    let nameY=isDeath?510:405;
     parts.forEach((part)=>{ drawObituaryText(ctx,part,nameY,{size:nameSize,lineHeight:nameLine,gapAfter:0,maxWidth:820,weight:'bold',family:'Georgia',color:ink}); nameY+=nameLine; });
     if(model.birth){
       const born=model.gender==='female'?'родена':'роден';
@@ -666,8 +680,9 @@
     if(model.design==='crosses') return paintObituaryCrossTemplate(ctx,model,scale);
     drawObituaryFrame(ctx,model.design);
     const dark=model.design==='candle'; const ink=dark?'#fff5e8':'#171515'; const accent=dark?'#e2b257':'#171515'; const secondary=dark?'#f1d7ad':'#36302d';
-    const titleSize=(model.title.length>32?45:model.title.length>22?51:58)*scale; let y=105;
-    y=drawObituaryText(ctx,model.title,y,{size:titleSize,lineHeight:titleSize*1.08,gapAfter:45*scale,maxWidth:850,weight:'bold',family:'Arial',color:accent,uppercase:true});
+    const heading=obituaryHeadingParts(model); const titleSize=(heading.title.length>32?45:heading.title.length>22?51:58)*scale; let y=105;
+    y=drawObituaryText(ctx,heading.title,y,{size:titleSize,lineHeight:titleSize*1.08,gapAfter:heading.period?8*scale:45*scale,maxWidth:850,weight:'bold',family:'Arial',color:accent,uppercase:true});
+    if(heading.period) y=drawObituaryText(ctx,heading.period,y,{size:44*scale,lineHeight:50*scale,gapAfter:38*scale,maxWidth:820,weight:'bold',family:'Arial',color:accent,uppercase:true});
     y=drawObituaryText(ctx,model.intro,y,{size:27*scale,lineHeight:38*scale,gapAfter:34*scale,maxWidth:850,style:'italic',color:secondary});
 
     const dateParts=[];

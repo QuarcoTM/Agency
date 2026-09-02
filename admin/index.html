@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.59" rel="stylesheet"/>
+<link href="admin.css?v=1.60" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -225,7 +225,7 @@
 
           <section class="obituary-form-section" aria-labelledby="obituary-photo-heading">
             <div class="obituary-section-head">
-              <div><h3 id="obituary-photo-heading">Снимка</h3><p>Незадължителна. Поставя се в традиционна правоъгълна рамка и може да се намести.</p></div>
+              <div><h3 id="obituary-photo-heading">Снимка</h3><p>Незадължителна. По подразбиране се показва цялата, без изрязване.</p></div>
               <button class="small-button danger" id="obituary-remove-photo" type="button" hidden>Премахни</button>
             </div>
             <label class="obituary-photo-picker" for="obituary-photo">
@@ -234,8 +234,14 @@
               <small id="obituary-photo-name">Няма избрана снимка</small>
             </label>
             <div class="obituary-photo-controls" id="obituary-photo-controls" hidden>
-              <label for="obituary-photo-zoom">Увеличение <output id="obituary-photo-zoom-value">100%</output>
-                <input id="obituary-photo-zoom" type="range" min="100" max="220" step="1" value="100"/>
+              <label for="obituary-photo-fit">Поставяне на снимката
+                <select id="obituary-photo-fit">
+                  <option value="contain" selected>Цялата снимка — без изрязване</option>
+                  <option value="cover">Запълни рамката — възможно изрязване</option>
+                </select>
+              </label>
+              <label for="obituary-photo-zoom">Размер <output id="obituary-photo-zoom-value">100%</output>
+                <input id="obituary-photo-zoom" type="range" min="50" max="220" step="1" value="100"/>
               </label>
               <label for="obituary-photo-x">Наляво / надясно
                 <input id="obituary-photo-x" type="range" min="-100" max="100" step="1" value="0"/>
@@ -469,7 +475,7 @@
 </div>
 
 <script src="../supabase-config.js?v=1.52"></script>
-<script src="vendor/pdf-lib.min.js?v=1.59"></script>
-<script src="admin.js?v=1.59"></script>
+<script src="vendor/pdf-lib.min.js?v=1.60"></script>
+<script src="admin.js?v=1.60"></script>
 </body>
 </html>
