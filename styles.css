@@ -841,3 +841,186 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
   .grave-care-actions{display:grid;grid-template-columns:1fr;width:100%}
   .grave-care-actions .button{width:100%;min-width:0}
 }
+
+
+/* v1.63 — Автоматичен календар на задушниците */
+.zad-container{max-width:1040px}
+.zad-next{
+  margin:0 0 50px;
+  padding:26px 28px;
+  border:1px solid rgba(179,131,94,.55);
+  background:linear-gradient(135deg,rgba(179,131,94,.12),rgba(104,22,22,.08)),#0b0a09
+}
+.zad-next-label{
+  margin-bottom:12px;
+  color:var(--brown-2);
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase
+}
+.zad-next-main{display:flex;align-items:center;justify-content:space-between;gap:26px}
+.zad-next-main strong{
+  display:block;
+  margin-bottom:6px;
+  color:#fff;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:clamp(25px,4vw,38px);
+  line-height:1.1
+}
+.zad-next-main span{color:var(--muted);font-size:17px}
+.zad-countdown{
+  flex:0 0 auto;
+  min-width:150px;
+  padding:13px 16px;
+  border:1px solid rgba(179,131,94,.42);
+  color:#fff;
+  font-weight:900;
+  text-align:center
+}
+.zad-intro{max-width:850px;margin-bottom:42px}
+.zad-intro p{color:var(--muted);font-size:17px;line-height:1.75}
+.zad-year{margin-top:38px}
+.zad-year-next{margin-top:58px;padding-top:48px;border-top:1px solid var(--line)}
+.zad-year-head{margin-bottom:18px}
+.zad-year-head h2{margin:0;font-size:clamp(29px,4vw,40px)}
+.zad-list{display:grid;gap:14px}
+.zad-card{
+  display:grid;
+  grid-template-columns:92px minmax(0,1fr) auto;
+  align-items:center;
+  gap:22px;
+  padding:22px;
+  border:1px solid var(--line);
+  background:#0b0a09
+}
+.zad-card-date{
+  min-height:84px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border-right:1px solid rgba(179,131,94,.36);
+  color:var(--brown-2);
+  font-weight:800;
+  text-transform:lowercase
+}
+.zad-card-day{
+  display:block;
+  color:#fff;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:38px;
+  line-height:1
+}
+.zad-card-copy h3{margin:0 0 6px;font-size:24px}
+.zad-card-copy p{margin:5px 0;color:var(--muted);line-height:1.55}
+.zad-card-copy .zad-full-date{color:#fff;font-weight:800}
+.zad-calendar-button{
+  min-height:46px;
+  padding:10px 15px;
+  border:1px solid rgba(179,131,94,.55);
+  background:#15100d;
+  color:#fff;
+  font:inherit;
+  font-size:14px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap
+}
+.zad-calendar-button:hover{border-color:var(--brown-2);background:#211711}
+.zad-calendar-button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.zad-note{
+  margin-top:48px;
+  padding:22px 24px;
+  border-left:3px solid var(--brown);
+  background:#0b0a09
+}
+.zad-note strong{display:block;margin-bottom:6px;color:#fff}
+.zad-note p{margin:0;color:var(--muted);line-height:1.6}
+.zad-related{padding:50px 0;border-top:1px solid var(--line);background:#080706}
+.zad-related h2{margin-bottom:22px}
+.zad-related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.zad-related-grid a{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  min-height:130px;
+  padding:20px;
+  border:1px solid rgba(179,131,94,.35);
+  background:#0b0a09;
+  color:#fff;
+  text-decoration:none
+}
+.zad-related-grid a:hover{border-color:var(--brown-2);background:#15100d}
+.zad-related-grid strong{font-size:18px;line-height:1.35}
+.zad-related-grid span{color:var(--muted);line-height:1.5}
+.pomen-calendar-cta,.home-zadushnitsi{padding:44px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#080706}
+.pomen-calendar-cta-inner,.home-zadushnitsi-inner{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:30px
+}
+.pomen-calendar-cta h2,.home-zadushnitsi h2{margin-bottom:10px}
+.pomen-calendar-cta p,.home-zadushnitsi p{max-width:760px;margin:0;color:var(--muted);line-height:1.65}
+@media(max-width:800px){
+  .zad-next-main{align-items:flex-start;flex-direction:column}
+  .zad-countdown{min-width:0}
+  .zad-card{grid-template-columns:78px minmax(0,1fr)}
+  .zad-calendar-button{grid-column:2;justify-self:start}
+  .zad-related-grid{grid-template-columns:1fr}
+  .pomen-calendar-cta-inner,.home-zadushnitsi-inner{grid-template-columns:1fr}
+  .pomen-calendar-cta .button,.home-zadushnitsi .button{justify-self:start}
+}
+@media(max-width:560px){
+  .zad-next{padding:22px 18px;margin-bottom:38px}
+  .zad-next-main strong{font-size:29px}
+  .zad-next-main span{font-size:16px}
+  .zad-year-next{margin-top:46px;padding-top:40px}
+  .zad-card{
+    grid-template-columns:64px minmax(0,1fr);
+    gap:15px;
+    padding:18px 15px
+  }
+  .zad-card-date{min-height:74px}
+  .zad-card-day{font-size:32px}
+  .zad-card-copy h3{font-size:20px}
+  .zad-card-copy p{font-size:15px}
+  .zad-calendar-button{width:100%;grid-column:1/-1}
+  .pomen-calendar-cta,.home-zadushnitsi{padding:36px 0}
+  .pomen-calendar-cta .button,.home-zadushnitsi .button{width:100%}
+}
+
+
+/* v1.64 — SEO content for Zadushnitsi */
+.zad-search-intent{
+  margin-top:52px;
+  padding-top:46px;
+  border-top:1px solid var(--line)
+}
+.zad-search-intent h2{margin-bottom:22px}
+.zad-search-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px
+}
+.zad-search-grid article{
+  padding:20px;
+  border:1px solid var(--line);
+  background:#0b0a09
+}
+.zad-search-grid h3{
+  margin:0 0 10px;
+  color:#fff;
+  font-size:19px;
+  line-height:1.4
+}
+.zad-search-grid p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.6
+}
+.zad-search-grid strong{color:#fff}
+@media(max-width:800px){
+  .zad-search-grid{grid-template-columns:1fr}
+}
