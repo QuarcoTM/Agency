@@ -1024,3 +1024,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
 @media(max-width:800px){
   .zad-search-grid{grid-template-columns:1fr}
 }
+
+
+/* v1.65 — navigation refinement for Zadushnitsi menu item */
+@media (min-width:901px) and (max-width:1180px){
+  .header-inner{gap:18px}
+  .brand{min-width:128px}
+  .nav{gap:18px}
+  .nav a{font-size:14px}
+}
