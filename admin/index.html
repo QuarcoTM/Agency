@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.61" rel="stylesheet"/>
+<link href="admin.css?v=1.68" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -228,7 +228,7 @@
 
           <section class="obituary-form-section" aria-labelledby="obituary-photo-heading">
             <div class="obituary-section-head">
-              <div><h3 id="obituary-photo-heading">Снимка</h3><p>Незадължителна. По подразбиране се показва цялата, без изрязване.</p></div>
+              <div><h3 id="obituary-photo-heading">Снимка</h3><p>При качване снимката се подготвя автоматично. Ако не стане добре, можете веднага да върнете оригиналния вариант или да я наместите ръчно.</p></div>
               <button class="small-button danger" id="obituary-remove-photo" type="button" hidden>Премахни</button>
             </div>
             <label class="obituary-photo-picker" for="obituary-photo">
@@ -236,6 +236,16 @@
               <span>Избери снимка</span>
               <small id="obituary-photo-name">Няма избрана снимка</small>
             </label>
+            <div class="obituary-photo-tools" id="obituary-photo-tools" hidden>
+              <div class="obituary-photo-tools-top">
+                <label class="switch-label obituary-photo-auto-toggle"><input id="obituary-photo-auto" type="checkbox" checked/><span>Автоматична подготовка</span></label>
+                <div class="obituary-photo-tool-buttons">
+                  <button class="small-button" id="obituary-photo-apply-auto" type="button">Авто отново</button>
+                  <button class="small-button" id="obituary-photo-use-original" type="button">Оригинал</button>
+                </div>
+              </div>
+              <p class="obituary-photo-helper">Автоматичният вариант е по подразбиране. Ако не ви хареса, изключете го или наместете снимката ръчно.</p>
+            </div>
             <div class="obituary-photo-controls" id="obituary-photo-controls" hidden>
               <label for="obituary-photo-fit">Поставяне на снимката
                 <select id="obituary-photo-fit">
@@ -480,6 +490,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.61"></script>
+<script src="admin.js?v=1.68"></script>
 </body>
 </html>

@@ -72,6 +72,10 @@
   const obituaryPhotoX = $('obituary-photo-x');
   const obituaryPhotoY = $('obituary-photo-y');
   const obituaryRemovePhoto = $('obituary-remove-photo');
+  const obituaryPhotoTools = $('obituary-photo-tools');
+  const obituaryPhotoAuto = $('obituary-photo-auto');
+  const obituaryPhotoApplyAuto = $('obituary-photo-apply-auto');
+  const obituaryPhotoUseOriginal = $('obituary-photo-use-original');
   const obituaryBirthDate = $('obituary-birth-date');
   const obituaryDeathDate = $('obituary-death-date');
   const obituaryAge = $('obituary-age');
@@ -82,6 +86,7 @@
   const obituaryPreviewFormat = $('obituary-preview-format');
   let obituaryPhotoUrl = '';
   let obituaryPhotoImage = null;
+  let obituaryPhotoAutoPreset = null;
   let obituaryPreviewTimer = 0;
   let obituaryAgeIsAutomatic = true;
   let obituaryCeremonyDateIsAutomatic = true;
@@ -434,23 +439,111 @@
     }else if(force&&obituaryCeremonyDateIsAutomatic) input.value='';
   }
 
+  function clampObituaryPhoto(value,min,max){
+    return Math.max(min,Math.min(max,value));
+  }
+
+  function applyObituaryPhotoControls(settings,shouldSchedule){
+    const next=Object.assign({fit:'contain',zoom:100,x:0,y:0},settings||{});
+    if(obituaryPhotoFit) obituaryPhotoFit.value=next.fit;
+    if(obituaryPhotoZoom) obituaryPhotoZoom.value=String(Math.round(clampObituaryPhoto(Number(next.zoom||100),50,220)));
+    if(obituaryPhotoZoomValue&&obituaryPhotoZoom) obituaryPhotoZoomValue.textContent=obituaryPhotoZoom.value+'%';
+    if(obituaryPhotoX) obituaryPhotoX.value=String(Math.round(clampObituaryPhoto(Number(next.x||0),-100,100)));
+    if(obituaryPhotoY) obituaryPhotoY.value=String(Math.round(clampObituaryPhoto(Number(next.y||0),-100,100)));
+    if(shouldSchedule!==false) scheduleObituaryPreview();
+  }
+
+  function useOriginalObituaryPhoto(shouldSchedule){
+    applyObituaryPhotoControls({fit:'contain',zoom:100,x:0,y:0},shouldSchedule);
+  }
+
+  async function detectObituaryPrimaryFace(image){
+    if(typeof window.FaceDetector!=='function') return null;
+    try{
+      const detector=new window.FaceDetector({fastMode:true,maxDetectedFaces:5});
+      const faces=await detector.detect(image);
+      if(!Array.isArray(faces)||!faces.length) return null;
+      faces.sort((a,b)=>{
+        const boxA=a&&a.boundingBox?a.boundingBox:{width:0,height:0};
+        const boxB=b&&b.boundingBox?b.boundingBox:{width:0,height:0};
+        return (boxB.width*boxB.height)-(boxA.width*boxA.height);
+      });
+      return faces[0].boundingBox||null;
+    }catch(error){
+      console.warn('Face detection failed:', error&&error.message?error.message:error);
+      return null;
+    }
+  }
+
+  function buildObituaryAutoPhotoPreset(image,face){
+    const imageWidth=image.naturalWidth||image.width||1;
+    const imageHeight=image.naturalHeight||image.height||1;
+    const frameWidth=370;
+    const frameHeight=465;
+
+    if(!face||!face.width||!face.height){
+      if(imageWidth>imageHeight*1.18){
+        return {fit:'cover',zoom:108,x:0,y:-12,reason:'fallback'};
+      }
+      return {fit:'contain',zoom:100,x:0,y:0,reason:'fallback'};
+    }
+
+    const baseCover=Math.max(frameWidth/imageWidth,frameHeight/imageHeight);
+    const targetFaceHeight=frameHeight*(imageWidth>imageHeight?0.48:0.42);
+    const desiredScale=Math.max(baseCover,targetFaceHeight/Math.max(1,face.height));
+    let zoom=Math.round((desiredScale/baseCover)*100);
+    zoom=clampObituaryPhoto(zoom,85,175);
+
+    const scale=baseCover*Math.max(.5,zoom/100);
+    const drawWidth=imageWidth*scale;
+    const drawHeight=imageHeight*scale;
+    const overflowX=Math.max(0,drawWidth-frameWidth);
+    const overflowY=Math.max(0,drawHeight-frameHeight);
+
+    let focusX=(face.x+face.width/2)*scale;
+    let focusY=(face.y+face.height*.42)*scale;
+
+    let offsetX=drawWidth/2-focusX;
+    let offsetY=drawHeight/2-focusY;
+
+    const faceTopPosition=(frameHeight-drawHeight)/2+offsetY+face.y*scale;
+    const minimumTopMargin=frameHeight*.08;
+    if(faceTopPosition<minimumTopMargin) offsetY+=minimumTopMargin-faceTopPosition;
+
+    offsetX=clampObituaryPhoto(offsetX,-overflowX/2,overflowX/2);
+    offsetY=clampObituaryPhoto(offsetY,-overflowY/2,overflowY/2);
+
+    const x=overflowX?Math.round((offsetX/(overflowX/2))*100):0;
+    const y=overflowY?Math.round((offsetY/(overflowY/2))*100):0;
+
+    return {fit:'cover',zoom:zoom,x:clampObituaryPhoto(x,-100,100),y:clampObituaryPhoto(y,-100,100),reason:'face'};
+  }
+
+  async function applyAutoObituaryPhoto(shouldSchedule){
+    if(!obituaryPhotoImage) return null;
+    if(!obituaryPhotoAutoPreset){
+      const face=await detectObituaryPrimaryFace(obituaryPhotoImage);
+      obituaryPhotoAutoPreset=buildObituaryAutoPhotoPreset(obituaryPhotoImage,face);
+    }
+    applyObituaryPhotoControls(obituaryPhotoAutoPreset,shouldSchedule);
+    return obituaryPhotoAutoPreset;
+  }
+
   function resetObituaryPhoto(){
     if(obituaryPhotoUrl) URL.revokeObjectURL(obituaryPhotoUrl);
-    obituaryPhotoUrl=''; obituaryPhotoImage=null;
+    obituaryPhotoUrl=''; obituaryPhotoImage=null; obituaryPhotoAutoPreset=null;
     if(obituaryPhoto) obituaryPhoto.value='';
     if(obituaryPhotoName) obituaryPhotoName.textContent='Няма избрана снимка';
     if(obituaryPhotoControls) obituaryPhotoControls.hidden=true;
     if(obituaryRemovePhoto) obituaryRemovePhoto.hidden=true;
-    if(obituaryPhotoZoom) obituaryPhotoZoom.value='100';
-    if(obituaryPhotoFit) obituaryPhotoFit.value='contain';
-    if(obituaryPhotoZoomValue) obituaryPhotoZoomValue.textContent='100%';
-    if(obituaryPhotoX) obituaryPhotoX.value='0';
-    if(obituaryPhotoY) obituaryPhotoY.value='0';
+    if(obituaryPhotoTools) obituaryPhotoTools.hidden=true;
+    if(obituaryPhotoAuto) obituaryPhotoAuto.checked=true;
+    useOriginalObituaryPhoto(false);
     scheduleObituaryPreview();
   }
 
   async function setObituaryPhoto(file){
-    if(!file){ resetObituaryPhoto(); return; }
+    if(!file){ resetObituaryPhoto(); return {autoApplied:false,reason:'empty'}; }
     if(file.size>25*1024*1024) throw new Error('Снимката е прекалено голяма. Изберете файл до 25 MB.');
     const url=URL.createObjectURL(file);
     let image;
@@ -462,17 +555,24 @@
         candidate.src=url;
       });
     }catch(error){ URL.revokeObjectURL(url); throw error; }
+
     if(obituaryPhotoUrl) URL.revokeObjectURL(obituaryPhotoUrl);
-    obituaryPhotoUrl=url; obituaryPhotoImage=image;
+    obituaryPhotoUrl=url; obituaryPhotoImage=image; obituaryPhotoAutoPreset=null;
+
     if(obituaryPhotoName) obituaryPhotoName.textContent=file.name;
     if(obituaryPhotoControls) obituaryPhotoControls.hidden=false;
     if(obituaryRemovePhoto) obituaryRemovePhoto.hidden=false;
-    if(obituaryPhotoZoom) obituaryPhotoZoom.value='100';
-    if(obituaryPhotoFit) obituaryPhotoFit.value='contain';
-    if(obituaryPhotoZoomValue) obituaryPhotoZoomValue.textContent='100%';
-    if(obituaryPhotoX) obituaryPhotoX.value='0';
-    if(obituaryPhotoY) obituaryPhotoY.value='0';
+    if(obituaryPhotoTools) obituaryPhotoTools.hidden=false;
+
+    useOriginalObituaryPhoto(false);
+
+    let preset={reason:'original'};
+    if(!obituaryPhotoAuto||obituaryPhotoAuto.checked){
+      preset=await applyAutoObituaryPhoto(false)||{reason:'fallback'};
+    }
+
     scheduleObituaryPreview();
+    return {autoApplied:!obituaryPhotoAuto||obituaryPhotoAuto.checked,reason:preset.reason||'original'};
   }
 
   function readObituaryModel(){
@@ -1697,16 +1797,55 @@
   if(obituaryPhoto) obituaryPhoto.addEventListener('change',async(event)=>{
     const file=event.target.files&&event.target.files[0];
     try{
-      message(obituaryMessage,file?'Обработка на снимката…':'');
-      await setObituaryPhoto(file);
-      if(file) message(obituaryMessage,'Снимката е добавена. Използвайте плъзгачите, ако трябва да я наместите.','success');
+      message(obituaryMessage,file?'Подготовка на снимката…':'');
+      const result=await setObituaryPhoto(file);
+      if(file){
+        if(result.autoApplied&&result.reason==='face') message(obituaryMessage,'Снимката е добавена и подготвена автоматично. Ако не ви хареса, изключете автоматичната подготовка или я наместете ръчно.','success');
+        else if(result.autoApplied) message(obituaryMessage,'Снимката е добавена. Приложен е безопасен автоматичен вариант. При нужда можете да върнете оригинала или да я наместите ръчно.','success');
+        else message(obituaryMessage,'Снимката е добавена. Показва се оригиналният вариант. При нужда включете автоматичната подготовка или използвайте плъзгачите.','success');
+      }
     }catch(error){
       event.target.value=''; message(obituaryMessage,error.message||'Снимката не можа да бъде добавена.','error');
     }
   });
   if(obituaryRemovePhoto) obituaryRemovePhoto.addEventListener('click',()=>{ resetObituaryPhoto(); message(obituaryMessage,'Снимката е премахната.','success'); });
+  if(obituaryPhotoAuto) obituaryPhotoAuto.addEventListener('change',async()=>{
+    if(!obituaryPhotoImage) return;
+    try{
+      if(obituaryPhotoAuto.checked){
+        message(obituaryMessage,'Подготовка на снимката…');
+        const preset=await applyAutoObituaryPhoto();
+        if(preset&&preset.reason==='face') message(obituaryMessage,'Автоматичната подготовка е приложена.','success');
+        else message(obituaryMessage,'Показан е безопасният автоматичен вариант. При нужда я наместете ръчно.','success');
+      }else{
+        useOriginalObituaryPhoto();
+        message(obituaryMessage,'Показва се оригиналният вариант. При нужда можете да наместите снимката ръчно.','success');
+      }
+    }catch(error){
+      message(obituaryMessage,error.message||'Автоматичната подготовка не можа да се приложи.','error');
+    }
+  });
+  if(obituaryPhotoApplyAuto) obituaryPhotoApplyAuto.addEventListener('click',async()=>{
+    if(!obituaryPhotoImage) return;
+    try{
+      if(obituaryPhotoAuto) obituaryPhotoAuto.checked=true;
+      message(obituaryMessage,'Подготовка на снимката…');
+      const preset=await applyAutoObituaryPhoto();
+      if(preset&&preset.reason==='face') message(obituaryMessage,'Автоматичната подготовка е приложена отново.','success');
+      else message(obituaryMessage,'Показан е безопасният автоматичен вариант. При нужда я наместете ръчно.','success');
+    }catch(error){
+      message(obituaryMessage,error.message||'Автоматичната подготовка не можа да се приложи.','error');
+    }
+  });
+  if(obituaryPhotoUseOriginal) obituaryPhotoUseOriginal.addEventListener('click',()=>{
+    if(!obituaryPhotoImage) return;
+    if(obituaryPhotoAuto) obituaryPhotoAuto.checked=false;
+    useOriginalObituaryPhoto();
+    message(obituaryMessage,'Показва се оригиналният вариант.','success');
+  });
+  [obituaryPhotoFit].filter(Boolean).forEach((input)=>input.addEventListener('change',scheduleObituaryPreview));
   [obituaryPhotoZoom,obituaryPhotoX,obituaryPhotoY].filter(Boolean).forEach((input)=>input.addEventListener('input',()=>{
-    if(obituaryPhotoZoomValue) obituaryPhotoZoomValue.textContent=obituaryPhotoZoom.value+'%';
+    if(obituaryPhotoZoomValue&&obituaryPhotoZoom) obituaryPhotoZoomValue.textContent=obituaryPhotoZoom.value+'%';
     scheduleObituaryPreview();
   }));
   if(obituaryForm){

@@ -157,3 +157,12 @@
   .booklet-logo-badge{display:grid!important;width:48mm;background:#080808!important;border-radius:1mm;padding:5mm;margin:0 auto 4mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .booklet-logo-badge img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;margin:0!important}
 }
+
+
+/* v1.68 — автоматична подготовка на снимка за некролог */
+.obituary-photo-tools{margin:12px 0 0;border:1px solid rgba(255,255,255,.09);background:#070707;padding:14px;display:grid;gap:12px}
+.obituary-photo-tools-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.obituary-photo-auto-toggle{font-weight:700}
+.obituary-photo-tool-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.obituary-photo-helper{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+@media(max-width:700px){.obituary-photo-tools-top{display:block}.obituary-photo-tool-buttons{display:grid;grid-template-columns:1fr 1fr;margin-top:12px}}
