@@ -13,7 +13,7 @@
   function currentPagePath(){
     let path = location.pathname || '/';
     if (path.length > 220) path = path.slice(0,220);
-    if (/\/kategoriya\.html$/i.test(path)){
+    if (/\/(?:kategoriya\.html|kategoriya\/)$/i.test(path)){
       const category = new URLSearchParams(location.search).get('category') || '';
       if (/^[a-z0-9-]{1,60}$/i.test(category)) path += '?category=' + category.toLowerCase();
     }

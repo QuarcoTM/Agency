@@ -30,7 +30,7 @@
 
   function navigateToCategory(slug){
     if(!slug) return;
-    window.location.assign('kategoriya.html?category=' + encodeURIComponent(slug));
+    window.location.assign('/kategoriya/?category=' + encodeURIComponent(slug));
   }
 
   function bindTouchNavigation(link, slug){
@@ -103,7 +103,7 @@
       if (!isCategoryPage){
         categories.forEach((category)=>{
           const link = document.createElement('a');
-          link.href = 'kategoriya.html?category=' + encodeURIComponent(category.slug);
+          link.href = '/kategoriya/?category=' + encodeURIComponent(category.slug);
           link.textContent = category.name;
           link.dataset.category = category.slug;
           bindTouchNavigation(link, category.slug);
@@ -119,7 +119,7 @@
 
       categories.forEach((category)=>{
         const link = document.createElement('a');
-        link.href = 'kategoriya.html?category=' + encodeURIComponent(category.slug);
+        link.href = '/kategoriya/?category=' + encodeURIComponent(category.slug);
         link.textContent = category.name;
         link.dataset.category = category.slug;
         if(category.slug === selectedSlug){

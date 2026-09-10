@@ -202,15 +202,15 @@
   function pageLabel(path){
     const raw=String(path || '/');
     const names={
-      '/':'Начало','/index.html':'Начало','/uslugi.html':'Услуги','/traurni-stoki.html':'Траурни стоки',
-      '/kontakti.html':'Контакти','/faq.html':'Често задавани въпроси','/za-nas.html':'За нас',
-      '/pri-smarten-sluchai.html':'При смъртен случай','/organizirane-na-pogrebenie.html':'Организиране на погребение',
-      '/kremacia.html':'Кремация','/pomeni.html':'Помен и панихида','/pogrebalen-transport.html':'Погребален транспорт',
-      '/nekrolozi.html':'Некролози','/politika-za-poveritelnost.html':'Политика за поверителност',
-      '/politika-za-biskvitki.html':'Политика за бисквитки','/404.html':'404'
+      '/':'Начало','/index.html':'Начало','/uslugi/':'Услуги','/uslugi.html':'Услуги','/traurni-stoki/':'Траурни стоки','/traurni-stoki.html':'Траурни стоки',
+      '/kontakti/':'Контакти','/kontakti.html':'Контакти','/faq/':'Често задавани въпроси','/faq.html':'Често задавани въпроси','/za-nas/':'За нас','/za-nas.html':'За нас',
+      '/pri-smarten-sluchai/':'При смъртен случай','/pri-smarten-sluchai.html':'При смъртен случай','/organizirane-na-pogrebenie/':'Организиране на погребение','/organizirane-na-pogrebenie.html':'Организиране на погребение',
+      '/kremacia/':'Кремация','/kremacia.html':'Кремация','/pomeni/':'Помен и панихида','/pomeni.html':'Помен и панихида','/pogrebalen-transport/':'Погребален транспорт','/pogrebalen-transport.html':'Погребален транспорт',
+      '/nekrolozi/':'Некролози','/nekrolozi.html':'Некролози','/politika-za-poveritelnost/':'Политика за поверителност','/politika-za-poveritelnost.html':'Политика за поверителност',
+      '/politika-za-biskvitki/':'Политика за бисквитки','/politika-za-biskvitki.html':'Политика за бисквитки','/404.html':'404'
     };
     if(names[raw]) return names[raw];
-    if(raw.startsWith('/kategoriya.html?category=')){
+    if(raw.startsWith('/kategoriya/?category=')||raw.startsWith('/kategoriya.html?category=')){
       const slug=raw.split('category=')[1] || '';
       const cats={kovchezi:'Ковчези',urni:'Урни',krastove:'Кръстове','ritualni-prinadlezhnosti':'Ритуални принадлежности','grobni-prinadlezhnosti':'Гробни принадлежности','venci-i-cvetya':'Венци и цветя',pametnici:'Паметници'};
       return 'Категория: ' + (cats[slug] || slug.replace(/-/g,' '));
@@ -1704,7 +1704,7 @@
   function previewOrOpen(product){
     if (product.is_active && !product.is_archived){
       const slug=categorySlug(product.category_id);
-      if (slug){ window.open('../kategoriya.html?category='+encodeURIComponent(slug)+'#product-'+encodeURIComponent(product.id),'_blank','noopener'); return; }
+      if (slug){ window.open('/kategoriya/?category='+encodeURIComponent(slug)+'#product-'+encodeURIComponent(product.id),'_blank','noopener'); return; }
     }
     showAdminPreview(product);
   }
