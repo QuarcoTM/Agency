@@ -1005,45 +1005,45 @@
         const item=document.createElement('div'); appendBookletText(item,'strong',row[0]); appendBookletText(item,'span',dateLine(row[1])); overview.appendChild(item);
       });
     }
-    if(pageNumber===3){
-      appendBookletText(content,'p','Първи възпоменателни дни','booklet-kicker'); appendBookletText(content,'h2','Трети и девети ден');
-      const earlyDates=document.createElement('div'); earlyDates.className='booklet-early-dates'; content.appendChild(earlyDates);
-      const third=document.createElement('div'); appendBookletText(third,'strong','Трети ден'); appendBookletText(third,'span',dateLine('day3')); earlyDates.appendChild(third);
-      const ninth=document.createElement('div'); appendBookletText(ninth,'strong','Девети ден'); appendBookletText(ninth,'span',dateLine('day9')); earlyDates.appendChild(ninth);
-      appendBookletText(content,'p','Третият и деветият ден са сред основните ранни възпоменателни дни. Близките се събират за молитва и почит към покойника.');
+    if(pageNumber===3 || pageNumber===4){
+      const third=pageNumber===3;
+      appendBookletText(content,'p','Първи възпоменателни дни','booklet-kicker');
+      appendBookletText(content,'h2',third?'Трети ден':'Девети ден');
+      appendBookletText(content,'p',dateLine(third?'day3':'day9'),'booklet-page-date');
+      appendBookletText(content,'p',third?'Третият ден е сред първите възпоменателни дни. Близките се събират за молитва и почит към покойника.':'На деветия ден близките отново се събират за молитва и почит към покойника.');
       appendBookletList(content,['Уговорете часа със свещеник.','Подгответе свещи и необходимото според указанията му.','По желание подгответе малки раздавки.']);
     }
-    if(pageNumber===4){
+    if(pageNumber===5){
       appendBookletText(content,'p','Панихида','booklet-kicker'); appendBookletText(content,'h2','Двадесети ден'); appendBookletText(content,'p',dateLine('day20'),'booklet-page-date');
-      appendBookletText(content,'p','На двадесетия ден в българската православна традиция се прави панихида. Тя може да бъде в храм или на гроба според уговорката със свещеника.');
+      appendBookletText(content,'p','Двадесетият ден се отбелязва според семейната и местната традиция. Уточнете със свещеника дали панихидата ще бъде в храм или на гроба.');
       appendBookletList(content,['Свържете се предварително с храма или свещеника.','Подгответе жито, хляб или погача, вино и свещи.','Уведомете близките за часа и мястото.']);
     }
-    if(pageNumber===5){
+    if(pageNumber===6){
       appendBookletText(content,'p','Основна панихида','booklet-kicker'); appendBookletText(content,'h2','Четиридесети ден'); appendBookletText(content,'p',dateLine('day40'),'booklet-page-date');
       appendBookletText(content,'p','Четиридесетият ден е един от най-важните дни за възпоменание. Обичайно се отслужва панихида в храм или на гроба.');
       appendBookletList(content,['Запазете свещеник и уточнете мястото.','Подгответе жито, хляб или погача, вино и свещи.','При нужда поръчайте некролози, цветя и раздавки.','Уточнете с гробищния парк дали предстои оформяне на гроба.']);
     }
-    if(pageNumber===6){
+    if(pageNumber===7){
       appendBookletText(content,'p','Възпоменание','booklet-kicker'); appendBookletText(content,'h2','Три месеца'); appendBookletText(content,'p',dateLine('month3'),'booklet-page-date');
       appendBookletText(content,'p','Тримесечният помен се прави според семейната и местната традиция. Може да бъде отбелязан с молитва, посещение на гроба и раздаване за помен.');
       appendBookletList(content,['Проверете датата и часа със свещеник.','Почистете и подредете гробното място.','Подгответе само необходимото за избрания начин на помен.']);
     }
-    if(pageNumber===7){
+    if(pageNumber===8){
       appendBookletText(content,'p','Възпоменание','booklet-kicker'); appendBookletText(content,'h2','Шест месеца'); appendBookletText(content,'p',dateLine('month6'),'booklet-page-date');
       appendBookletText(content,'p','На шест месеца много семейства организират панихида или по-малък помен. Най-важни остават молитвата, паметта и грижата за гробното място.');
       appendBookletList(content,['Уговорете панихида, ако семейството желае.','Подгответе свещи, цветя и раздавки.','Съобразете всичко с указанията на свещеника.']);
     }
-    if(pageNumber===8){
+    if(pageNumber===9){
       appendBookletText(content,'p','Възпоменание','booklet-kicker'); appendBookletText(content,'h2','Девет месеца'); appendBookletText(content,'p',dateLine('month9'),'booklet-page-date');
       appendBookletText(content,'p','Деветмесечният помен също се спазва от много семейства. Той може да бъде отбелязан в тесен кръг с молитва и посещение на гроба.');
       appendBookletList(content,['Уточнете деня със свещеник при съмнение.','Уведомете най-близките хора.','Подгответе свещи, цветя и раздавки по желание.']);
     }
-    if(pageNumber===9){
+    if(pageNumber===10){
       appendBookletText(content,'p','Годишнина','booklet-kicker'); appendBookletText(content,'h2','Една година'); appendBookletText(content,'p',dateLine('year1'),'booklet-page-date');
       appendBookletText(content,'p','Първата годишнина е основен ден за възпоменание. Обичайно се отслужва панихида и се събират роднини и близки.');
       appendBookletList(content,['Уговорете храм, свещеник и час.','Подгответе жито, хляб или погача, вино и свещи.','Предвидете цветя, некролози и раздавки според желанието на семейството.']);
     }
-    if(pageNumber===10){
+    if(pageNumber===11){
       appendBookletText(content,'p','След първата година','booklet-kicker'); appendBookletText(content,'h2','Годишнини и Задушници');
       appendBookletText(content,'p','След първата година близките могат да отбелязват годишнината от смъртта и общите дни за почит към починалите — Задушниците.');
       if(model.zadushnitsi.length){
@@ -1057,12 +1057,32 @@
       }
       appendBookletText(content,'p','Ако денят съвпада с голям празник, уточнете със свещеник дали панихидата трябва да бъде по-рано.','booklet-note');
     }
-    if(pageNumber===11){
+    if(pageNumber===13){
+      appendBookletText(content,'p','За организацията','booklet-kicker');
+      appendBookletText(content,'h2','Уговорени панихиди');
+      appendBookletText(content,'p','Запишете часа и мястото на службата.');
+      appendBookletList(content,['Помен: __________________','Дата: ___________________','Час: ____________________','Храм / място: ____________','Свещеник: _______________','Телефон: _________________']);
+    }
+    if(pageNumber===14){
+      appendBookletText(content,'p','За семейството','booklet-kicker');
+      appendBookletText(content,'h2','Бележки');
+      appendBookletList(content,Array(10).fill('____________________________'));
+    }
+    if(pageNumber===15){
+      appendBookletText(content,'p','Съдействие при организацията','booklet-kicker');
+      appendBookletText(content,'h2','Ден и Нощ');
+      appendBookletText(content,'p','Свържете се с нас за организация на панихида и необходимите принадлежности.');
+      appendBookletList(content,['Свещеник и организация','Некролози','Раздавки, свещи и цветя','Почистване и поддръжка на гробни места']);
+      appendBookletText(content,'p','0893 64 66 68 · 0898 24 24 34','booklet-page-date');
+      appendBookletText(content,'p','Кюстендил, бул. „Цар Освободител“ 27А');
+      appendBookletText(content,'p','deninosht.bg');
+    }
+    if(pageNumber===12){
       appendBookletText(content,'p','Кратък списък','booklet-kicker'); appendBookletText(content,'h2','Какво обичайно се подготвя');
       appendBookletList(content,['Варено жито','Хляб или погача','Червено вино','Свещи','Цветя','Раздавки за помен','Некролози — когато семейството желае','Уговорка със свещеник и уточнен час']);
       appendBookletText(content,'p','Обичаите се различават. Не е необходимо всичко от списъка — съобразете се със семейството, местната традиция и свещеника.','booklet-note');
     }
-    if(pageNumber===12){
+    if(pageNumber===16){
       page.classList.add('booklet-back-cover');
       const logoBadge=document.createElement('div'); logoBadge.className='booklet-logo-badge';
       const logo=document.createElement('img'); logo.src='../assets/logo-den-i-nosht.webp'; logo.alt='Траурна агенция „Ден и Нощ“'; logoBadge.appendChild(logo); content.appendChild(logoBadge);
@@ -1072,18 +1092,22 @@
       appendBookletText(content,'p','deninosht.bg','booklet-site');
       const qr=document.createElement('img'); qr.className='booklet-qr'; qr.src='../assets/qr-deninosht.svg'; qr.alt='QR код към deninosht.bg'; content.appendChild(qr);
     }
-    if(pageNumber>=3&&pageNumber<=11) appendAgencyHelp(content);
-    if(pageNumber!==12) appendBookletText(page,'span',String(pageNumber),'booklet-page-number');
+    if(pageNumber>=3&&pageNumber<=13) appendAgencyHelp(content);
+    if(pageNumber!==16) appendBookletText(page,'span',String(pageNumber),'booklet-page-number');
     return page;
   }
 
+  const BOOKLET_PAGE_COUNT=16;
+  // A4 portrait, four A6 pages per side. Cut horizontally, nest A5 halves, fold vertically.
+  const BOOKLET_PRINT_SIDES=[[[16,1],[14,3]],[[2,15],[4,13]],[[12,5],[10,7]],[[6,11],[8,9]]];
+
   function renderBooklet(){
     const model=readBookletModel();
-    const pages={}; for(let page=1;page<=12;page+=1) pages[page]=createBookletPage(page,model);
-    const sides=[[12,1],[2,11],[10,3],[4,9],[8,5],[6,7]];
-    const labels=['Лист 1 — лице','Лист 1 — гръб','Лист 2 — лице','Лист 2 — гръб','Лист 3 — лице','Лист 3 — гръб'];
+    const pages={}; for(let page=1;page<=BOOKLET_PAGE_COUNT;page+=1) pages[page]=createBookletPage(page,model);
+    const sides=BOOKLET_PRINT_SIDES;
+    const labels=['Лист A4 1 — лице','Лист A4 1 — гръб','Лист A4 2 — лице','Лист A4 2 — гръб'];
     bookletReadingPreview.replaceChildren();
-    for(let page=1;page<=12;page+=1){
+    for(let page=1;page<=BOOKLET_PAGE_COUNT;page+=1){
       const preview=document.createElement('div'); preview.className='booklet-reading-page';
       appendBookletText(preview,'div','Страница '+page,'booklet-reading-label');
       preview.appendChild(pages[page].cloneNode(true)); bookletReadingPreview.appendChild(preview);
@@ -1093,7 +1117,7 @@
       const side=document.createElement('section'); side.className='booklet-side';
       appendBookletText(side,'div',labels[index],'booklet-sheet-label');
       const sheet=document.createElement('div'); sheet.className='booklet-sheet';
-      sheet.append(pages[pair[0]].cloneNode(true),pages[pair[1]].cloneNode(true)); side.appendChild(sheet); bookletPrintRoot.appendChild(side);
+      pair.flat().forEach((number)=>sheet.appendChild(pages[number].cloneNode(true))); side.appendChild(sheet); bookletPrintRoot.appendChild(side);
     });
     bookletPreviewArea.hidden=false; bookletPrintButton.disabled=false;
     message(bookletMessage,'Книжката е готова за печат или запис като PDF.','success');
@@ -1159,7 +1183,7 @@
       return canvas;
     }
 
-    if(pageNumber===12){
+    if(pageNumber===16){
       const logo=content.querySelector('.booklet-logo-badge img'); const qr=content.querySelector('.booklet-qr'); let y=215;
       y=await drawLogoBadgeToCanvas(ctx,logo.src,y,360)+38;
       y=drawCanvasText(ctx,'Денонощна траурна агенция',y,{font:'bold 25px Arial',color:'#66564b',maxWidth:900,lineHeight:34,gapAfter:28});
@@ -1175,23 +1199,23 @@
       if(child===agencyHelp) continue;
       const classes=child.classList;
       if(classes.contains('booklet-kicker')){
-        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 22px Arial',color:'#7b3337',maxWidth:1000,lineHeight:30,gapAfter:18});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 32px Arial',color:'#7b3337',maxWidth:1000,lineHeight:42,gapAfter:18});
       }else if(classes.contains('booklet-person-name')){
-        y=drawCanvasText(ctx,child.textContent,y,{font:'50px Georgia',maxWidth:1000,lineHeight:58,gapAfter:22});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'64px Georgia',maxWidth:1000,lineHeight:74,gapAfter:22});
       }else if(child.tagName==='H2'){
-        y=drawCanvasText(ctx,child.textContent,y,{font:'50px Georgia',maxWidth:1040,lineHeight:60,gapAfter:24});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'64px Georgia',maxWidth:1040,lineHeight:76,gapAfter:24});
       }else if(classes.contains('booklet-subheading')||child.tagName==='H3'){
-        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 27px Georgia',color:'#7b3337',maxWidth:1000,lineHeight:36,gapAfter:14});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 40px Georgia',color:'#7b3337',maxWidth:1000,lineHeight:52,gapAfter:14});
       }else if(classes.contains('booklet-page-date')){
         drawCanvasRule(ctx,y,920,'#bd9d85'); y+=20;
-        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 29px Georgia',color:'#7b3337',maxWidth:940,lineHeight:38,gapAfter:16});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 40px Georgia',color:'#7b3337',maxWidth:940,lineHeight:52,gapAfter:16});
         drawCanvasRule(ctx,y,920,'#bd9d85'); y+=34;
       }else if(classes.contains('booklet-overview')){
         drawCanvasRule(ctx,y,940,'#bd9d85'); y+=10;
         for(const row of Array.from(child.children)){
           const strong=row.querySelector('strong'); const span=row.querySelector('span');
-          y=drawCanvasText(ctx,strong.textContent,y,{font:'bold 22px Arial',color:'#7b3337',maxWidth:950,lineHeight:28,gapAfter:1});
-          y=drawCanvasText(ctx,span.textContent,y,{font:'21px Arial',color:'#4d4240',maxWidth:950,lineHeight:27,gapAfter:6});
+          y=drawCanvasText(ctx,strong.textContent,y,{font:'bold 32px Arial',color:'#7b3337',maxWidth:950,lineHeight:40,gapAfter:1});
+          y=drawCanvasText(ctx,span.textContent,y,{font:'32px Arial',color:'#4d4240',maxWidth:950,lineHeight:40,gapAfter:6});
           drawCanvasRule(ctx,y,940,'#ded4c8'); y+=7;
         }
       }else if(classes.contains('booklet-early-dates')){
@@ -1206,27 +1230,28 @@
       }else if(classes.contains('booklet-zadushnitsi-print')){
         drawCanvasRule(ctx,y,940,'#bd9d85'); y+=10;
         for(const row of Array.from(child.children)){
-          y=drawCanvasText(ctx,row.querySelector('strong').textContent,y,{font:'bold 21px Arial',color:'#7b3337',maxWidth:950,lineHeight:27,gapAfter:1});
-          y=drawCanvasText(ctx,row.querySelector('span').textContent,y,{font:'20px Arial',color:'#4d4240',maxWidth:950,lineHeight:26,gapAfter:6});
+          y=drawCanvasText(ctx,row.querySelector('strong').textContent,y,{font:'bold 30px Arial',color:'#7b3337',maxWidth:950,lineHeight:40,gapAfter:1});
+          y=drawCanvasText(ctx,row.querySelector('span').textContent,y,{font:'30px Arial',color:'#4d4240',maxWidth:950,lineHeight:38,gapAfter:6});
           drawCanvasRule(ctx,y,940,'#ded4c8'); y+=6;
         }
       }else if(child.tagName==='UL'){
-        for(const item of Array.from(child.children)) y=drawCanvasText(ctx,'• '+item.textContent,y,{font:'26px Georgia',maxWidth:1010,lineHeight:34,gapAfter:10});
+        for(const item of Array.from(child.children)) y=drawCanvasText(ctx,'• '+item.textContent,y,{font:'40px Georgia',maxWidth:1010,lineHeight:52,gapAfter:16});
         y+=8;
       }else if(classes.contains('booklet-note')){
         drawCanvasRule(ctx,y,900,'#bd9d85'); y+=17;
-        y=drawCanvasText(ctx,child.textContent,y,{font:'22px Georgia',color:'#5d5148',maxWidth:940,lineHeight:30,gapAfter:22});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'32px Georgia',color:'#5d5148',maxWidth:940,lineHeight:42,gapAfter:22});
       }else if(child.tagName==='P'){
         const isLead=classes.contains('booklet-lead');
-        y=drawCanvasText(ctx,child.textContent,y,{font:(isLead?'26px':'27px')+' Georgia',color:isLead?'#66564b':'#24191a',maxWidth:1020,lineHeight:36,gapAfter:24});
+        y=drawCanvasText(ctx,child.textContent,y,{font:(isLead?'34px':'40px')+' Georgia',color:isLead?'#66564b':'#24191a',maxWidth:1020,lineHeight:52,gapAfter:24});
       }
     }
 
+    if(y>1450) throw new Error('Текстът на страница '+pageNumber+' е прекалено дълъг. Съкратете името или добавените Задушници.');
     if(agencyHelp){
       drawCanvasRule(ctx,1500,960,'#9a6546');
-      drawCanvasText(ctx,agencyHelp.textContent,1520,{font:'bold 21px Arial',color:'#7b3337',maxWidth:980,lineHeight:28,gapAfter:0});
+      drawCanvasText(ctx,agencyHelp.textContent,1520,{font:'bold 28px Arial',color:'#7b3337',maxWidth:980,lineHeight:36,gapAfter:0});
     }
-    ctx.font='18px Arial'; ctx.fillStyle='#877a72'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(String(pageNumber),620,1690);
+    ctx.font='26px Arial'; ctx.fillStyle='#877a72'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(String(pageNumber),620,1690);
     return canvas;
   }
 
@@ -1234,16 +1259,23 @@
     if(!window.PDFLib||!window.PDFLib.PDFDocument) throw new Error('PDF модулът не е зареден. Обновете страницата и опитайте отново.');
     const model=readBookletModel(); const pdf=await window.PDFLib.PDFDocument.create();
     pdf.setTitle('Книжка за панихиди - Ден и Нощ'); pdf.setAuthor('Траурна агенция Ден и Нощ'); pdf.setCreator('deninosht.bg');
-    const sides=[[12,1],[2,11],[10,3],[4,9],[8,5],[6,7]];
-    for(const pair of sides){
-      const left=await renderBookletPageCanvas(pair[0],model); const right=await renderBookletPageCanvas(pair[1],model);
-      const sheet=document.createElement('canvas'); sheet.width=2480; sheet.height=1754; const ctx=sheet.getContext('2d');
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,sheet.width,sheet.height); ctx.drawImage(left,0,0); ctx.drawImage(right,1240,0);
-      ctx.strokeStyle='#d2cbc4'; ctx.lineWidth=2; ctx.setLineDash([10,10]); ctx.beginPath(); ctx.moveTo(1240,0); ctx.lineTo(1240,1754); ctx.stroke(); ctx.setLineDash([]);
-      const image=await pdf.embedJpg(sheet.toDataURL('image/jpeg',0.94)); const page=pdf.addPage([841.89,595.28]); page.drawImage(image,{x:0,y:0,width:841.89,height:595.28});
+    const sides=BOOKLET_PRINT_SIDES;
+    const images=new Map();
+    for(let number=1;number<=BOOKLET_PAGE_COUNT;number+=1){
+      const canvas=await renderBookletPageCanvas(number,model);
+      images.set(number,await pdf.embedJpg(canvas.toDataURL('image/jpeg',0.96)));
+    }
+    const mm=72/25.4, pageWidth=105*mm, pageHeight=148.5*mm;
+    for(const rows of sides){
+      const page=pdf.addPage([210*mm,297*mm]);
+      rows.forEach((pair,row)=>pair.forEach((number,column)=>{
+        page.drawImage(images.get(number),{x:column*pageWidth,y:(1-row)*pageHeight,width:pageWidth,height:pageHeight});
+      }));
+      page.drawLine({start:{x:0,y:pageHeight},end:{x:210*mm,y:pageHeight},thickness:0.3,color:window.PDFLib.rgb(.78,.78,.78),dashArray:[3,3]});
+      page.drawLine({start:{x:pageWidth,y:0},end:{x:pageWidth,y:297*mm},thickness:0.3,color:window.PDFLib.rgb(.85,.85,.85),dashArray:[2,4]});
     }
     const bytes=await pdf.save({useObjectStreams:true}); const blob=new Blob([bytes],{type:'application/pdf'}); const url=URL.createObjectURL(blob);
-    const link=document.createElement('a'); link.href=url; link.download='knizhka-za-panihidi-den-i-nosht.pdf'; link.rel='noopener';
+    const link=document.createElement('a'); link.href=url; link.download='knizhka-panihidi-A6-pechat-A4.pdf'; link.rel='noopener';
     if(/iPad|iPhone|iPod/i.test(navigator.userAgent||'')) link.target='_blank';
     document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(()=>URL.revokeObjectURL(url),60000);
   }
@@ -1894,7 +1926,7 @@
     try{
       renderBooklet();
       bookletPrintButton.disabled=true; bookletPrintButton.textContent='Създаване на PDF…'; message(bookletMessage,'Създаване на готовия PDF…');
-      await downloadBookletPdf(); message(bookletMessage,'PDF файлът е готов. Отворете го и го отпечатайте без промяна на ориентацията.','success');
+      await downloadBookletPdf(); message(bookletMessage,'PDF файлът е готов: A4, двустранно, дълъг ръб, 100%. Разрежете двата листа по хоризонталната линия, подредете половинките и сгънете.','success');
     }catch(error){ message(bookletMessage,error.message||'PDF файлът не можа да бъде създаден.','error'); }
     finally{ bookletPrintButton.disabled=false; bookletPrintButton.textContent=originalLabel; }
   });

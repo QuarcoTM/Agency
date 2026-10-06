@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.70" rel="stylesheet"/>
+<link href="admin.css?v=1.72" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -359,7 +359,7 @@
 
     <section class="booklet-admin-view" id="booklet-admin-view" hidden aria-labelledby="booklet-heading">
       <div class="booklet-intro-card">
-        <p class="admin-eyebrow">Готово за сгъване и телбод</p>
+        <p class="admin-eyebrow">Малка книжка A6 · 16 страници</p>
         <h2 id="booklet-heading">Книжка за панихиди</h2>
         <p>Въведете датата на смъртта. Датите се смятат автоматично, а при нужда всяка може да бъде поправена ръчно след уговорка със свещеник.</p>
         <p class="booklet-privacy">Името и датите не се записват в сайта и не се изпращат никъде.</p>
@@ -414,20 +414,21 @@
         </form>
 
         <aside class="booklet-print-help">
-          <strong>Готовият PDF</strong>
+          <strong>Малка книжка A6 — 10,5 × 14,85 см</strong>
           <ol>
-            <li>Вече е A4, хоризонтално — не избирайте ориентация от телефона</li>
-            <li>При печат изберете двустранно и обръщане по късия ръб</li>
-            <li>Мащаб: 100% или „Действителен размер“</li>
-            <li>Не размествате страниците — PDF файлът е подреден автоматично</li>
-            <li>Сгънете трите листа заедно и захванете по средата</li>
+            <li>PDF съдържа 4 страни за 2 листа A4, вертикално.</li>
+            <li>Печат: двустранно, обръщане по <b>дългия ръб</b>, 100% / „Действителен размер“.</li>
+            <li>Една PDF страница на страна. Изключете „Книжка“, „Побиране“ и допълнително групиране на страници.</li>
+            <li>Разрежете двата листа по хоризонталната линия в средата.</li>
+            <li>Подредете половинките: лист 1 горе → лист 1 долу → лист 2 горе → лист 2 долу.</li>
+            <li>Сгънете заедно по вертикалната линия и захванете с телбод. Корицата трябва да е отпред.</li>
           </ol>
         </aside>
       </div>
 
       <div class="booklet-preview-area" id="booklet-preview-area" hidden>
         <div class="booklet-preview-head">
-          <div><p class="admin-eyebrow">Предварителен преглед</p><h3>Страници 1–12 в реда за четене</h3></div>
+          <div><p class="admin-eyebrow">Предварителен преглед</p><h3>Страници 1–16 в реда за четене</h3></div>
           <span>При печат системата ги пренарежда автоматично за сгъване.</span>
         </div>
         <div class="booklet-reading-preview" id="booklet-reading-preview"></div>
@@ -490,6 +491,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.70"></script>
+<script src="admin.js?v=1.72"></script>
 </body>
 </html>
