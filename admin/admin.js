@@ -928,6 +928,7 @@
   }
 
   function invalidateBookletPreview(){
+    resetManualBookletPrint();
     if(bookletPrintButton) bookletPrintButton.disabled=true;
     if(bookletPreviewArea) bookletPreviewArea.hidden=true;
   }
@@ -1092,7 +1093,7 @@
       appendBookletText(content,'p','deninosht.bg','booklet-site');
       const qr=document.createElement('img'); qr.className='booklet-qr'; qr.src='../assets/qr-deninosht.svg'; qr.alt='QR код към deninosht.bg'; content.appendChild(qr);
     }
-    if(pageNumber>=3&&pageNumber<=13) appendAgencyHelp(content);
+    if(pageNumber>=3&&pageNumber<=13&&pageNumber!==11) appendAgencyHelp(content);
     if(pageNumber!==16) appendBookletText(page,'span',String(pageNumber),'booklet-page-number');
     return page;
   }
@@ -1120,6 +1121,7 @@
       pair.flat().forEach((number)=>sheet.appendChild(pages[number].cloneNode(true))); side.appendChild(sheet); bookletPrintRoot.appendChild(side);
     });
     bookletPreviewArea.hidden=false; bookletPrintButton.disabled=false;
+    const manualStart=$('booklet-manual-start'); if(manualStart) manualStart.disabled=false;
     message(bookletMessage,'Книжката е готова за печат или запис като PDF.','success');
     bookletPreviewArea.scrollIntoView({behavior:'smooth',block:'start'});
   }
@@ -1246,12 +1248,12 @@
       }
     }
 
-    if(y>1450) throw new Error('Текстът на страница '+pageNumber+' е прекалено дълъг. Съкратете името или добавените Задушници.');
+    if(y>(agencyHelp?1290:1450)) throw new Error('Текстът на страница '+pageNumber+' е прекалено дълъг. Съкратете името или добавените Задушници.');
     if(agencyHelp){
-      drawCanvasRule(ctx,1500,960,'#9a6546');
-      drawCanvasText(ctx,agencyHelp.textContent,1520,{font:'bold 28px Arial',color:'#7b3337',maxWidth:980,lineHeight:36,gapAfter:0});
+      drawCanvasRule(ctx,1320,960,'#9a6546');
+      drawCanvasText(ctx,agencyHelp.textContent,1340,{font:'bold 28px Arial',color:'#7b3337',maxWidth:980,lineHeight:36,gapAfter:0});
     }
-    ctx.font='26px Arial'; ctx.fillStyle='#877a72'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(String(pageNumber),620,1690);
+    ctx.font='26px Arial'; ctx.fillStyle='#877a72'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(String(pageNumber),620,1518);
     return canvas;
   }
 
@@ -1278,6 +1280,130 @@
     const link=document.createElement('a'); link.href=url; link.download='knizhka-panihidi-A6-pechat-A4.pdf'; link.rel='noopener';
     if(/iPad|iPhone|iPod/i.test(navigator.userAgent||'')) link.target='_blank';
     document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }
+
+  // Manual duplex: print both fronts, then each matching back separately.
+  const MANUAL_BOOKLET_STAGES=[
+    {title:'Стъпка 1 от 3 — лица на двата листа',sides:[0,2],next:'Готово — към гръб на лист 1',instructions:[
+      'Сложете 2 чисти листа A4 в задната тава на Canon G2416.',
+      'Печат: A4, Portrait (вертикално), едностранно, 100%, една страница на лист. Изключете горния и долния колонтитул в браузъра.',
+      'След печата отделете листа с корицата „Панихиди и възпоменателни дни“. Това е лист 1. Другият, с „Какво обичайно се подготвя“ горе вляво, е лист 2.',
+      'Изчакайте мастилото да изсъхне. Натиснете „Готово“ само след като и двете лица са отпечатани.'
+    ]},
+    {title:'Стъпка 2 от 3 — гръб на лист 1',sides:[1],next:'Готово — към гръб на лист 2',instructions:[
+      'Вземете САМО лист 1 — този с корицата. Отстранете другите листове от задната тава.',
+      'Върнете го с ПРАЗНАТА страна към вас; отпечатаната страна да гледа назад, към опората на тавата.',
+      'Горният край на отпечатаното лице трябва да влезе ПЪРВИ в принтера: той е долу, при ролките. Не разменяйте горния и долния край.',
+      'Печат: A4, Portrait, едностранно, 100%. След печата оставете този лист настрана и натиснете „Готово“.'
+    ]},
+    {title:'Стъпка 3 от 3 — гръб на лист 2',sides:[3],next:'Готово — сгъване на книжката',instructions:[
+      'Вземете САМО лист 2 — „Какво обичайно се подготвя“ е горе вляво на лицето. Задната тава трябва да съдържа само него.',
+      'ПРАЗНАТА страна е към вас, отпечатаната е към опората на тавата.',
+      'Горният край на отпечатаното лице влиза ПЪРВИ в принтера — поставете го долу, при ролките.',
+      'Печат: A4, Portrait, едностранно, 100%. Натиснете „Готово“ след отпечатването.'
+    ]}
+  ];
+  let manualBookletState=null;
+
+  function resetManualBookletPrint(){
+    if(manualBookletState&&manualBookletState.printWindow&&!manualBookletState.printWindow.closed) manualBookletState.printWindow.close();
+    manualBookletState=null;
+    const start=$('booklet-manual-start'); if(start) start.disabled=true;
+    const panel=$('booklet-manual-panel'); if(panel) panel.hidden=true;
+  }
+
+  function updateManualBookletPanel(){
+    const panel=$('booklet-manual-panel'); if(!panel||!manualBookletState) return;
+    panel.hidden=false;
+    const stage=MANUAL_BOOKLET_STAGES[manualBookletState.step];
+    $('booklet-manual-title').textContent=stage?stage.title:'Печатът е готов — сгъване';
+    const list=$('booklet-manual-instructions'); list.replaceChildren();
+    (stage?stage.instructions:[
+      'Изчакайте мастилото да изсъхне и на двата листа.',
+      'Поставете лист 1 с корицата към вас и текста изправен. Лист 2 е с „Какво обичайно се подготвя“ горе вляво.',
+      'Разрежете всеки лист по хоризонталната линия.',
+      'Подредете половинките една върху друга, с лицата нагоре и текста изправен: лист 1 горе → лист 1 долу → лист 2 горе → лист 2 долу.',
+      'Сгънете цялата купчинка по вертикалната линия, като лявата половина отиде отзад под дясната. Корицата остава отпред, а сгъвката е вляво.',
+      'Захванете по сгъвката с телбод. Помените следват: 3, 9, 20, 40 дни, 3, 6, 9 месеца и 1 година.'
+    ]).forEach(text=>appendBookletText(list,'li',text));
+    $('booklet-manual-next').hidden=!stage;
+    $('booklet-manual-next').disabled=manualBookletState.busy||!manualBookletState.ready;
+    $('booklet-manual-next').textContent=stage?stage.next:'Готово';
+    $('booklet-manual-open').hidden=!stage;
+    $('booklet-manual-open').disabled=manualBookletState.busy;
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  async function buildManualBookletSide(model,index){
+    const sheet=document.createElement('canvas'); sheet.width=2480; sheet.height=3508;
+    const ctx=sheet.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,sheet.width,sheet.height);
+    const rows=BOOKLET_PRINT_SIDES[index];
+    for(let row=0;row<2;row+=1){
+      for(let column=0;column<2;column+=1){
+        const page=await renderBookletPageCanvas(rows[row][column],model);
+        ctx.drawImage(page,column*1240,row*1754);
+      }
+    }
+    ctx.strokeStyle='#ccc';ctx.lineWidth=2;ctx.setLineDash([10,10]);ctx.beginPath();ctx.moveTo(0,1754);ctx.lineTo(2480,1754);ctx.moveTo(1240,0);ctx.lineTo(1240,3508);ctx.stroke();
+    return sheet.toDataURL('image/jpeg',0.96);
+  }
+
+  function manualBookletWindow(){
+    if(manualBookletState.printWindow&&!manualBookletState.printWindow.closed) return manualBookletState.printWindow;
+    const popup=window.open('','deninosht-manual-booklet','width=920,height=900');
+    if(!popup) throw new Error('Разрешете изскачащия прозорец за печат и натиснете „Отвори печат“ отново.');
+    manualBookletState.printWindow=popup; return popup;
+  }
+
+  async function openManualBookletPrint(){
+    if(!manualBookletState||manualBookletState.busy) return;
+    const state=manualBookletState,stage=MANUAL_BOOKLET_STAGES[state.step]; if(!stage) return;
+    let popup;
+    try{
+      popup=manualBookletWindow(); // Open synchronously from the user's click.
+      state.busy=true;state.ready=false; updateManualBookletPanel();
+      const doc=popup.document; doc.open();doc.write('<!doctype html><html lang="bg"><head><meta charset="utf-8"><title>Ръчен печат — Ден и Нощ</title><style>@page{size:A4 portrait;margin:0}*{box-sizing:border-box}body{margin:0;background:#eee;font:16px Arial,sans-serif}.controls{max-width:900px;margin:20px auto;padding:20px;background:white}button{font:inherit;padding:12px 18px;margin:6px;cursor:pointer}.sheet{width:210mm;height:297mm;display:block;margin:20px auto;break-after:page;page-break-after:always}.sheet:last-child{break-after:auto;page-break-after:auto}.sheet img{display:block;width:100%;height:100%}@media print{body{background:white}.controls{display:none}.sheet{margin:0;width:210mm;height:297mm}}</style></head><body></body></html>');doc.close();
+      const controls=doc.createElement('section');controls.className='controls';doc.body.appendChild(controls);
+      appendBookletText(controls,'h1',stage.title);
+      const list=doc.createElement('ol');controls.appendChild(list);stage.instructions.forEach(text=>appendBookletText(list,'li',text));
+      const status=appendBookletText(controls,'p','Подготовка на страниците…');
+      const print=appendBookletText(controls,'button','Печат'); print.type='button';print.disabled=true;print.addEventListener('click',()=>{popup.focus();popup.print();});
+      const done=appendBookletText(controls,'button',stage.next);done.type='button';done.disabled=true;done.addEventListener('click',advanceManualBookletPrint);
+      const loads=[];
+      for(const index of stage.sides){
+        if(!state.images.has(index)) state.images.set(index,await buildManualBookletSide(state.model,index));
+        if(manualBookletState!==state||popup.closed) return;
+        const sheet=doc.createElement('section');sheet.className='sheet';const img=doc.createElement('img');img.alt='Лист '+(index<2?'1':'2')+' — '+(index%2?'гръб':'лице');
+        loads.push(new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error('Страницата за печат не можа да се зареди.'));}));
+        img.src=state.images.get(index);sheet.appendChild(img);doc.body.appendChild(sheet);
+      }
+      await Promise.all(loads);
+      if(manualBookletState!==state||popup.closed) return;
+      state.ready=true;print.disabled=false;done.disabled=false;status.textContent='Печат: A4, Portrait, едностранно, 100%, без горен и долен колонтитул. След физическия печат натиснете „Готово“. Ако диалогът не се отвори, натиснете „Печат“.';
+      popup.focus();popup.print();
+    }catch(error){message(bookletMessage,error.message||'Печатът не можа да бъде отворен.','error');}
+    finally{if(manualBookletState===state){state.busy=false;updateManualBookletPanel();}}
+  }
+
+  function startManualBookletPrint(){
+    try{
+      const hasEmpty=Array.from(document.querySelectorAll('[data-booklet-date]')).some(input=>!input.value);
+      if(hasEmpty&&!calculateBookletDates()) return;
+      const model=readBookletModel();
+      resetManualBookletPrint(); renderBooklet();
+      manualBookletState={model,step:0,busy:false,ready:false,images:new Map(),printWindow:null};
+      updateManualBookletPanel();openManualBookletPrint();
+    }catch(error){message(bookletMessage,error.message||'Ръчният печат не можа да започне.','error');}
+  }
+
+  function advanceManualBookletPrint(){
+    if(!manualBookletState||manualBookletState.busy||!manualBookletState.ready) return;
+    manualBookletState.step+=1;manualBookletState.ready=false;
+    if(manualBookletState.step>=MANUAL_BOOKLET_STAGES.length){
+      if(manualBookletState.printWindow&&!manualBookletState.printWindow.closed) manualBookletState.printWindow.close();
+      updateManualBookletPanel();return;
+    }
+    updateManualBookletPanel();openManualBookletPrint();
   }
 
   function switchAdminView(view){
@@ -1930,6 +2056,15 @@
     }catch(error){ message(bookletMessage,error.message||'PDF файлът не можа да бъде създаден.','error'); }
     finally{ bookletPrintButton.disabled=false; bookletPrintButton.textContent=originalLabel; }
   });
+
+  const manualBookletStart=$('booklet-manual-start');
+  if(manualBookletStart) manualBookletStart.addEventListener('click',startManualBookletPrint);
+  const manualBookletNext=$('booklet-manual-next');
+  if(manualBookletNext) manualBookletNext.addEventListener('click',advanceManualBookletPrint);
+  const manualBookletOpen=$('booklet-manual-open');
+  if(manualBookletOpen) manualBookletOpen.addEventListener('click',openManualBookletPrint);
+  const manualBookletReset=$('booklet-manual-reset');
+  if(manualBookletReset) manualBookletReset.addEventListener('click',()=>{resetManualBookletPrint();if(manualBookletStart)manualBookletStart.disabled=false;});
 
   $('product-image').addEventListener('change',(event)=>{
     resetPreview(); const file=event.target.files&&event.target.files[0];

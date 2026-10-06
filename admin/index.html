@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.72" rel="stylesheet"/>
+<link href="admin.css?v=1.73" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -408,6 +408,7 @@
 
           <div class="booklet-actions">
             <button class="admin-button" id="booklet-preview-button" type="submit">Създай преглед</button>
+            <button class="admin-button" id="booklet-manual-start" type="button" disabled>Ръчен двустранен печат — Canon G2416</button>
             <button class="admin-button secondary" id="booklet-print-button" type="button" disabled>Изтегли готов PDF</button>
           </div>
           <div class="admin-message" id="booklet-message" role="status" aria-live="polite"></div>
@@ -415,16 +416,22 @@
 
         <aside class="booklet-print-help">
           <strong>Малка книжка A6 — 10,5 × 14,85 см</strong>
-          <ol>
-            <li>PDF съдържа 4 страни за 2 листа A4, вертикално.</li>
-            <li>Печат: двустранно, обръщане по <b>дългия ръб</b>, 100% / „Действителен размер“.</li>
-            <li>Една PDF страница на страна. Изключете „Книжка“, „Побиране“ и допълнително групиране на страници.</li>
-            <li>Разрежете двата листа по хоризонталната линия в средата.</li>
-            <li>Подредете половинките: лист 1 горе → лист 1 долу → лист 2 горе → лист 2 долу.</li>
-            <li>Сгънете заедно по вертикалната линия и захванете с телбод. Корицата трябва да е отпред.</li>
-          </ol>
+          <p>За Canon G2416 натиснете „Ръчен двустранен печат“. Ще излязат първо двете лица, после всеки гръб отделно с бутон „Готово“.</p>
+          <p>При този режим: A4, Portrait, едностранно, 100%, една страница на лист. Изключете колонтитулите в браузъра.</p>
+          <p>Готовият общ PDF остава подреден лице / гръб. За него използвайте ръчния двустранен режим на драйвера с обръщане по дългия ръб.</p>
+          <p><a href="https://ij.manual.canon/ij/webmanual/Manual/All/G2010%20series/EN/UG/ug_l_01_04_c.html" target="_blank" rel="noopener">Canon: поставяне на хартия в задната тава</a></p>
         </aside>
       </div>
+
+      <section class="booklet-manual-panel" id="booklet-manual-panel" hidden aria-labelledby="booklet-manual-title">
+        <h3 id="booklet-manual-title" aria-live="polite"></h3>
+        <ol id="booklet-manual-instructions"></ol>
+        <div class="booklet-actions">
+          <button class="admin-button secondary" id="booklet-manual-open" type="button">Отвори печат отново</button>
+          <button class="admin-button" id="booklet-manual-next" type="button">Готово — следваща страна</button>
+          <button class="admin-button secondary" id="booklet-manual-reset" type="button">Прекрати ръчния печат</button>
+        </div>
+      </section>
 
       <div class="booklet-preview-area" id="booklet-preview-area" hidden>
         <div class="booklet-preview-head">
@@ -491,6 +498,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.72"></script>
+<script src="admin.js?v=1.73"></script>
 </body>
 </html>
