@@ -1022,7 +1022,7 @@
     if(pageNumber===6){
       appendBookletText(content,'p','Основна панихида','booklet-kicker'); appendBookletText(content,'h2','Четиридесети ден'); appendBookletText(content,'p',dateLine('day40'),'booklet-page-date');
       appendBookletText(content,'p','Четиридесетият ден е един от най-важните дни за възпоменание. Обичайно се отслужва панихида в храм или на гроба.');
-      appendBookletList(content,['Запазете свещеник и уточнете мястото.','Подгответе жито, хляб или погача, вино и свещи.','При нужда поръчайте некролози, цветя и раздавки.','Уточнете с гробищния парк дали предстои оформяне на гроба.']);
+      appendBookletList(content,['Запазете свещеник и уточнете мястото.','Подгответе жито, хляб или погача, вино и свещи.','При нужда поръчайте некролози, цветя и раздавки.','При нужда от почистване, подравняване или оформяне на гробното място се свържете с нас.']);
     }
     if(pageNumber===7){
       appendBookletText(content,'p','Възпоменание','booklet-kicker'); appendBookletText(content,'h2','Три месеца'); appendBookletText(content,'p',dateLine('month3'),'booklet-page-date');
