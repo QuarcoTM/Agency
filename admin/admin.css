@@ -207,3 +207,9 @@
 .booklet-manual-panel h3{margin:0 0 12px;font-family:Georgia,serif;font-size:26px}
 .booklet-manual-panel ol{padding-left:22px;color:#eee}.booklet-manual-panel li+li{margin-top:10px}
 .booklet-print-help a{color:#d7c0ad}.booklet-print-help p{font-size:14px}
+
+/* v1.74 — slightly larger text; print panels remain fixed PDF pages */
+.booklet-reading-page .booklet-page p,.booklet-reading-page .booklet-page-list{font-size:3.55cqw}
+.booklet-reading-page .booklet-page h2,.booklet-reading-page .booklet-person-name{font-size:5.65cqw!important}
+.booklet-reading-page .booklet-page .booklet-page-date{font-size:3.55cqw}
+.booklet-reading-page .booklet-agency-help{font-size:2.42cqw!important}

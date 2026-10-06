@@ -1174,13 +1174,13 @@
 
   async function renderBookletPageCanvas(pageNumber,model){
     const pageElement=createBookletPage(pageNumber,model); const content=pageElement.querySelector('.booklet-page-content');
-    const canvas=document.createElement('canvas'); canvas.width=1240; canvas.height=1754; const ctx=canvas.getContext('2d');
+    const canvas=document.createElement('canvas'); canvas.width=1240; canvas.height=1754; let ctx=canvas.getContext('2d');
     ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
 
     if(pageNumber===1){
       const logo=content.querySelector('img'); let y=520;
       y=await drawLogoBadgeToCanvas(ctx,logo.src,y,350)+55;
-      y=drawCanvasText(ctx,'Траурна агенция „Ден и Нощ“',y,{font:'bold 32px Arial',color:'#7b3337',maxWidth:1000,lineHeight:42,gapAfter:65});
+      y=drawCanvasText(ctx,'Траурна агенция „Ден и Нощ“',y,{font:'bold 35px Arial',color:'#7b3337',maxWidth:1000,lineHeight:46,gapAfter:65});
       drawCanvasText(ctx,'Панихиди и възпоменателни дни',y,{font:'58px Georgia',color:'#24191a',maxWidth:940,lineHeight:70,gapAfter:0});
       return canvas;
     }
@@ -1191,33 +1191,35 @@
       y=drawCanvasText(ctx,'Денонощна траурна агенция',y,{font:'bold 25px Arial',color:'#66564b',maxWidth:900,lineHeight:34,gapAfter:28});
       y=drawCanvasText(ctx,'0893 64 66 68',y,{font:'bold 46px Georgia',maxWidth:900,lineHeight:56,gapAfter:8});
       y=drawCanvasText(ctx,'0898 24 24 34',y,{font:'bold 46px Georgia',maxWidth:900,lineHeight:56,gapAfter:32});
-      y=drawCanvasText(ctx,'deninosht.bg',y,{font:'bold 28px Arial',maxWidth:900,lineHeight:38,gapAfter:24});
+      y=drawCanvasText(ctx,'deninosht.bg',y,{font:'bold 30px Arial',maxWidth:900,lineHeight:42,gapAfter:24});
       const qrImage=await loadBookletImage(qr.src); drawImageContained(ctx,qrImage,510,y,220,220);
       return canvas;
     }
 
+    const pageCtx=ctx;
+    const contentCanvas=document.createElement('canvas');contentCanvas.width=1240;contentCanvas.height=6000;ctx=contentCanvas.getContext('2d');
     let y=105; const agencyHelp=content.querySelector('.booklet-agency-help');
     for(const child of Array.from(content.children)){
       if(child===agencyHelp) continue;
       const classes=child.classList;
       if(classes.contains('booklet-kicker')){
-        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 32px Arial',color:'#7b3337',maxWidth:1000,lineHeight:42,gapAfter:18});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 35px Arial',color:'#7b3337',maxWidth:1000,lineHeight:46,gapAfter:18});
       }else if(classes.contains('booklet-person-name')){
-        y=drawCanvasText(ctx,child.textContent,y,{font:'64px Georgia',maxWidth:1000,lineHeight:74,gapAfter:22});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'70px Georgia',maxWidth:1000,lineHeight:81,gapAfter:22});
       }else if(child.tagName==='H2'){
-        y=drawCanvasText(ctx,child.textContent,y,{font:'64px Georgia',maxWidth:1040,lineHeight:76,gapAfter:24});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'70px Georgia',maxWidth:1040,lineHeight:83,gapAfter:24});
       }else if(classes.contains('booklet-subheading')||child.tagName==='H3'){
-        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 40px Georgia',color:'#7b3337',maxWidth:1000,lineHeight:52,gapAfter:14});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 44px Georgia',color:'#7b3337',maxWidth:1000,lineHeight:57,gapAfter:14});
       }else if(classes.contains('booklet-page-date')){
         drawCanvasRule(ctx,y,920,'#bd9d85'); y+=20;
-        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 40px Georgia',color:'#7b3337',maxWidth:940,lineHeight:52,gapAfter:16});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'bold 44px Georgia',color:'#7b3337',maxWidth:940,lineHeight:57,gapAfter:16});
         drawCanvasRule(ctx,y,920,'#bd9d85'); y+=34;
       }else if(classes.contains('booklet-overview')){
         drawCanvasRule(ctx,y,940,'#bd9d85'); y+=10;
         for(const row of Array.from(child.children)){
           const strong=row.querySelector('strong'); const span=row.querySelector('span');
-          y=drawCanvasText(ctx,strong.textContent,y,{font:'bold 32px Arial',color:'#7b3337',maxWidth:950,lineHeight:40,gapAfter:1});
-          y=drawCanvasText(ctx,span.textContent,y,{font:'32px Arial',color:'#4d4240',maxWidth:950,lineHeight:40,gapAfter:6});
+          y=drawCanvasText(ctx,strong.textContent,y,{font:'bold 35px Arial',color:'#7b3337',maxWidth:950,lineHeight:44,gapAfter:1});
+          y=drawCanvasText(ctx,span.textContent,y,{font:'35px Arial',color:'#4d4240',maxWidth:950,lineHeight:44,gapAfter:6});
           drawCanvasRule(ctx,y,940,'#ded4c8'); y+=7;
         }
       }else if(classes.contains('booklet-early-dates')){
@@ -1232,40 +1234,48 @@
       }else if(classes.contains('booklet-zadushnitsi-print')){
         drawCanvasRule(ctx,y,940,'#bd9d85'); y+=10;
         for(const row of Array.from(child.children)){
-          y=drawCanvasText(ctx,row.querySelector('strong').textContent,y,{font:'bold 30px Arial',color:'#7b3337',maxWidth:950,lineHeight:40,gapAfter:1});
-          y=drawCanvasText(ctx,row.querySelector('span').textContent,y,{font:'30px Arial',color:'#4d4240',maxWidth:950,lineHeight:38,gapAfter:6});
+          y=drawCanvasText(ctx,row.querySelector('strong').textContent,y,{font:'bold 33px Arial',color:'#7b3337',maxWidth:950,lineHeight:44,gapAfter:1});
+          y=drawCanvasText(ctx,row.querySelector('span').textContent,y,{font:'33px Arial',color:'#4d4240',maxWidth:950,lineHeight:42,gapAfter:6});
           drawCanvasRule(ctx,y,940,'#ded4c8'); y+=6;
         }
       }else if(child.tagName==='UL'){
-        for(const item of Array.from(child.children)) y=drawCanvasText(ctx,'• '+item.textContent,y,{font:'40px Georgia',maxWidth:1010,lineHeight:52,gapAfter:16});
+        for(const item of Array.from(child.children)) y=drawCanvasText(ctx,'• '+item.textContent,y,{font:'44px Georgia',maxWidth:1010,lineHeight:57,gapAfter:16});
         y+=8;
       }else if(classes.contains('booklet-note')){
         drawCanvasRule(ctx,y,900,'#bd9d85'); y+=17;
-        y=drawCanvasText(ctx,child.textContent,y,{font:'32px Georgia',color:'#5d5148',maxWidth:940,lineHeight:42,gapAfter:22});
+        y=drawCanvasText(ctx,child.textContent,y,{font:'35px Georgia',color:'#5d5148',maxWidth:940,lineHeight:46,gapAfter:22});
       }else if(child.tagName==='P'){
         const isLead=classes.contains('booklet-lead');
-        y=drawCanvasText(ctx,child.textContent,y,{font:(isLead?'34px':'40px')+' Georgia',color:isLead?'#66564b':'#24191a',maxWidth:1020,lineHeight:52,gapAfter:24});
+        y=drawCanvasText(ctx,child.textContent,y,{font:(isLead?'37px':'44px')+' Georgia',color:isLead?'#66564b':'#24191a',maxWidth:1020,lineHeight:57,gapAfter:24});
       }
     }
 
-    if(y>(agencyHelp?1290:1450)) throw new Error('Текстът на страница '+pageNumber+' е прекалено дълъг. Съкратете името или добавените Задушници.');
+    if(y>5900) throw new Error('Текстът на страница '+pageNumber+' е прекалено дълъг. Съкратете името или добавените Задушници.');
+    const contentLimit=agencyHelp?1290:1450;
+    const fit=Math.min(1,(contentLimit-105)/Math.max(1,y-105));
+    pageCtx.drawImage(contentCanvas,0,105,1240,y-105,(1240-1240*fit)/2,105,1240*fit,(y-105)*fit);
+    ctx=pageCtx;
     if(agencyHelp){
       drawCanvasRule(ctx,1320,960,'#9a6546');
-      drawCanvasText(ctx,agencyHelp.textContent,1340,{font:'bold 28px Arial',color:'#7b3337',maxWidth:980,lineHeight:36,gapAfter:0});
+      drawCanvasText(ctx,agencyHelp.textContent,1340,{font:'bold 30px Arial',color:'#7b3337',maxWidth:980,lineHeight:39,gapAfter:0});
     }
-    ctx.font='26px Arial'; ctx.fillStyle='#877a72'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(String(pageNumber),620,1518);
+    ctx.font='28px Arial'; ctx.fillStyle='#877a72'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(String(pageNumber),620,1518);
     return canvas;
   }
 
-  async function downloadBookletPdf(){
+  async function createBookletPdf(model,sideIndexes=[0,1,2,3],canvasCache=new Map()){
     if(!window.PDFLib||!window.PDFLib.PDFDocument) throw new Error('PDF модулът не е зареден. Обновете страницата и опитайте отново.');
-    const model=readBookletModel(); const pdf=await window.PDFLib.PDFDocument.create();
+    const pdf=await window.PDFLib.PDFDocument.create();
     pdf.setTitle('Книжка за панихиди - Ден и Нощ'); pdf.setAuthor('Траурна агенция Ден и Нощ'); pdf.setCreator('deninosht.bg');
-    const sides=BOOKLET_PRINT_SIDES;
+    const sides=sideIndexes.map(index=>BOOKLET_PRINT_SIDES[index]);
     const images=new Map();
-    for(let number=1;number<=BOOKLET_PAGE_COUNT;number+=1){
-      const canvas=await renderBookletPageCanvas(number,model);
-      images.set(number,await pdf.embedJpg(canvas.toDataURL('image/jpeg',0.96)));
+    const numbers=new Set(sides.flat(2));
+    for(const number of numbers){
+      if(!canvasCache.has(number)){
+        const canvas=await renderBookletPageCanvas(number,model);
+        canvasCache.set(number,canvas.toDataURL('image/jpeg',0.96));
+      }
+      images.set(number,await pdf.embedJpg(canvasCache.get(number)));
     }
     const mm=72/25.4, pageWidth=105*mm, pageHeight=148.5*mm;
     for(const rows of sides){
@@ -1276,7 +1286,11 @@
       page.drawLine({start:{x:0,y:pageHeight},end:{x:210*mm,y:pageHeight},thickness:0.3,color:window.PDFLib.rgb(.78,.78,.78),dashArray:[3,3]});
       page.drawLine({start:{x:pageWidth,y:0},end:{x:pageWidth,y:297*mm},thickness:0.3,color:window.PDFLib.rgb(.85,.85,.85),dashArray:[2,4]});
     }
-    const bytes=await pdf.save({useObjectStreams:true}); const blob=new Blob([bytes],{type:'application/pdf'}); const url=URL.createObjectURL(blob);
+    return pdf.save({useObjectStreams:true});
+  }
+
+  async function downloadBookletPdf(){
+    const bytes=await createBookletPdf(readBookletModel()); const blob=new Blob([bytes],{type:'application/pdf'}); const url=URL.createObjectURL(blob);
     const link=document.createElement('a'); link.href=url; link.download='knizhka-panihidi-A6-pechat-A4.pdf'; link.rel='noopener';
     if(/iPad|iPhone|iPod/i.test(navigator.userAgent||'')) link.target='_blank';
     document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(()=>URL.revokeObjectURL(url),60000);
@@ -1286,7 +1300,7 @@
   const MANUAL_BOOKLET_STAGES=[
     {title:'Стъпка 1 от 3 — лица на двата листа',sides:[0,2],next:'Готово — към гръб на лист 1',instructions:[
       'Сложете 2 чисти листа A4 в задната тава на Canon G2416.',
-      'Печат: A4, Portrait (вертикално), едностранно, 100%, една страница на лист. Изключете горния и долния колонтитул в браузъра.',
+      'Отваря се PDF с точно 2 страници. Натиснете иконата за печат в PDF. Настройки: A4, Portrait, едностранно, 100%, една страница на лист.',
       'След печата отделете листа с корицата „Панихиди и възпоменателни дни“. Това е лист 1. Другият, с „Какво обичайно се подготвя“ горе вляво, е лист 2.',
       'Изчакайте мастилото да изсъхне. Натиснете „Готово“ само след като и двете лица са отпечатани.'
     ]},
@@ -1294,20 +1308,22 @@
       'Вземете САМО лист 1 — този с корицата. Отстранете другите листове от задната тава.',
       'Върнете го с ПРАЗНАТА страна към вас; отпечатаната страна да гледа назад, към опората на тавата.',
       'Горният край на отпечатаното лице трябва да влезе ПЪРВИ в принтера: той е долу, при ролките. Не разменяйте горния и долния край.',
-      'Печат: A4, Portrait, едностранно, 100%. След печата оставете този лист настрана и натиснете „Готово“.'
+      'PDF съдържа точно 1 страница. Печатайте чрез иконата в PDF: A4, Portrait, едностранно, 100%. После се върнете в админ панела и натиснете „Готово“.'
     ]},
     {title:'Стъпка 3 от 3 — гръб на лист 2',sides:[3],next:'Готово — сгъване на книжката',instructions:[
       'Вземете САМО лист 2 — „Какво обичайно се подготвя“ е горе вляво на лицето. Задната тава трябва да съдържа само него.',
       'ПРАЗНАТА страна е към вас, отпечатаната е към опората на тавата.',
       'Горният край на отпечатаното лице влиза ПЪРВИ в принтера — поставете го долу, при ролките.',
-      'Печат: A4, Portrait, едностранно, 100%. Натиснете „Готово“ след отпечатването.'
+      'PDF съдържа точно 1 страница. Печатайте чрез иконата в PDF: A4, Portrait, едностранно, 100%. После се върнете в админ панела и натиснете „Готово“.'
     ]}
   ];
   let manualBookletState=null;
 
   function resetManualBookletPrint(){
     if(manualBookletState&&manualBookletState.printWindow&&!manualBookletState.printWindow.closed) manualBookletState.printWindow.close();
+    if(manualBookletState&&manualBookletState.pdfs) manualBookletState.pdfs.forEach(url=>URL.revokeObjectURL(url));
     manualBookletState=null;
+    const download=$('booklet-manual-pdf-download');if(download){download.hidden=true;download.removeAttribute('href');}
     const start=$('booklet-manual-start'); if(start) start.disabled=true;
     const panel=$('booklet-manual-panel'); if(panel) panel.hidden=true;
   }
@@ -1329,23 +1345,10 @@
     $('booklet-manual-next').hidden=!stage;
     $('booklet-manual-next').disabled=manualBookletState.busy||!manualBookletState.ready;
     $('booklet-manual-next').textContent=stage?stage.next:'Готово';
+    const download=$('booklet-manual-pdf-download');if(download) download.hidden=!stage||!manualBookletState.ready;
     $('booklet-manual-open').hidden=!stage;
     $('booklet-manual-open').disabled=manualBookletState.busy;
     panel.scrollIntoView({behavior:'smooth',block:'start'});
-  }
-
-  async function buildManualBookletSide(model,index){
-    const sheet=document.createElement('canvas'); sheet.width=2480; sheet.height=3508;
-    const ctx=sheet.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,sheet.width,sheet.height);
-    const rows=BOOKLET_PRINT_SIDES[index];
-    for(let row=0;row<2;row+=1){
-      for(let column=0;column<2;column+=1){
-        const page=await renderBookletPageCanvas(rows[row][column],model);
-        ctx.drawImage(page,column*1240,row*1754);
-      }
-    }
-    ctx.strokeStyle='#ccc';ctx.lineWidth=2;ctx.setLineDash([10,10]);ctx.beginPath();ctx.moveTo(0,1754);ctx.lineTo(2480,1754);ctx.moveTo(1240,0);ctx.lineTo(1240,3508);ctx.stroke();
-    return sheet.toDataURL('image/jpeg',0.96);
   }
 
   function manualBookletWindow(){
@@ -1357,31 +1360,26 @@
 
   async function openManualBookletPrint(){
     if(!manualBookletState||manualBookletState.busy) return;
-    const state=manualBookletState,stage=MANUAL_BOOKLET_STAGES[state.step]; if(!stage) return;
+    const state=manualBookletState,stage=MANUAL_BOOKLET_STAGES[state.step];if(!stage) return;
     let popup;
     try{
-      popup=manualBookletWindow(); // Open synchronously from the user's click.
-      state.busy=true;state.ready=false; updateManualBookletPanel();
-      const doc=popup.document; doc.open();doc.write('<!doctype html><html lang="bg"><head><meta charset="utf-8"><title>Ръчен печат — Ден и Нощ</title><style>@page{size:A4 portrait;margin:0}*{box-sizing:border-box}body{margin:0;background:#eee;font:16px Arial,sans-serif}.controls{max-width:900px;margin:20px auto;padding:20px;background:white}button{font:inherit;padding:12px 18px;margin:6px;cursor:pointer}.sheet{width:210mm;height:297mm;display:block;margin:20px auto;break-after:page;page-break-after:always}.sheet:last-child{break-after:auto;page-break-after:auto}.sheet img{display:block;width:100%;height:100%}@media print{body{background:white}.controls{display:none}.sheet{margin:0;width:210mm;height:297mm}}</style></head><body></body></html>');doc.close();
-      const controls=doc.createElement('section');controls.className='controls';doc.body.appendChild(controls);
-      appendBookletText(controls,'h1',stage.title);
-      const list=doc.createElement('ol');controls.appendChild(list);stage.instructions.forEach(text=>appendBookletText(list,'li',text));
-      const status=appendBookletText(controls,'p','Подготовка на страниците…');
-      const print=appendBookletText(controls,'button','Печат'); print.type='button';print.disabled=true;print.addEventListener('click',()=>{popup.focus();popup.print();});
-      const done=appendBookletText(controls,'button',stage.next);done.type='button';done.disabled=true;done.addEventListener('click',advanceManualBookletPrint);
-      const loads=[];
-      for(const index of stage.sides){
-        if(!state.images.has(index)) state.images.set(index,await buildManualBookletSide(state.model,index));
-        if(manualBookletState!==state||popup.closed) return;
-        const sheet=doc.createElement('section');sheet.className='sheet';const img=doc.createElement('img');img.alt='Лист '+(index<2?'1':'2')+' — '+(index%2?'гръб':'лице');
-        loads.push(new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error('Страницата за печат не можа да се зареди.'));}));
-        img.src=state.images.get(index);sheet.appendChild(img);doc.body.appendChild(sheet);
+      popup=manualBookletWindow(); // Reserve the tab synchronously from the click.
+      state.busy=true;state.ready=false;updateManualBookletPanel();
+      message(bookletMessage,'Подготовка на PDF за тази стъпка…');
+      if(!state.pdfs.has(state.step)){
+        const bytes=await createBookletPdf(state.model,stage.sides,state.images);
+        if(manualBookletState!==state) return;
+        state.pdfs.set(state.step,URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})));
       }
-      await Promise.all(loads);
-      if(manualBookletState!==state||popup.closed) return;
-      state.ready=true;print.disabled=false;done.disabled=false;status.textContent='Печат: A4, Portrait, едностранно, 100%, без горен и долен колонтитул. След физическия печат натиснете „Готово“. Ако диалогът не се отвори, натиснете „Печат“.';
-      popup.focus();popup.print();
-    }catch(error){message(bookletMessage,error.message||'Печатът не можа да бъде отворен.','error');}
+      if(manualBookletState!==state) return;
+      state.ready=true;
+      const url=state.pdfs.get(state.step);
+      const link=$('booklet-manual-pdf-download');
+      if(link){link.href=url;link.download=['panihidi-01-litsa.pdf','panihidi-02-grab-list-1.pdf','panihidi-03-grab-list-2.pdf'][state.step];link.hidden=false;}
+      if(popup.closed) throw new Error('PDF е готов. Натиснете „Отвори PDF за печат“ или „Изтегли PDF за тази стъпка“.');
+      popup.location.replace(url);popup.focus();
+      message(bookletMessage,'PDF: '+stage.sides.length+' '+(stage.sides.length===1?'страница':'страници')+'. Натиснете иконата за печат в PDF. След отпечатването се върнете тук и натиснете „Готово“.','success');
+    }catch(error){message(bookletMessage,error.message||'PDF за печат не можа да бъде отворен.','error');}
     finally{if(manualBookletState===state){state.busy=false;updateManualBookletPanel();}}
   }
 
@@ -1391,7 +1389,7 @@
       if(hasEmpty&&!calculateBookletDates()) return;
       const model=readBookletModel();
       resetManualBookletPrint(); renderBooklet();
-      manualBookletState={model,step:0,busy:false,ready:false,images:new Map(),printWindow:null};
+      manualBookletState={model,step:0,busy:false,ready:false,images:new Map(),pdfs:new Map(),printWindow:null};
       updateManualBookletPanel();openManualBookletPrint();
     }catch(error){message(bookletMessage,error.message||'Ръчният печат не можа да започне.','error');}
   }
