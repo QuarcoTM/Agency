@@ -213,3 +213,10 @@
 .booklet-reading-page .booklet-page h2,.booklet-reading-page .booklet-person-name{font-size:5.65cqw!important}
 .booklet-reading-page .booklet-page .booklet-page-date{font-size:3.55cqw}
 .booklet-reading-page .booklet-agency-help{font-size:2.42cqw!important}
+
+/* v1.76 — larger cover logo and title, matching the PDF */
+.booklet-cover .booklet-page-content{gap:0}
+.booklet-cover .booklet-cover-logo{width:51%;padding:3.2%;margin:0 auto 6%}
+.booklet-reading-page .booklet-cover .booklet-cover-brand{font-size:3.87cqw;line-height:1.29;margin:0 0 8%}
+.booklet-reading-page .booklet-cover h1{font-size:7.1cqw;line-height:1.2;max-width:100%;margin:0 0 5%}
+.booklet-reading-page .booklet-cover .booklet-cover-subtitle{width:73%;font-size:3.23cqw;line-height:1.35;color:#66564b;border-top:1px solid #bd9d85;padding-top:4%;margin:0}

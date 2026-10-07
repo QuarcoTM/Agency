@@ -995,6 +995,7 @@
       const coverLogo=document.createElement('img'); coverLogo.src='../assets/logo-den-i-nosht.webp'; coverLogo.alt='Траурна агенция „Ден и Нощ“'; coverLogoBadge.appendChild(coverLogo); content.appendChild(coverLogoBadge);
       appendBookletText(content,'p','Траурна агенция „Ден и Нощ“','booklet-cover-brand');
       appendBookletText(content,'h1','Панихиди и възпоменателни дни');
+      appendBookletText(content,'p','Кратък помощник за близките','booklet-cover-subtitle');
       return page;
     }
     if(pageNumber===2){
@@ -1022,7 +1023,7 @@
     if(pageNumber===6){
       appendBookletText(content,'p','Основна панихида','booklet-kicker'); appendBookletText(content,'h2','Четиридесети ден'); appendBookletText(content,'p',dateLine('day40'),'booklet-page-date');
       appendBookletText(content,'p','Четиридесетият ден е един от най-важните дни за възпоменание. Обичайно се отслужва панихида в храм или на гроба.');
-      appendBookletList(content,['Запазете свещеник и уточнете мястото.','Подгответе жито, хляб или погача, вино и свещи.','При нужда поръчайте некролози, цветя и раздавки.','При нужда от почистване, подравняване или оформяне на гробното място се свържете с нас.']);
+      appendBookletList(content,['Запазете час със свещеник.','Подгответе жито, хляб или погача, вино и свещи.','При нужда поръчайте некролози, цветя и раздавки.','При нужда от почистване, подравняване или оформяне на гробното място се свържете с нас.']);
     }
     if(pageNumber===7){
       appendBookletText(content,'p','Възпоменание','booklet-kicker'); appendBookletText(content,'h2','Три месеца'); appendBookletText(content,'p',dateLine('month3'),'booklet-page-date');
@@ -1178,10 +1179,12 @@
     ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
 
     if(pageNumber===1){
-      const logo=content.querySelector('img'); let y=520;
-      y=await drawLogoBadgeToCanvas(ctx,logo.src,y,350)+55;
-      y=drawCanvasText(ctx,'Траурна агенция „Ден и Нощ“',y,{font:'bold 35px Arial',color:'#7b3337',maxWidth:1000,lineHeight:46,gapAfter:65});
-      drawCanvasText(ctx,'Панихиди и възпоменателни дни',y,{font:'58px Georgia',color:'#24191a',maxWidth:940,lineHeight:70,gapAfter:0});
+      const logo=content.querySelector('img'); let y=265;
+      y=await drawLogoBadgeToCanvas(ctx,logo.src,y,540)+65;
+      y=drawCanvasText(ctx,'Траурна агенция „Ден и Нощ“',y,{font:'bold 48px Arial',color:'#7b3337',maxWidth:1040,lineHeight:62,gapAfter:85});
+      y=drawCanvasText(ctx,'Панихиди и възпоменателни дни',y,{font:'88px Georgia',color:'#24191a',maxWidth:1040,lineHeight:106,gapAfter:54});
+      drawCanvasRule(ctx,y,760,'#bd9d85');
+      drawCanvasText(ctx,'Кратък помощник за близките',y+42,{font:'40px Georgia',color:'#66564b',maxWidth:1040,lineHeight:54,gapAfter:0});
       return canvas;
     }
 
