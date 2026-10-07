@@ -996,6 +996,13 @@
       appendBookletText(content,'p','Траурна агенция „Ден и Нощ“','booklet-cover-brand');
       appendBookletText(content,'h1','Панихиди и възпоменателни дни');
       appendBookletText(content,'p','Кратък помощник за близките','booklet-cover-subtitle');
+      const coverContacts=document.createElement('div'); coverContacts.className='booklet-cover-contacts';
+      appendBookletText(coverContacts,'p','0893 64 66 68','booklet-cover-phone');
+      appendBookletText(coverContacts,'p','0898 24 24 34','booklet-cover-phone');
+      appendBookletText(coverContacts,'p','Кюстендил, бул. „Цар Освободител“ 27А','booklet-cover-address');
+      appendBookletText(coverContacts,'p','deninosht.bg','booklet-cover-site');
+      content.appendChild(coverContacts);
+      const coverQr=document.createElement('img'); coverQr.className='booklet-qr booklet-cover-qr'; coverQr.src='../assets/qr-deninosht.svg'; coverQr.alt='QR код към deninosht.bg'; content.appendChild(coverQr);
       return page;
     }
     if(pageNumber===2){
@@ -1179,12 +1186,18 @@
     ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
 
     if(pageNumber===1){
-      const logo=content.querySelector('img'); let y=265;
-      y=await drawLogoBadgeToCanvas(ctx,logo.src,y,540)+65;
-      y=drawCanvasText(ctx,'Траурна агенция „Ден и Нощ“',y,{font:'bold 48px Arial',color:'#7b3337',maxWidth:1040,lineHeight:62,gapAfter:85});
-      y=drawCanvasText(ctx,'Панихиди и възпоменателни дни',y,{font:'88px Georgia',color:'#24191a',maxWidth:1040,lineHeight:106,gapAfter:54});
-      drawCanvasRule(ctx,y,760,'#bd9d85');
-      drawCanvasText(ctx,'Кратък помощник за близките',y+42,{font:'40px Georgia',color:'#66564b',maxWidth:1040,lineHeight:54,gapAfter:0});
+      const logo=content.querySelector('.booklet-cover-logo img'); let y=120;
+      y=await drawLogoBadgeToCanvas(ctx,logo.src,y,440)+34;
+      y=drawCanvasText(ctx,'Траурна агенция „Ден и Нощ“',y,{font:'bold 44px Arial',color:'#7b3337',maxWidth:1040,lineHeight:58,gapAfter:48});
+      y=drawCanvasText(ctx,'Панихиди и възпоменателни дни',y,{font:'88px Georgia',color:'#24191a',maxWidth:1040,lineHeight:106,gapAfter:25});
+      y=drawCanvasText(ctx,'Кратък помощник за близките',y,{font:'36px Georgia',color:'#66564b',maxWidth:1040,lineHeight:48,gapAfter:28});
+      drawCanvasRule(ctx,y,760,'#bd9d85'); y+=30;
+      y=drawCanvasText(ctx,'0893 64 66 68',y,{font:'bold 48px Georgia',maxWidth:1040,lineHeight:62,gapAfter:4});
+      y=drawCanvasText(ctx,'0898 24 24 34',y,{font:'bold 48px Georgia',maxWidth:1040,lineHeight:62,gapAfter:14});
+      y=drawCanvasText(ctx,'Кюстендил, бул. „Цар Освободител“ 27А',y,{font:'38px Georgia',maxWidth:950,lineHeight:49,gapAfter:16});
+      y=drawCanvasText(ctx,'deninosht.bg',y,{font:'bold 34px Arial',maxWidth:1040,lineHeight:44,gapAfter:16});
+      const qr=content.querySelector('.booklet-cover-qr'); const qrImage=await loadBookletImage(qr.src);
+      drawImageContained(ctx,qrImage,510,y,220,220);
       return canvas;
     }
 
