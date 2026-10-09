@@ -113,6 +113,10 @@
 .obituary-photo-controls output{color:#d7c0ad;font-weight:800}
 .obituary-dates-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 12px}
 .obituary-ceremony-grid{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:0 12px}
+.obituary-extra-ceremony{min-width:0;border:1px solid rgba(255,255,255,.16);background:#070707;padding:14px;margin:16px 0 0}
+.obituary-extra-ceremony legend{padding:0 6px;font-weight:700}
+.obituary-extra-ceremony .small-button{font-size:12px}
+.obituary-add-ceremony{margin:16px 0 8px}
 .obituary-footer-switch{border:1px solid rgba(255,255,255,.1);background:#070707;padding:14px;margin:18px 0 4px;line-height:1.45}
 .obituary-actions{display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1);padding-top:20px;margin-top:22px}
 .obituary-help{color:#e9e5e0;line-height:1.55}

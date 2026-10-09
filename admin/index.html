@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.87" rel="stylesheet"/>
+<link href="admin.css?v=1.89" rel="stylesheet"/>
 <style id="obituary-print-page"></style>
 </head>
 <body>
@@ -298,16 +298,16 @@
           </section>
 
           <section class="obituary-form-section" aria-labelledby="obituary-ceremony-heading">
-            <div class="obituary-section-head"><div><h3 id="obituary-ceremony-heading">Погребение / помен — текст в долната част</h3><p>Попълнете данните за автоматичен текст или напишете собствен текст в полето отдолу.</p></div></div>
+            <div class="obituary-section-head"><div><h3 id="obituary-ceremony-heading">Поклонение, погребение и помен</h3><p>За поклонение и погребение изберете „Поклонение“ за първата церемония и добавете втора за погребението. Всяка има отделни дата, час и място. Печатат се една под друга, центрирани под възпоменателния текст.</p></div></div>
             <div class="obituary-ceremony-grid">
-              <label for="obituary-ceremony-kind">Вид
+              <label for="obituary-ceremony-kind">Вид на първата церемония
                 <select id="obituary-ceremony-kind">
                   <option value="viewing">Поклонение</option>
                   <option value="service">Опело</option>
                   <option value="funeral">Погребение</option>
                   <option value="memorial">Панихида</option>
                   <option value="custom">Само собствен текст</option>
-                  <option value="none">Без текст за погребение / помен</option>
+                  <option value="none">Без тази церемония</option>
                 </select>
               </label>
               <label for="obituary-ceremony-date">Дата
@@ -320,10 +320,12 @@
             <label for="obituary-ceremony-place">Място
               <input id="obituary-ceremony-place" type="text" placeholder="Напр. храм „Св. Мина“, Кюстендил"/>
             </label>
-            <label for="obituary-ceremony-text">Собствен текст за погребението / помена <span>(по желание)</span>
+            <div class="obituary-extra-ceremonies" id="obituary-extra-ceremonies"></div>
+            <button class="admin-button secondary obituary-add-ceremony" id="obituary-add-ceremony" type="button">+ Добави още церемония</button>
+            <label for="obituary-ceremony-text">Собствен текст за всички церемонии <span>(по желание)</span>
               <textarea id="obituary-ceremony-text" rows="3" placeholder="Напр. Погребението ще се извърши в Новия гробищен парк."></textarea>
             </label>
-            <p class="obituary-photo-helper">Ако попълните това поле, най-долу ще се отпечата точно вашият текст. Ако е празно, текстът се съставя от вида, датата, часа и мястото.</p>
+            <p class="obituary-photo-helper">Ако попълните това поле, то замества целия блок с церемониите. Оставете го празно за автоматичния текст от датите, часовете и местата по-горе. При дълъг текст шрифтът се намалява автоматично.</p>
           </section>
 
           <section class="obituary-form-section" aria-labelledby="obituary-closing-heading">
@@ -348,8 +350,8 @@
           <ol>
             <li>Изберете вида на некролога.</li>
             <li>Качете снимка и я наместете при нужда.</li>
-            <li>Попълнете името и информацията за церемонията.</li>
-            <li>Променете „Текст под името“. За собствен текст най-долу използвайте „Собствен текст за погребението / помена“.</li>
+            <li>Попълнете името и информацията за церемонията. За поклонение и погребение използвайте „Добави още церемония“.</li>
+            <li>Променете „Текст под името“. За собствен текст под него използвайте „Собствен текст за всички церемонии“.</li>
             <li>Проверете прегледа и натиснете „Печат“ или изтеглете PDF.</li>
             <li>Формат A4, една страница на лист. При печат на PDF изберете „Побиране в печатната област“.</li>
           </ol>
@@ -509,6 +511,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.88"></script>
+<script src="admin.js?v=1.89"></script>
 </body>
 </html>

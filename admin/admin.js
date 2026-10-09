@@ -416,7 +416,8 @@
     ['obituary-ceremony-date','obituary-ceremony-time','obituary-ceremony-place'].forEach((id)=>{
       const input=$(id); if(input) input.disabled=kind==='none'||kind==='custom';
     });
-    const text=$('obituary-ceremony-text'); if(text) text.disabled=kind==='none';
+    const additional=$('obituary-extra-ceremonies');
+    const text=$('obituary-ceremony-text'); if(text) text.disabled=kind==='none'&&!(additional&&additional.children.length);
   }
 
   function parseObituaryDate(value){
@@ -630,6 +631,7 @@
       ceremonyTime:String($('obituary-ceremony-time').value||'').trim(),
       ceremonyPlace:String($('obituary-ceremony-place').value||'').trim(),
       ceremonyText:String($('obituary-ceremony-text')&&$('obituary-ceremony-text').value||'').trim(),
+      additionalCeremonies:readAdditionalObituaryCeremonies(),
       extraText:String($('obituary-extra-text').value||'').trim(),
       from:String($('obituary-from').value||'').trim(),
       agencyFooter:Boolean($('obituary-agency-footer').checked),
@@ -640,6 +642,55 @@
       photoY:Number(obituaryPhotoY&&obituaryPhotoY.value||0)
     };
   }
+
+  let obituaryCeremonySequence=0;
+
+  function readAdditionalObituaryCeremonies(){
+    const container=$('obituary-extra-ceremonies');
+    if(!container) return [];
+    return Array.from(container.querySelectorAll('.obituary-extra-ceremony'),(row)=>({
+      kind:row.querySelector('[data-obituary-ceremony="kind"]').value,
+      date:parseObituaryDate(row.querySelector('[data-obituary-ceremony="date"]').value),
+      time:row.querySelector('[data-obituary-ceremony="time"]').value.trim(),
+      place:row.querySelector('[data-obituary-ceremony="place"]').value.trim()
+    }));
+  }
+
+  function renumberObituaryCeremonies(){
+    const container=$('obituary-extra-ceremonies');
+    if(container) Array.from(container.children).forEach((row,index)=>{row.querySelector('legend').textContent='Церемония '+(index+2);});
+  }
+
+  function addObituaryCeremony(){
+    const container=$('obituary-extra-ceremonies');
+    if(!container) return;
+    const id='obituary-extra-ceremony-'+(++obituaryCeremonySequence);
+    const row=document.createElement('fieldset'); row.className='obituary-extra-ceremony';
+    row.innerHTML='<legend>Церемония</legend>'+
+      '<div class="obituary-ceremony-grid">'+
+        '<label for="'+id+'-kind">Вид<select id="'+id+'-kind" data-obituary-ceremony="kind">'+
+          '<option value="viewing">Поклонение</option><option value="service">Опело</option><option value="funeral" selected>Погребение</option><option value="memorial">Панихида</option>'+
+        '</select></label>'+
+        '<label for="'+id+'-date">Дата<input id="'+id+'-date" data-obituary-ceremony="date" type="date"/></label>'+
+        '<label for="'+id+'-time">Час<input id="'+id+'-time" data-obituary-ceremony="time" type="time"/></label>'+
+      '</div>'+
+      '<label for="'+id+'-place">Място<input id="'+id+'-place" data-obituary-ceremony="place" type="text" placeholder="Напр. гробищен парк с. Коняво"/></label>'+
+      '<button class="small-button" type="button" data-remove-ceremony>Премахни тази церемония</button>';
+    row.querySelector('[data-obituary-ceremony="date"]').value=$('obituary-ceremony-date').value;
+    row.querySelectorAll('input,select').forEach((input)=>{
+      input.addEventListener('input',scheduleObituaryPreview);
+      input.addEventListener('change',scheduleObituaryPreview);
+    });
+    row.querySelector('[data-remove-ceremony]').addEventListener('click',()=>{
+      row.remove(); renumberObituaryCeremonies(); updateObituaryCeremonyFields(); scheduleObituaryPreview();
+    });
+    container.appendChild(row); renumberObituaryCeremonies(); updateObituaryCeremonyFields(); scheduleObituaryPreview();
+    row.querySelector('[data-obituary-ceremony="kind"]').focus();
+    return row;
+  }
+
+  const obituaryAddCeremonyButton=$('obituary-add-ceremony');
+  if(obituaryAddCeremonyButton) obituaryAddCeremonyButton.addEventListener('click',addObituaryCeremony);
 
   function obituaryWrappedLines(ctx,text,maxWidth){
     const lines=[];
@@ -760,7 +811,7 @@
       // Measure at the original font size; scale at draw time even below one pixel.
       ctx.font=opts.style+' '+opts.weight+' '+opts.size+'px "Times New Roman", Times, serif';
       const ratio=size/opts.size;
-      const lines=obituaryWrappedLines(ctx,text,opts.maxWidth/ratio);
+      const lines=opts.wrap===false?String(text).split(/\r?\n/).map((line)=>line.trim()):obituaryWrappedLines(ctx,text,opts.maxWidth/ratio);
       const height=lines.reduce((sum,line)=>sum+size*(line?1.16:opts.blankLineFactor),0);
       return {size,lines,height,fits:height<=opts.maxHeight&&lines.every(line=>ctx.measureText(line).width*ratio<=opts.maxWidth)};
     };
@@ -787,19 +838,25 @@
     return cursor;
   }
 
-  function buildObituaryCeremonyText(model){
-    if(model.ceremonyKind==='none') return '';
-    if(model.ceremonyText) return model.ceremonyText;
-    if(model.ceremonyKind==='custom'||(!model.ceremonyDate&&!model.ceremonyTime&&!model.ceremonyPlace)) return '';
+  function formatObituaryCeremonyText(ceremony){
+    if(ceremony.kind==='none'||ceremony.kind==='custom'||(!ceremony.date&&!ceremony.time&&!ceremony.place)) return '';
     const labels={viewing:'Поклонението ще се състои',service:'Опелото ще се отслужи',funeral:'Погребението ще се състои',memorial:'Поменът ще се състои'};
-    let text=labels[model.ceremonyKind]||'Церемонията ще се състои';
-    if(model.ceremonyDate){
-      const date=model.ceremonyDate;
+    let text=labels[ceremony.kind]||'Церемонията ще се състои';
+    if(ceremony.date){
+      const date=ceremony.date;
       text+=' на '+String(date.getDate()).padStart(2,'0')+'.'+String(date.getMonth()+1).padStart(2,'0')+'.'+String(date.getFullYear()).slice(-2)+'г.';
     }
-    if(model.ceremonyTime) text+=' от '+model.ceremonyTime+'ч.';
-    if(model.ceremonyPlace) text+=',\nв '+model.ceremonyPlace;
+    if(ceremony.time) text+=' от '+ceremony.time+'ч.';
+    if(ceremony.place) text+='\nв '+ceremony.place;
     return text;
+  }
+
+  function buildObituaryCeremonyText(model){
+    const additional=model.additionalCeremonies||[];
+    if(model.ceremonyKind==='none'&&!additional.length) return '';
+    if(model.ceremonyText) return model.ceremonyText;
+    const primary={kind:model.ceremonyKind,date:model.ceremonyDate,time:model.ceremonyTime,place:model.ceremonyPlace};
+    return [primary,...additional].map(formatObituaryCeremonyText).filter(Boolean).join('\n');
   }
 
   function drawObituaryFooter(ctx,geometry,color){
@@ -842,8 +899,10 @@
     if(model.age!==null) drawText(model.age+'г.',790,{x:nameX,maxWidth:nameWidth,size:62*scale,maxHeight:76});
 
     drawText(model.extraText,950,{size:60*scale,style:'italic',maxWidth:1020,maxHeight:360,blankLineFactor:35/56});
-    drawText(buildObituaryCeremonyText(model),1360,{size:43*scale,weight:'normal',style:'italic',maxWidth:1020,maxHeight:138});
-    drawText(model.from,1530,{x:1110,size:60*scale,style:'italic',align:'right',maxWidth:980,maxHeight:85});
+    const ceremonyText=buildObituaryCeremonyText(model);
+    const expandedCeremony=(model.additionalCeremonies||[]).some((ceremony)=>formatObituaryCeremonyText(ceremony))||ceremonyText.split(/\r?\n/).filter((line)=>line.trim()).length>2;
+    drawText(ceremonyText,expandedCeremony?1345:1360,{size:43*scale,weight:'bold',maxWidth:1020,maxHeight:expandedCeremony?220:138,wrap:Boolean(model.ceremonyText)});
+    drawText(model.from,expandedCeremony?1600:1530,{x:1110,size:60*scale,style:'italic',align:'right',maxWidth:980,maxHeight:85});
     if(model.agencyFooter) drawObituaryFooter(ctx,geometry,ink);
     return 1754;
   }
@@ -970,6 +1029,8 @@
   function resetObituaryForm(){
     clearObituaryPrint();
     if(!obituaryForm) return;
+    const ceremonies=$('obituary-extra-ceremonies'); if(ceremonies) ceremonies.replaceChildren();
+    obituaryCeremonySequence=0;
     obituaryForm.reset(); resetObituaryPhoto(); obituaryAgeIsAutomatic=true; obituaryCeremonyDateIsAutomatic=true; applyObituaryPreset();
     window.clearTimeout(obituaryPreviewTimer);
     if(obituaryPreviewArea) obituaryPreviewArea.hidden=true;
