@@ -327,6 +327,33 @@
             </div>
             <label class="obituary-photo-picker" for="obituary-second-photo"><input id="obituary-second-photo" type="file" accept="image/jpeg,image/png,image/webp"/><span>Снимка на втория човек</span><small id="obituary-second-photo-name">Без снимка — кръст и ангелчета</small></label>
             <button class="small-button danger" id="obituary-remove-second-photo" type="button" hidden>Премахни втората снимка</button>
+            <div class="obituary-photo-tools" id="obituary-second-photo-tools" hidden>
+              <div class="obituary-photo-tools-top">
+                <label class="switch-label obituary-photo-auto-toggle"><input id="obituary-second-photo-auto" type="checkbox" checked/><span>Автоматична подготовка</span></label>
+                <div class="obituary-photo-tool-buttons">
+                  <button class="small-button" id="obituary-second-photo-apply-auto" type="button">Авто отново</button>
+                  <button class="small-button" id="obituary-second-photo-use-original" type="button">Оригинал</button>
+                </div>
+              </div>
+              <p class="obituary-photo-helper">Втората снимка се подготвя автоматично и се настройва отделно от първата. Ако не ви хареса, върнете оригинала или я наместете ръчно.</p>
+            </div>
+            <div class="obituary-photo-controls" id="obituary-second-photo-controls" hidden>
+              <label for="obituary-second-photo-fit">Поставяне на снимката
+                <select id="obituary-second-photo-fit">
+                  <option value="contain" selected>Цялата снимка — без изрязване</option>
+                  <option value="cover">Запълни рамката — възможно изрязване</option>
+                </select>
+              </label>
+              <label for="obituary-second-photo-zoom">Размер <output id="obituary-second-photo-zoom-value">100%</output>
+                <input id="obituary-second-photo-zoom" type="range" min="50" max="220" step="1" value="100"/>
+              </label>
+              <label for="obituary-second-photo-x">Наляво / надясно
+                <input id="obituary-second-photo-x" type="range" min="-100" max="100" step="1" value="0"/>
+              </label>
+              <label for="obituary-second-photo-y">Нагоре / надолу
+                <input id="obituary-second-photo-y" type="range" min="-100" max="100" step="1" value="0"/>
+              </label>
+            </div>
           </section>
 
           <section class="obituary-form-section" aria-labelledby="obituary-text-heading">
@@ -550,6 +577,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.90"></script>
+<script src="admin.js?v=1.91"></script>
 </body>
 </html>

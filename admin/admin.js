@@ -76,6 +76,12 @@
   const obituaryPhotoAuto = $('obituary-photo-auto');
   const obituaryPhotoApplyAuto = $('obituary-photo-apply-auto');
   const obituaryPhotoUseOriginal = $('obituary-photo-use-original');
+  const obituarySecondPhotoUi = {
+    controls:$('obituary-second-photo-controls'),tools:$('obituary-second-photo-tools'),
+    fit:$('obituary-second-photo-fit'),zoom:$('obituary-second-photo-zoom'),zoomValue:$('obituary-second-photo-zoom-value'),
+    x:$('obituary-second-photo-x'),y:$('obituary-second-photo-y'),auto:$('obituary-second-photo-auto'),
+    applyAuto:$('obituary-second-photo-apply-auto'),useOriginal:$('obituary-second-photo-use-original')
+  };
   const obituaryBirthDate = $('obituary-birth-date');
   const obituaryDeathDate = $('obituary-death-date');
   const obituaryAge = $('obituary-age');
@@ -104,7 +110,7 @@
   };
   const obituaryLocalImages={
     background:{input:'obituary-background',name:'obituary-background-name',remove:'obituary-remove-background',empty:'Няма избран фон',url:'',image:null,request:0},
-    second:{input:'obituary-second-photo',name:'obituary-second-photo-name',remove:'obituary-remove-second-photo',empty:'Без снимка — кръст и ангелчета',url:'',image:null,request:0}
+    second:{input:'obituary-second-photo',name:'obituary-second-photo-name',remove:'obituary-remove-second-photo',empty:'Без снимка — кръст и ангелчета',url:'',image:null,request:0,autoPreset:null,adjustmentRequest:0}
   };
 
   function obituaryRequiredArtwork(design){
@@ -144,6 +150,13 @@
     const input=$(slot.input);if(input) input.value='';
     const name=$(slot.name);if(name) name.textContent=slot.empty;
     const remove=$(slot.remove);if(remove) remove.hidden=true;
+    if(kind==='second'){
+      slot.autoPreset=null;
+      if(obituarySecondPhotoUi.controls) obituarySecondPhotoUi.controls.hidden=true;
+      if(obituarySecondPhotoUi.tools) obituarySecondPhotoUi.tools.hidden=true;
+      if(obituarySecondPhotoUi.auto) obituarySecondPhotoUi.auto.checked=true;
+      useOriginalObituarySecondPhoto(false);
+    }
     scheduleObituaryPreview();
   }
 
@@ -160,6 +173,14 @@
     slot.url=url;slot.image=image;
     const name=$(slot.name);if(name) name.textContent=file.name;
     const remove=$(slot.remove);if(remove) remove.hidden=false;
+    if(kind==='second'){
+      slot.autoPreset=null;
+      if(obituarySecondPhotoUi.controls) obituarySecondPhotoUi.controls.hidden=false;
+      if(obituarySecondPhotoUi.tools) obituarySecondPhotoUi.tools.hidden=false;
+      useOriginalObituarySecondPhoto(false);
+      if(!obituarySecondPhotoUi.auto||obituarySecondPhotoUi.auto.checked) await applyAutoObituarySecondPhoto(false);
+      if(request!==slot.request) return false;
+    }
     scheduleObituaryPreview();
     return true;
   }
@@ -575,6 +596,37 @@
     applyObituaryPhotoControls({fit:'contain',zoom:100,x:0,y:0},shouldSchedule);
   }
 
+  function applyObituarySecondPhotoControls(settings,shouldSchedule){
+    const next=Object.assign({fit:'contain',zoom:100,x:0,y:0},settings||{}),ui=obituarySecondPhotoUi;
+    if(ui.fit) ui.fit.value=next.fit;
+    if(ui.zoom) ui.zoom.value=String(Math.round(clampObituaryPhoto(Number(next.zoom||100),50,220)));
+    if(ui.zoomValue&&ui.zoom) ui.zoomValue.textContent=ui.zoom.value+'%';
+    if(ui.x) ui.x.value=String(Math.round(clampObituaryPhoto(Number(next.x||0),-100,100)));
+    if(ui.y) ui.y.value=String(Math.round(clampObituaryPhoto(Number(next.y||0),-100,100)));
+    if(shouldSchedule!==false) scheduleObituaryPreview();
+  }
+
+  function useOriginalObituarySecondPhoto(shouldSchedule){
+    obituaryLocalImages.second.adjustmentRequest+=1;
+    applyObituarySecondPhotoControls({fit:'contain',zoom:100,x:0,y:0},shouldSchedule);
+  }
+
+  async function applyAutoObituarySecondPhoto(shouldSchedule){
+    const slot=obituaryLocalImages.second,image=slot.image;
+    if(!image) return null;
+    const imageRequest=slot.request,adjustmentRequest=++slot.adjustmentRequest;
+    let preset=slot.autoPreset;
+    if(!preset){
+      const face=await detectObituaryPrimaryFace(image);
+      preset=buildObituaryAutoPhotoPreset(image,face,{width:300,height:350});
+    }
+    // A late face result must not replace a newer upload or a manual adjustment.
+    if(image!==slot.image||imageRequest!==slot.request||adjustmentRequest!==slot.adjustmentRequest||(obituarySecondPhotoUi.auto&&!obituarySecondPhotoUi.auto.checked)) return null;
+    slot.autoPreset=preset;
+    applyObituarySecondPhotoControls(preset,shouldSchedule);
+    return preset;
+  }
+
   async function detectObituaryPrimaryFace(image){
     if(typeof window.FaceDetector!=='function') return null;
     try{
@@ -593,11 +645,11 @@
     }
   }
 
-  function buildObituaryAutoPhotoPreset(image,face){
+  function buildObituaryAutoPhotoPreset(image,face,frame){
     const imageWidth=image.naturalWidth||image.width||1;
     const imageHeight=image.naturalHeight||image.height||1;
-    const frameWidth=370;
-    const frameHeight=465;
+    const frameWidth=frame&&frame.width||370;
+    const frameHeight=frame&&frame.height||465;
 
     if(!face||!face.width||!face.height){
       if(imageWidth>imageHeight*1.18){
@@ -739,7 +791,15 @@
       photoX:Number(obituaryPhotoX&&obituaryPhotoX.value||0),
       photoY:Number(obituaryPhotoY&&obituaryPhotoY.value||0),
       firstPeriod:String($('obituary-first-period')&&$('obituary-first-period').value||'').trim(),
-      secondPerson:obituaryDesign.value==='double'?{name:secondName||(allowIncomplete?'Име Презиме Фамилия':''),period:String($('obituary-second-period')&&$('obituary-second-period').value||'').trim(),age:secondAge,photo:obituaryLocalImages.second.image}:null,
+      secondPerson:obituaryDesign.value==='double'?{
+        name:secondName||(allowIncomplete?'Име Презиме Фамилия':''),
+        period:String($('obituary-second-period')&&$('obituary-second-period').value||'').trim(),age:secondAge,
+        photo:obituaryLocalImages.second.image,
+        photoFit:obituarySecondPhotoUi.fit&&obituarySecondPhotoUi.fit.value||'contain',
+        photoZoom:Number(obituarySecondPhotoUi.zoom&&obituarySecondPhotoUi.zoom.value||100),
+        photoX:Number(obituarySecondPhotoUi.x&&obituarySecondPhotoUi.x.value||0),
+        photoY:Number(obituarySecondPhotoUi.y&&obituarySecondPhotoUi.y.value||0)
+      }:null,
       background:obituaryDesign.value==='background'?obituaryLocalImages.background.image:null,
       backgroundFit:$('obituary-background-fit')&&$('obituary-background-fit').value||'cover',
       backgroundColor:$('obituary-background-color')&&$('obituary-background-color').value||'white',
@@ -1044,7 +1104,7 @@
     const intro=defaultIntros.includes(model.intro)?(model.type==='death'?'С много болка съобщаваме, че ни напуснаха':'ОТ СМЪРТТА НА'):model.intro;
     drawText(intro,433,{size:40*scale,weight:'normal',maxWidth:1000,maxHeight:60});
     drawDoubleObituaryPortrait(ctx,model.photo,355,model);
-    drawDoubleObituaryPortrait(ctx,second.photo,885,{photoFit:'contain',photoZoom:100,photoX:0,photoY:0});
+    drawDoubleObituaryPortrait(ctx,second.photo,885,Object.assign({photoFit:'contain',photoZoom:100,photoX:0,photoY:0},second));
     [{name:model.name,age:model.age,x:355},{name:second.name,age:second.age,x:885}].forEach((person)=>{
       const parts=obituaryNameParts(person.name),slot=216/Math.max(3,parts.length);
       parts.forEach((part,index)=>drawText(part,895+index*slot,{x:person.x,size:70*scale,maxWidth:460,maxHeight:slot}));
@@ -2385,6 +2445,41 @@
   [obituaryPhotoFit].filter(Boolean).forEach((input)=>input.addEventListener('change',scheduleObituaryPreview));
   [obituaryPhotoZoom,obituaryPhotoX,obituaryPhotoY].filter(Boolean).forEach((input)=>input.addEventListener('input',()=>{
     if(obituaryPhotoZoomValue&&obituaryPhotoZoom) obituaryPhotoZoomValue.textContent=obituaryPhotoZoom.value+'%';
+    scheduleObituaryPreview();
+  }));
+  const prepareSecondPhotoAuto=async(again)=>{
+    if(!obituaryLocalImages.second.image) return;
+    try{
+      if(obituarySecondPhotoUi.auto) obituarySecondPhotoUi.auto.checked=true;
+      message(obituaryMessage,'Подготовка на втората снимка…');
+      const preset=await applyAutoObituarySecondPhoto();
+      if(!preset) return;
+      if(preset.reason==='face') message(obituaryMessage,again?'Втората снимка е подготвена автоматично отново.':'Втората снимка е подготвена автоматично.','success');
+      else message(obituaryMessage,'Показан е безопасният автоматичен вариант за втората снимка. При нужда я наместете ръчно.','success');
+    }catch(error){message(obituaryMessage,error.message||'Автоматичната подготовка на втората снимка не можа да се приложи.','error');}
+  };
+  if(obituarySecondPhotoUi.auto) obituarySecondPhotoUi.auto.addEventListener('change',()=>{
+    if(!obituaryLocalImages.second.image) return;
+    if(obituarySecondPhotoUi.auto.checked) prepareSecondPhotoAuto(false);
+    else{
+      useOriginalObituarySecondPhoto();
+      message(obituaryMessage,'Показва се оригиналният вариант на втората снимка. Можете да я наместите ръчно.','success');
+    }
+  });
+  if(obituarySecondPhotoUi.applyAuto) obituarySecondPhotoUi.applyAuto.addEventListener('click',()=>prepareSecondPhotoAuto(true));
+  if(obituarySecondPhotoUi.useOriginal) obituarySecondPhotoUi.useOriginal.addEventListener('click',()=>{
+    if(!obituaryLocalImages.second.image) return;
+    if(obituarySecondPhotoUi.auto) obituarySecondPhotoUi.auto.checked=false;
+    useOriginalObituarySecondPhoto();
+    message(obituaryMessage,'Показва се оригиналният вариант на втората снимка.','success');
+  });
+  if(obituarySecondPhotoUi.fit) obituarySecondPhotoUi.fit.addEventListener('change',()=>{
+    obituaryLocalImages.second.adjustmentRequest+=1;
+    scheduleObituaryPreview();
+  });
+  [obituarySecondPhotoUi.zoom,obituarySecondPhotoUi.x,obituarySecondPhotoUi.y].filter(Boolean).forEach((input)=>input.addEventListener('input',()=>{
+    obituaryLocalImages.second.adjustmentRequest+=1;
+    if(obituarySecondPhotoUi.zoomValue&&obituarySecondPhotoUi.zoom) obituarySecondPhotoUi.zoomValue.textContent=obituarySecondPhotoUi.zoom.value+'%';
     scheduleObituaryPreview();
   }));
   if(obituaryForm){
