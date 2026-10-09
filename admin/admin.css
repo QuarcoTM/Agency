@@ -232,14 +232,14 @@
 .booklet-reading-page .booklet-cover .booklet-cover-site{font-family:Arial,Helvetica,sans-serif;font-size:2.74cqw;line-height:1.29;font-weight:700;margin:0 0 1.5%}
 .booklet-cover .booklet-cover-qr{width:21%;height:auto;display:block;margin:0 auto;flex-shrink:0}
 
-/* v1.86 — fit the obituary to the available print area, including margins. */
+/* v1.87 — equal printable margins around each obituary, including cut A5 panels. */
 #obituary-print-root{display:none}
 /* Establish the sheet geometry before beforeprint switches the media layout. */
 body.obituary-print-ready>#obituary-print-root{display:block;position:fixed;left:0;top:0;width:210mm;height:297mm;overflow:hidden;background:#fff;z-index:10000}
 body.obituary-print-ready>#obituary-print-root.obituary-print-landscape{width:297mm;height:210mm}
 #obituary-print-root canvas{position:absolute;left:0;top:0;width:100%;height:100%;margin:0;padding:0;border:0;object-fit:fill}
-#obituary-print-root.obituary-print-landscape canvas{width:50%}
-#obituary-print-root.obituary-print-landscape canvas+canvas{left:50%}
+#obituary-print-root.obituary-print-landscape canvas{width:calc(50% - 5mm)}
+#obituary-print-root.obituary-print-landscape canvas+canvas{left:calc(50% + 5mm)}
 @media print{
   html:has(body.obituary-print-ready),body.obituary-print-ready{display:block!important;page:auto!important;width:auto!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important;overflow:hidden!important}
   body.obituary-print-ready>*{display:none!important}
@@ -247,7 +247,7 @@ body.obituary-print-ready>#obituary-print-root.obituary-print-landscape{width:29
   body.obituary-print-ready>#obituary-print-root *{visibility:visible!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body.obituary-print-ready>#obituary-print-root.obituary-print-landscape{gap:0}
   #obituary-print-root canvas{display:block!important;position:absolute!important;left:0;top:0;min-width:0;min-height:0;width:100%;height:100%;object-fit:fill;margin:0!important;padding:0!important;border:0!important}
-  #obituary-print-root.obituary-print-landscape canvas{width:50%}
-  #obituary-print-root.obituary-print-landscape canvas+canvas{left:50%}
+  #obituary-print-root.obituary-print-landscape canvas{width:calc(50% - 5mm)}
+  #obituary-print-root.obituary-print-landscape canvas+canvas{left:calc(50% + 5mm)}
   .obituary-print-landscape::after{content:'';position:absolute;left:50%;top:0;height:100%;border-left:.2mm dashed #aaa}
 }

@@ -707,12 +707,24 @@
     ctx.save(); ctx.globalAlpha=.5; ctx.fillStyle='#e6c18c'; ctx.fillRect(585,620,70,520); ctx.fillStyle='#fff2d5'; ctx.beginPath(); ctx.moveTo(620,555); ctx.bezierCurveTo(560,635,596,694,620,700); ctx.bezierCurveTo(648,674,681,620,620,555); ctx.fill(); ctx.restore();
   }
 
-  function drawObituaryFrame(ctx,design){
+  function obituaryPrintGeometry(output){
+    const copies=output==='a5x2'?2:1;
+    const pageWidth=copies===2?297:210,pageHeight=copies===2?210:297,margin=5;
+    const cellWidth=pageWidth/copies,panelWidth=cellWidth-2*margin,panelHeight=pageHeight-2*margin;
+    return {copies,pageWidth,pageHeight,margin,cellWidth,panelWidth,panelHeight,pxPerMmX:1240/panelWidth,pxPerMmY:1754/panelHeight};
+  }
+
+  function drawObituaryFrame(ctx,design,geometry){
     if(design==='candle') drawObituaryCandleBackground(ctx);
     else{ ctx.fillStyle='#fff'; ctx.fillRect(0,0,1240,1754); }
     const dark=design==='candle'; const color=dark?'#d5a85c':'#151515';
-    // Equal A4 insets leave room for the agency line below the frame.
-    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=4; ctx.strokeRect(90,90,1060,1574); ctx.lineWidth=1; ctx.strokeRect(96,96,1048,1562);
+    // Millimetre coordinates keep all four printed frame insets identical.
+    // The 5 mm page margin plus 3.8 mm frame inset leaves room for the footer.
+    ctx.save(); ctx.strokeStyle=color;
+    ctx.save(); ctx.scale(geometry.pxPerMmX,geometry.pxPerMmY);
+    ctx.lineWidth=.8; ctx.strokeRect(3.8,3.8,geometry.panelWidth-7.6,geometry.panelHeight-7.6);
+    ctx.lineWidth=.15; ctx.strokeRect(4.6,4.6,geometry.panelWidth-9.2,geometry.panelHeight-9.2);
+    ctx.restore();
     if(design==='crosses'){
       drawObituaryCornerCross(ctx,150,160,104,color); drawObituaryCornerCross(ctx,1090,160,104,color);
     }else if(design==='doves'){
@@ -791,8 +803,9 @@
   }
 
   function paintObituary(ctx,model,scale){
-    // Positions are measured on a full A4 sheet (1240 x 1754), matching the printed reference.
-    drawObituaryFrame(ctx,model.design);
+    // Browser print and PDF place this canvas in the same 5 mm printable area.
+    const geometry=obituaryPrintGeometry(model.output);
+    drawObituaryFrame(ctx,model.design,geometry);
     const dark=model.design==='candle', ink=dark?'#fff5e8':'#000';
     const drawText=(text,y,options)=>drawObituaryFittedText(ctx,text,y,Object.assign({color:ink},options));
     const periods={day40:'40 дни',month3:'3 месеца',month6:'6 месеца',month9:'9 месеца',year1:'1 година'};
@@ -814,8 +827,8 @@
     drawText(model.extraText,950,{size:60*scale,style:'italic',maxWidth:1020,maxHeight:360,blankLineFactor:35/56});
     drawText(buildObituaryCeremonyText(model),1360,{size:43*scale,weight:'normal',style:'italic',maxWidth:1020,maxHeight:138});
     drawText(model.from,1530,{x:1110,size:60*scale,style:'italic',align:'right',maxWidth:980,maxHeight:85});
-    if(model.agencyFooter) drawText('Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 / 0893 64 66 68  deninosht.bg',1680,{size:28,style:'italic',maxWidth:1060,maxHeight:36});
-    return 1716;
+    if(model.agencyFooter) drawText('Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 / 0893 64 66 68  deninosht.bg',1754-3.2*geometry.pxPerMmY,{size:7*25.4/72*geometry.pxPerMmY,style:'italic',maxWidth:1240-7.6*geometry.pxPerMmX,maxHeight:3*geometry.pxPerMmY});
+    return 1754;
   }
 
   function createObituaryCanvas(model,targetCanvas){
@@ -922,13 +935,14 @@
     const pdf=await window.PDFLib.PDFDocument.create();
     pdf.setTitle('Некролог - '+model.name); pdf.setAuthor('Траурна агенция Ден и Нощ'); pdf.setCreator('deninosht.bg');
     const image=await pdf.embedJpg(canvas.toDataURL('image/jpeg',.98));
-    if(model.output==='a5x2'){
-      const page=pdf.addPage([841.89,595.28]);
-      page.drawImage(image,{x:0,y:0,width:420.945,height:595.28});
-      page.drawImage(image,{x:420.945,y:0,width:420.945,height:595.28});
-      page.drawLine({start:{x:420.945,y:0},end:{x:420.945,y:595.28},thickness:.7,color:window.PDFLib.rgb(.72,.69,.66),dashArray:[5,5]});
-    }else{
-      const page=pdf.addPage([595.28,841.89]); page.drawImage(image,{x:0,y:0,width:595.28,height:841.89});
+    const geometry=obituaryPrintGeometry(model.output),mm=72/25.4;
+    const page=pdf.addPage([geometry.pageWidth*mm,geometry.pageHeight*mm]);
+    for(let index=0;index<geometry.copies;index+=1){
+      page.drawImage(image,{x:(geometry.margin+index*geometry.cellWidth)*mm,y:geometry.margin*mm,width:geometry.panelWidth*mm,height:geometry.panelHeight*mm});
+    }
+    if(geometry.copies===2){
+      const middle=geometry.pageWidth*mm/2;
+      page.drawLine({start:{x:middle,y:geometry.margin*mm},end:{x:middle,y:(geometry.pageHeight-geometry.margin)*mm},thickness:.7,color:window.PDFLib.rgb(.72,.69,.66),dashArray:[5,5]});
     }
     const bytes=await pdf.save({useObjectStreams:true}); const blob=new Blob([bytes],{type:'application/pdf'}); const url=URL.createObjectURL(blob);
     const link=document.createElement('a'); link.href=url; link.download='nekrolog-'+slugify(model.name)+'.pdf'; link.rel='noopener';
