@@ -232,7 +232,7 @@
 .booklet-reading-page .booklet-cover .booklet-cover-site{font-family:Arial,Helvetica,sans-serif;font-size:2.74cqw;line-height:1.29;font-weight:700;margin:0 0 1.5%}
 .booklet-cover .booklet-cover-qr{width:21%;height:auto;display:block;margin:0 auto;flex-shrink:0}
 
-/* v1.83 — one fixed print sheet, independent of admin/booklet flow. */
+/* v1.84 — one fixed print sheet, independent of admin/booklet flow. */
 #obituary-print-root{display:none}
 /* Establish the sheet geometry before beforeprint switches the media layout. */
 body.obituary-print-ready>#obituary-print-root{display:block;position:fixed;left:0;top:0;width:210mm;height:297mm;overflow:hidden;background:#fff;z-index:10000}

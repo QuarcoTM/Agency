@@ -798,7 +798,7 @@
     const periods={day40:'40 дни',month3:'3 месеца',month6:'6 месеца',month9:'9 месеца',year1:'1 година'};
     const period=periods[model.type]||'';
     const title=model.type!=='death'&&model.title==='ВЪЗПОМЕНАНИЕ'?'ТЪЖЕН ПОМЕН':model.title;
-    drawText(title,120,{size:88*scale,maxWidth:model.design==='crosses'||model.design==='doves'?860:1020,maxHeight:110});
+    drawText(title,120,{size:88*scale,maxWidth:model.design==='crosses'||model.design==='doves'?860:1020,maxHeight:104});
     if(period) drawText(period,224,{size:80*scale,maxHeight:90});
     let intro=model.intro;
     if(model.type==='death'&&intro==='С много болка съобщаваме,') intro+='\n'+(model.death?'че на '+formatObituaryShortDate(model.death)+' ':'')+'ни напусна';
