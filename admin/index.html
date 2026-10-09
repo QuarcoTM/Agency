@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.77" rel="stylesheet"/>
+<link href="admin.css?v=1.78" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -330,6 +330,7 @@
 
           <div class="obituary-actions">
             <button class="admin-button" id="obituary-preview-button" type="submit">Създай преглед</button>
+            <button class="admin-button" id="obituary-print-button" type="button" disabled>Печат</button>
             <button class="admin-button secondary" id="obituary-download-button" type="button" disabled>Изтегли готов PDF</button>
             <button class="admin-button secondary" id="obituary-reset-button" type="button">Нов некролог</button>
           </div>
@@ -342,7 +343,7 @@
             <li>Изберете вида на некролога.</li>
             <li>Качете снимка и я наместете при нужда.</li>
             <li>Попълнете името и информацията за церемонията.</li>
-            <li>Проверете прегледа и изтеглете PDF.</li>
+            <li>Проверете прегледа и натиснете „Печат“ или изтеглете PDF.</li>
             <li>Печатайте на 100% или „Действителен размер“.</li>
           </ol>
         </aside>
@@ -497,8 +498,10 @@
   </section>
 </div>
 
+<div id="obituary-print-root" class="obituary-print-sheet" hidden aria-hidden="true"></div>
+
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.77"></script>
+<script src="admin.js?v=1.78"></script>
 </body>
 </html>

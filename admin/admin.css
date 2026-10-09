@@ -231,3 +231,18 @@
 .booklet-reading-page .booklet-cover .booklet-cover-address{font-size:3.06cqw;line-height:1.29;margin:1.3% -12% 1.5%}
 .booklet-reading-page .booklet-cover .booklet-cover-site{font-family:Arial,Helvetica,sans-serif;font-size:2.74cqw;line-height:1.29;font-weight:700;margin:0 0 1.5%}
 .booklet-cover .booklet-cover-qr{width:21%;height:auto;display:block;margin:0 auto;flex-shrink:0}
+
+/* v1.78 — isolate obituary printing from the booklet and admin layout. */
+#obituary-print-root{display:none}
+@media print{
+  @page obituary-portrait{size:A4 portrait;margin:8mm}
+  @page obituary-landscape{size:A4 landscape;margin:8mm}
+  html:has(body.obituary-print-ready),body.obituary-print-ready{display:block!important;width:auto!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important}
+  body.obituary-print-ready>*{display:none!important}
+  body.obituary-print-ready>#obituary-print-root{display:flex!important;position:relative!important;margin:0!important;padding:0!important;box-sizing:border-box;visibility:visible!important;overflow:hidden;break-inside:avoid;page-break-inside:avoid;break-after:auto;page-break-after:auto;background:#fff!important}
+  body.obituary-print-ready>#obituary-print-root *{visibility:visible!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .obituary-print-portrait{page:obituary-portrait;width:194mm;height:274.4mm}
+  .obituary-print-landscape{page:obituary-landscape;width:281mm;height:194mm;gap:6mm}
+  #obituary-print-root canvas{display:block!important;flex:1 1 0;min-width:0;width:100%;height:100%;object-fit:contain;margin:0!important;padding:0!important;border:0!important}
+  .obituary-print-landscape::after{content:'';position:absolute;left:50%;top:0;height:100%;border-left:.2mm dashed #aaa}
+}

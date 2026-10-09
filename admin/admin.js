@@ -81,6 +81,8 @@
   const obituaryAge = $('obituary-age');
   const obituaryMessage = $('obituary-message');
   const obituaryDownloadButton = $('obituary-download-button');
+  const obituaryPrintButton = $('obituary-print-button');
+  const obituaryPrintRoot = $('obituary-print-root');
   const obituaryPreviewArea = $('obituary-preview-area');
   const obituaryPreviewCanvas = $('obituary-preview-canvas');
   const obituaryPreviewFormat = $('obituary-preview-format');
@@ -818,7 +820,7 @@
     return y;
   }
 
-  async function createObituaryCanvas(model,targetCanvas){
+  function createObituaryCanvas(model,targetCanvas){
     const canvas=targetCanvas||document.createElement('canvas'); canvas.width=1240; canvas.height=1754;
     const ctx=canvas.getContext('2d',{alpha:false});
     const limit=model.agencyFooter?1615:1680;
@@ -835,6 +837,7 @@
   function scheduleObituaryPreview(){
     if(!obituaryPreviewArea||obituaryPreviewArea.hidden) return;
     if(obituaryDownloadButton) obituaryDownloadButton.disabled=true;
+    if(obituaryPrintButton) obituaryPrintButton.disabled=true;
     window.clearTimeout(obituaryPreviewTimer);
     obituaryPreviewTimer=window.setTimeout(()=>{
       renderObituaryPreview(false).catch((error)=>message(obituaryMessage,error.message||'Прегледът не можа да бъде обновен.','error'));
@@ -847,11 +850,57 @@
     await createObituaryCanvas(model,obituaryPreviewCanvas);
     obituaryPreviewArea.hidden=false;
     obituaryDownloadButton.disabled=false;
+    if(obituaryPrintButton) obituaryPrintButton.disabled=false;
     obituaryPreviewFormat.textContent=model.output==='a5x2'?'A4 хоризонтално — два еднакви некролога за изрязване':'A4 — една страница';
     message(obituaryMessage,'Некрологът е готов за проверка и изтегляне.','success');
     if(scroll!==false) obituaryPreviewArea.scrollIntoView({behavior:'smooth',block:'start'});
     return model;
   }
+
+  function clearObituaryPrint(){
+    document.body.classList.remove('obituary-print-ready');
+    if(obituaryPrintRoot){ obituaryPrintRoot.hidden=true; obituaryPrintRoot.replaceChildren(); }
+  }
+
+  function prepareObituaryPrint(){
+    if(!obituaryPrintRoot) throw new Error('Обновете страницата, за да заредите печата на некролози.');
+    const model=readObituaryModel();
+    // Copy pixels synchronously: print does not wait for an image or a promise.
+    const source=createObituaryCanvas(model);
+    const copies=model.output==='a5x2'?2:1;
+    const canvases=[];
+    for(let index=0;index<copies;index+=1){
+      const copy=document.createElement('canvas'); copy.width=source.width; copy.height=source.height;
+      copy.getContext('2d',{alpha:false}).drawImage(source,0,0);
+      canvases.push(copy);
+    }
+    obituaryPrintRoot.replaceChildren(...canvases);
+    obituaryPrintRoot.className='obituary-print-sheet '+(copies===2?'obituary-print-landscape':'obituary-print-portrait');
+    obituaryPrintRoot.hidden=false;
+    document.body.classList.add('obituary-print-ready');
+    return model;
+  }
+
+  function printObituary(){
+    try{ prepareObituaryPrint(); window.print(); }
+    catch(error){ clearObituaryPrint(); message(obituaryMessage,error.message||'Некрологът не можа да бъде подготвен за печат.','error'); }
+  }
+
+  window.addEventListener('beforeprint',()=>{
+    if(!obituaryAdminView||obituaryAdminView.hidden) return;
+    try{ prepareObituaryPrint(); }
+    catch(error){
+      message(obituaryMessage,error.message||'Създайте преглед преди печат.','error');
+      if(obituaryPrintRoot){
+        obituaryPrintRoot.replaceChildren();
+        obituaryPrintRoot.textContent=error.message||'Създайте преглед преди печат.';
+        obituaryPrintRoot.className='obituary-print-sheet obituary-print-portrait';
+        obituaryPrintRoot.hidden=false; document.body.classList.add('obituary-print-ready');
+      }
+    }
+  });
+  window.addEventListener('afterprint',clearObituaryPrint);
+  if(obituaryPrintButton) obituaryPrintButton.addEventListener('click',printObituary);
 
   async function downloadObituaryPdf(){
     if(!window.PDFLib||!window.PDFLib.PDFDocument) throw new Error('PDF модулът не е зареден. Обновете страницата и опитайте отново.');
@@ -874,11 +923,13 @@
   }
 
   function resetObituaryForm(){
+    clearObituaryPrint();
     if(!obituaryForm) return;
     obituaryForm.reset(); resetObituaryPhoto(); obituaryAgeIsAutomatic=true; obituaryCeremonyDateIsAutomatic=true; applyObituaryPreset();
     window.clearTimeout(obituaryPreviewTimer);
     if(obituaryPreviewArea) obituaryPreviewArea.hidden=true;
     if(obituaryDownloadButton) obituaryDownloadButton.disabled=true;
+    if(obituaryPrintButton) obituaryPrintButton.disabled=true;
     message(obituaryMessage,'Формата е изчистена.');
   }
 
@@ -1421,6 +1472,7 @@
   }
 
   function switchAdminView(view){
+    clearObituaryPrint();
     const analytics=view==='analytics';
     const obituary=view==='obituary';
     const booklet=view==='booklet';
