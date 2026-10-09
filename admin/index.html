@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.89" rel="stylesheet"/>
+<link href="admin.css?v=1.90" rel="stylesheet"/>
 <style id="obituary-print-page"></style>
 </head>
 <body>
@@ -204,14 +204,25 @@
                 <option value="memorial">Възпоменание</option>
               </select>
             </label>
-            <label for="obituary-design">Оформление
-              <select id="obituary-design">
-                <option value="crosses" selected>Класически с кръстове — по образеца</option>
-                <option value="photo">Класически със снимка</option>
-                <option value="doves">Класически с гълъби</option>
-                <option value="candle">Тъмен със свещ</option>
-              </select>
-            </label>
+            <div class="obituary-design-choice">
+              <label for="obituary-design">Оформление
+                <select id="obituary-design" aria-describedby="obituary-design-caption">
+                  <option value="crosses" selected>Класически с кръстове</option>
+                  <option value="photo">Класически със снимка</option>
+                  <option value="angels">Класически с ангелчета</option>
+                  <option value="candle">Тъмен със свещ — досегашният</option>
+                  <option value="double">Двоен — за двама</option>
+                  <option value="black-silver">Черен със сребърен кръст и рози</option>
+                  <option value="black-candle">Черен със свещ и златен текст</option>
+                  <option value="black-gold">Черен със златен кръст</option>
+                  <option value="background">С ваша снимка за фон</option>
+                </select>
+              </label>
+              <figure class="obituary-design-thumbnail">
+                <canvas id="obituary-design-thumbnail" width="240" height="340" aria-label="Миниатюра на избрания некролог"></canvas>
+                <figcaption id="obituary-design-caption">Класически с кръстове</figcaption>
+              </figure>
+            </div>
             <label for="obituary-output">Формат за печат
               <select id="obituary-output">
                 <option value="a4">1 некролог на A4</option>
@@ -226,6 +237,22 @@
               </select>
             </label>
           </div>
+
+          <section class="obituary-form-section" id="obituary-background-section" aria-labelledby="obituary-background-heading" hidden>
+            <div class="obituary-section-head"><div><h3 id="obituary-background-heading">Ваша снимка за фон</h3><p>Текстът се поставя върху оригиналната снимка. Фонът се печата без размазване, избледняване или промяна на цветовете.</p></div><button class="small-button danger" id="obituary-remove-background" type="button" hidden>Премахни фона</button></div>
+            <label class="obituary-photo-picker" for="obituary-background">
+              <input id="obituary-background" type="file" accept="image/jpeg,image/png,image/webp"/>
+              <span>Избери снимка за фон</span><small id="obituary-background-name">Няма избран фон</small>
+            </label>
+            <div class="obituary-photo-controls">
+              <label for="obituary-background-fit">Поставяне на фона<select id="obituary-background-fit"><option value="cover">Запълни листа — без разтягане</option><option value="contain">Цялата снимка — без изрязване</option></select></label>
+              <label for="obituary-background-color">Цвят на текста<select id="obituary-background-color"><option value="white">Бял</option><option value="black">Черен</option><option value="gold">Златен</option></select></label>
+              <label for="obituary-background-zoom">Размер <output id="obituary-background-zoom-value">100%</output><input id="obituary-background-zoom" type="range" min="100" max="220" step="1" value="100"/></label>
+              <label for="obituary-background-x">Наляво / надясно<input id="obituary-background-x" type="range" min="-100" max="100" step="1" value="0"/></label>
+              <label for="obituary-background-y">Нагоре / надолу<input id="obituary-background-y" type="range" min="-100" max="100" step="1" value="0"/></label>
+            </div>
+            <label class="switch-label obituary-footer-switch"><input id="obituary-background-outline" type="checkbox" checked/><span>Контур на текста за по-добра четливост</span></label>
+          </section>
 
           <section class="obituary-form-section" aria-labelledby="obituary-photo-heading">
             <div class="obituary-section-head">
@@ -288,6 +315,18 @@
                 <input id="obituary-age" type="number" min="0" max="130" inputmode="numeric" placeholder="Автоматично от датите"/>
               </label>
             </div>
+            <label for="obituary-first-period" id="obituary-first-period-label" hidden>Период за първия човек <span>(за двойния некролог)</span><input id="obituary-first-period" type="text" placeholder="Напр. Две години"/></label>
+          </section>
+
+          <section class="obituary-form-section" id="obituary-second-person-section" aria-labelledby="obituary-second-person-heading" hidden>
+            <div class="obituary-section-head"><div><h3 id="obituary-second-person-heading">Вторият човек</h3><p>Двамата се печатат един до друг на общ некролог. Всеки има собствено име, снимка и период.</p></div></div>
+            <label for="obituary-second-name">Име на втория покойник *<input id="obituary-second-name" type="text" maxlength="100" autocomplete="off" placeholder="Име Презиме Фамилия"/></label>
+            <div class="obituary-choice-grid">
+              <label for="obituary-second-period">Период <span>(незадължително)</span><input id="obituary-second-period" type="text" placeholder="Напр. Пет години"/></label>
+              <label for="obituary-second-age">Възраст <span>(незадължително)</span><input id="obituary-second-age" type="number" min="0" max="130" inputmode="numeric"/></label>
+            </div>
+            <label class="obituary-photo-picker" for="obituary-second-photo"><input id="obituary-second-photo" type="file" accept="image/jpeg,image/png,image/webp"/><span>Снимка на втория човек</span><small id="obituary-second-photo-name">Без снимка — кръст и ангелчета</small></label>
+            <button class="small-button danger" id="obituary-remove-second-photo" type="button" hidden>Премахни втората снимка</button>
           </section>
 
           <section class="obituary-form-section" aria-labelledby="obituary-text-heading">
@@ -511,6 +550,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.89"></script>
+<script src="admin.js?v=1.90"></script>
 </body>
 </html>

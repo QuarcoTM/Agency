@@ -1,0 +1,12 @@
+# Obituary artwork — v1.90
+
+These four assets were prepared with the built-in image_gen tool from the supplied print references. WebP conversion keeps the original dimensions; angel.webp retains transparency. Text and frames are rendered separately by admin.js. User-uploaded backgrounds are local originals and are never sent to image generation or to a server.
+
+| Asset | Reference | Prompt |
+| --- | --- | --- |
+| angel.webp | IMG_7300.jpeg | Extract only the bowed seated curly-haired baby cherub reading an open book on its lap, with feathered wings. Vintage black-and-gray engraving, crisp outlines and etched shading. Isolate the complete ornament with real transparency and padding. No paper, surrounding letters, frame, halo, scenery, extra objects, or text. |
+| silver-cross.webp | IMG_7301.jpeg | Reconstruct the underlying black obituary artwork upright in portrait A4 proportions. A tall outlined silver Latin cross occupies the left quarter, with silver roses and leaves winding around the shaft. Leave the top center and right two thirds nearly black for text. Remove all old lettering, labels, borders, footer, plastic glare, wrinkles, furniture, and perspective. No watermark or blur. |
+| gold-candle.webp | IMG_7302.jpeg | Reconstruct only the background upright in portrait A4 proportions. One real lit warm brown pillar candle at center, a sharp slender white flame near the upper third, restrained warm gold glow on a nearly black backdrop. Leave broad dark space for text. Remove old gold lettering, labels, border, footer, plastic reflections, wrinkles, furniture, and perspective. No watermark or blur. |
+| gold-cross.webp | IMG_7303.jpeg | Reconstruct only the dark black/brown background upright in portrait A4 proportions. A large warm golden Latin cross slightly left of center with a dark rosary on its lower shaft, and diagonal golden rays from upper-left toward lower-right. Leave dark top, bottom, and right space for text. Remove all old white lettering, labels, border, footer, plastic glare, wrinkles, furniture, and perspective. No watermark or blur. |
+
+Frame geometry and the footer use the previously approved dimensions. The double memorial has a rosette border with the same outer inset. Custom photographic backgrounds are placed without color overlays or blur, preserving aspect ratio in the printed millimetre coordinates. Text outlines affect text only. Uploaded backgrounds render at 300–450 dpi depending on source resolution.
