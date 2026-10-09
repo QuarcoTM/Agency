@@ -854,7 +854,7 @@
   function setObituaryPrintPage(output){
     const style=$('obituary-print-page');
     // Apply the orientation to the whole document, without a named-page transition.
-    if(style) style.textContent='@media print{@page{size:A4 '+(output==='a5x2'?'landscape':'portrait')+';margin:0}}';
+    if(style) style.textContent='@media print{@page{size:A4 '+(output==='a5x2'?'landscape':'portrait')+';margin:5mm}}';
   }
 
   function clearObituaryPrint(){
