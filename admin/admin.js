@@ -711,12 +711,12 @@
     if(design==='candle') drawObituaryCandleBackground(ctx);
     else{ ctx.fillStyle='#fff'; ctx.fillRect(0,0,1240,1754); }
     const dark=design==='candle'; const color=dark?'#d5a85c':'#151515';
-    // Both rectangles have the same inset on all four edges of the A4 canvas.
-    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=4; ctx.strokeRect(44,44,1152,1666); ctx.lineWidth=1; ctx.strokeRect(50,50,1140,1654);
+    // Equal A4 insets leave room for the agency line below the frame.
+    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=4; ctx.strokeRect(90,90,1060,1574); ctx.lineWidth=1; ctx.strokeRect(96,96,1048,1562);
     if(design==='crosses'){
-      drawObituaryCornerCross(ctx,130,140,104,color); drawObituaryCornerCross(ctx,1110,140,104,color);
+      drawObituaryCornerCross(ctx,150,160,104,color); drawObituaryCornerCross(ctx,1090,160,104,color);
     }else if(design==='doves'){
-      drawObituaryDove(ctx,115,145,85,false); drawObituaryDove(ctx,1105,145,85,true);
+      drawObituaryDove(ctx,150,160,85,false); drawObituaryDove(ctx,1090,160,85,true);
     }
     ctx.restore();
   }
@@ -798,24 +798,24 @@
     const periods={day40:'40 дни',month3:'3 месеца',month6:'6 месеца',month9:'9 месеца',year1:'1 година'};
     const period=periods[model.type]||'';
     const title=model.type!=='death'&&model.title==='ВЪЗПОМЕНАНИЕ'?'ТЪЖЕН ПОМЕН':model.title;
-    drawText(title,90,{size:94*scale,maxWidth:model.design==='crosses'||model.design==='doves'?860:1080,maxHeight:110});
-    if(period) drawText(period,202,{size:84*scale,maxHeight:98});
+    drawText(title,120,{size:88*scale,maxWidth:model.design==='crosses'||model.design==='doves'?860:1020,maxHeight:110});
+    if(period) drawText(period,224,{size:80*scale,maxHeight:90});
     let intro=model.intro;
     if(model.type==='death'&&intro==='С много болка съобщаваме,') intro+='\n'+(model.death?'че на '+formatObituaryShortDate(model.death)+' ':'')+'ни напусна';
-    drawText(intro,period?292:230,{size:43*scale,weight:'normal',maxHeight:period?68:100});
+    drawText(intro,period?318:260,{size:43*scale,weight:'normal',maxHeight:period?60:90});
 
     if(model.photo) drawObituaryPortrait(ctx,model.photo,180,376,380,442,model,dark);
     const parts=obituaryNameParts(model.name);
-    const nameX=model.photo?850:620, nameWidth=model.photo?540:1020;
+    const nameX=model.photo?850:620, nameWidth=model.photo?540:980;
     const nameStep=parts.length>1?Math.min(144,288/(parts.length-1)):0;
     parts.forEach((part,index)=>drawText(part,378+index*nameStep,{x:nameX,maxWidth:nameWidth,maxHeight:Math.min(114,nameStep||114),size:96*scale}));
     if(model.age!==null) drawText(model.age+'г.',790,{x:nameX,maxWidth:nameWidth,size:62*scale,maxHeight:76});
 
-    drawText(model.extraText,950,{size:60*scale,style:'italic',maxWidth:1120,maxHeight:360,blankLineFactor:35/56});
-    drawText(buildObituaryCeremonyText(model),1360,{size:43*scale,weight:'normal',style:'italic',maxWidth:1080,maxHeight:138});
-    drawText(model.from,1530,{x:1140,size:60*scale,style:'italic',align:'right',maxWidth:1040,maxHeight:85});
-    if(model.agencyFooter) drawText('Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 0893 64 66 68  deninosht.bg',1650,{size:28,style:'italic',maxWidth:1120,maxHeight:40});
-    return 1690;
+    drawText(model.extraText,950,{size:60*scale,style:'italic',maxWidth:1020,maxHeight:360,blankLineFactor:35/56});
+    drawText(buildObituaryCeremonyText(model),1360,{size:43*scale,weight:'normal',style:'italic',maxWidth:1020,maxHeight:138});
+    drawText(model.from,1530,{x:1110,size:60*scale,style:'italic',align:'right',maxWidth:980,maxHeight:85});
+    if(model.agencyFooter) drawText('Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 0893 64 66 68  deninosht.bg',1680,{size:28,style:'italic',maxWidth:1060,maxHeight:36});
+    return 1716;
   }
 
   function createObituaryCanvas(model,targetCanvas){
@@ -826,6 +826,8 @@
   }
 
   function scheduleObituaryPreview(){
+    // Keep print pixels ready before Ctrl+P opens the browser's print snapshot.
+    try{ prepareObituaryPrintPixels(readObituaryModel()); }catch(error){ obituaryPrintCache=null; }
     if(!obituaryPreviewArea||obituaryPreviewArea.hidden) return;
     if(obituaryDownloadButton) obituaryDownloadButton.disabled=true;
     if(obituaryPrintButton) obituaryPrintButton.disabled=true;
@@ -837,6 +839,7 @@
 
   async function renderObituaryPreview(scroll){
     const model=readObituaryModel();
+    prepareObituaryPrintPixels(model);
     message(obituaryMessage,'Създаване на преглед…');
     await createObituaryCanvas(model,obituaryPreviewCanvas);
     obituaryPreviewArea.hidden=false;
@@ -848,15 +851,23 @@
     return model;
   }
 
+  function setObituaryPrintPage(output){
+    const style=$('obituary-print-page');
+    // Apply the orientation to the whole document, without a named-page transition.
+    if(style) style.textContent='@media print{@page{size:A4 '+(output==='a5x2'?'landscape':'portrait')+';margin:0}}';
+  }
+
   function clearObituaryPrint(){
     document.body.classList.remove('obituary-print-ready');
+    const style=$('obituary-print-page'); if(style) style.textContent='';
     if(obituaryPrintRoot){ obituaryPrintRoot.hidden=true; obituaryPrintRoot.replaceChildren(); }
   }
 
-  function prepareObituaryPrint(){
-    if(!obituaryPrintRoot) throw new Error('Обновете страницата, за да заредите печата на некролози.');
-    const model=readObituaryModel();
-    // Copy pixels synchronously: print does not wait for an image or a promise.
+  let obituaryPrintCache=null;
+
+  function prepareObituaryPrintPixels(model){
+    const key=JSON.stringify(Object.assign({},model,{photo:null}));
+    if(obituaryPrintCache&&obituaryPrintCache.key===key&&obituaryPrintCache.photo===model.photo) return obituaryPrintCache.canvases;
     const source=createObituaryCanvas(model);
     const copies=model.output==='a5x2'?2:1;
     const canvases=[];
@@ -865,10 +876,21 @@
       copy.getContext('2d',{alpha:false}).drawImage(source,0,0);
       canvases.push(copy);
     }
+    obituaryPrintCache={key,photo:model.photo,canvases};
+    return canvases;
+  }
+
+  function prepareObituaryPrint(){
+    if(!obituaryPrintRoot) throw new Error('Обновете страницата, за да заредите печата на некролози.');
+    const model=readObituaryModel();
+    const canvases=prepareObituaryPrintPixels(model),copies=canvases.length;
+    setObituaryPrintPage(model.output);
     obituaryPrintRoot.replaceChildren(...canvases);
     obituaryPrintRoot.className='obituary-print-sheet '+(copies===2?'obituary-print-landscape':'obituary-print-portrait');
     obituaryPrintRoot.hidden=false;
     document.body.classList.add('obituary-print-ready');
+    // Flush print geometry before the browser snapshots newly rendered canvases.
+    if(obituaryPrintRoot.getBoundingClientRect) obituaryPrintRoot.getBoundingClientRect();
     return model;
   }
 
@@ -878,13 +900,14 @@
   }
 
   window.addEventListener('beforeprint',()=>{
-    if(!obituaryAdminView||obituaryAdminView.hidden) return;
+    if(!obituaryAdminView||obituaryAdminView.hidden||document.body.classList.contains('obituary-print-ready')) return;
     try{ prepareObituaryPrint(); }
     catch(error){
       message(obituaryMessage,error.message||'Създайте преглед преди печат.','error');
       if(obituaryPrintRoot){
         obituaryPrintRoot.replaceChildren();
         obituaryPrintRoot.textContent=error.message||'Създайте преглед преди печат.';
+        setObituaryPrintPage('a4');
         obituaryPrintRoot.className='obituary-print-sheet obituary-print-portrait';
         obituaryPrintRoot.hidden=false; document.body.classList.add('obituary-print-ready');
       }
