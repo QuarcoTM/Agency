@@ -814,7 +814,7 @@
     drawText(model.extraText,950,{size:60*scale,style:'italic',maxWidth:1020,maxHeight:360,blankLineFactor:35/56});
     drawText(buildObituaryCeremonyText(model),1360,{size:43*scale,weight:'normal',style:'italic',maxWidth:1020,maxHeight:138});
     drawText(model.from,1530,{x:1110,size:60*scale,style:'italic',align:'right',maxWidth:980,maxHeight:85});
-    if(model.agencyFooter) drawText('Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 0893 64 66 68  deninosht.bg',1680,{size:28,style:'italic',maxWidth:1060,maxHeight:36});
+    if(model.agencyFooter) drawText('Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 / 0893 64 66 68  deninosht.bg',1680,{size:28,style:'italic',maxWidth:1060,maxHeight:36});
     return 1716;
   }
 
