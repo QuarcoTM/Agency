@@ -711,9 +711,10 @@
     if(design==='candle') drawObituaryCandleBackground(ctx);
     else{ ctx.fillStyle='#fff'; ctx.fillRect(0,0,1240,1754); }
     const dark=design==='candle'; const color=dark?'#d5a85c':'#151515';
-    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=4; ctx.strokeRect(44,44,1132,1626); ctx.lineWidth=1; ctx.strokeRect(50,50,1120,1614);
+    // Both rectangles have the same inset on all four edges of the A4 canvas.
+    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=4; ctx.strokeRect(44,44,1152,1666); ctx.lineWidth=1; ctx.strokeRect(50,50,1140,1654);
     if(design==='crosses'){
-      drawObituaryCornerCross(ctx,115,135,72,color); drawObituaryCornerCross(ctx,1105,135,72,color);
+      drawObituaryCornerCross(ctx,130,140,104,color); drawObituaryCornerCross(ctx,1110,140,104,color);
     }else if(design==='doves'){
       drawObituaryDove(ctx,115,145,85,false); drawObituaryDove(ctx,1105,145,85,true);
     }
@@ -797,29 +798,24 @@
     const periods={day40:'40 дни',month3:'3 месеца',month6:'6 месеца',month9:'9 месеца',year1:'1 година'};
     const period=periods[model.type]||'';
     const title=model.type!=='death'&&model.title==='ВЪЗПОМЕНАНИЕ'?'ТЪЖЕН ПОМЕН':model.title;
-    drawText(title,90,{size:90*scale,maxWidth:model.design==='crosses'||model.design==='doves'?860:1050,maxHeight:100});
-    if(period) drawText(period,190,{size:80*scale,maxHeight:94});
+    drawText(title,90,{size:94*scale,maxWidth:model.design==='crosses'||model.design==='doves'?860:1080,maxHeight:110});
+    if(period) drawText(period,202,{size:84*scale,maxHeight:98});
     let intro=model.intro;
     if(model.type==='death'&&intro==='С много болка съобщаваме,') intro+='\n'+(model.death?'че на '+formatObituaryShortDate(model.death)+' ':'')+'ни напусна';
-    drawText(intro,period?270:230,{size:40*scale,weight:'normal',maxHeight:period?76:100});
+    drawText(intro,period?292:230,{size:43*scale,weight:'normal',maxHeight:period?68:100});
 
     if(model.photo) drawObituaryPortrait(ctx,model.photo,180,376,380,442,model,dark);
     const parts=obituaryNameParts(model.name);
     const nameX=model.photo?850:620, nameWidth=model.photo?540:1020;
-    const nameStep=parts.length>1?Math.min(140,280/(parts.length-1)):0;
-    parts.forEach((part,index)=>drawText(part,370+index*nameStep,{x:nameX,maxWidth:nameWidth,maxHeight:Math.min(108,nameStep||108),size:90*scale}));
-    if(model.age!==null) drawText(model.age+'г.',770,{x:nameX,maxWidth:nameWidth,size:58*scale,maxHeight:72});
-    // Optional dates have their own row, outside the names and the age.
-    const dates=[];
-    if(model.birth) dates.push('* '+formatObituaryShortDate(model.birth));
-    if(model.death) dates.push('† '+formatObituaryShortDate(model.death));
-    if(dates.length) drawText(dates.join('   '),858,{size:30*scale,weight:'normal',maxHeight:70});
+    const nameStep=parts.length>1?Math.min(144,288/(parts.length-1)):0;
+    parts.forEach((part,index)=>drawText(part,378+index*nameStep,{x:nameX,maxWidth:nameWidth,maxHeight:Math.min(114,nameStep||114),size:96*scale}));
+    if(model.age!==null) drawText(model.age+'г.',790,{x:nameX,maxWidth:nameWidth,size:62*scale,maxHeight:76});
 
-    drawText(model.extraText,990,{size:56*scale,style:'italic',maxHeight:310,blankLineFactor:35/56});
-    drawText(buildObituaryCeremonyText(model),1360,{size:40*scale,weight:'normal',style:'italic',maxWidth:1020,maxHeight:136});
-    drawText(model.from,1515,{x:1120,size:56*scale,style:'italic',align:'right',maxWidth:1000,maxHeight:116});
-    if(model.agencyFooter) drawText('Траурна Агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 0893646668',1685,{size:32,style:'italic',maxWidth:1132,maxHeight:48});
-    return 1615;
+    drawText(model.extraText,950,{size:60*scale,style:'italic',maxWidth:1120,maxHeight:360,blankLineFactor:35/56});
+    drawText(buildObituaryCeremonyText(model),1360,{size:43*scale,weight:'normal',style:'italic',maxWidth:1080,maxHeight:138});
+    drawText(model.from,1530,{x:1140,size:60*scale,style:'italic',align:'right',maxWidth:1040,maxHeight:85});
+    if(model.agencyFooter) drawText('Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 0893 64 66 68  deninosht.bg',1650,{size:28,style:'italic',maxWidth:1120,maxHeight:40});
+    return 1690;
   }
 
   function createObituaryCanvas(model,targetCanvas){
