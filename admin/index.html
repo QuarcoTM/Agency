@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.80" rel="stylesheet"/>
+<link href="admin.css?v=1.81" rel="stylesheet"/>
 </head>
 <body>
 <header class="admin-header">
@@ -270,8 +270,8 @@
             <label for="obituary-title">Заглавие
               <input id="obituary-title" type="text" maxlength="60" value="СКРЪБНА ВЕСТ" required/>
             </label>
-            <label for="obituary-intro">Готов увод <span>(зарежда се автоматично)</span>
-              <textarea id="obituary-intro" rows="2" maxlength="220">С много болка съобщаваме,</textarea>
+            <label for="obituary-intro">Увод над името <span>(можете да го промените)</span>
+              <textarea id="obituary-intro" rows="2">С много болка съобщаваме,</textarea>
             </label>
             <label for="obituary-name">Име на покойника *
               <input id="obituary-name" type="text" maxlength="100" autocomplete="off" placeholder="Напр. Иван Иванов" required/>
@@ -289,8 +289,15 @@
             </div>
           </section>
 
+          <section class="obituary-form-section" aria-labelledby="obituary-text-heading">
+            <div class="obituary-section-head"><div><h3 id="obituary-text-heading">Текст под името</h3><p>Тук напишете целия прощален или възпоменателен текст. Можете да замените готовия текст и да използвате няколко реда. При дълъг текст шрифтът се намалява автоматично, за да остане всичко на един лист.</p></div></div>
+            <label for="obituary-extra-text">Прощален / възпоменателен текст
+              <textarea id="obituary-extra-text" rows="5" placeholder="Напр. Да бъде тих и спокоен вечният ти сън!&#10;&#10;Никога няма да те забравим!"></textarea>
+            </label>
+          </section>
+
           <section class="obituary-form-section" aria-labelledby="obituary-ceremony-heading">
-            <div class="obituary-section-head"><div><h3 id="obituary-ceremony-heading">Церемония</h3><p>Оставете празно, ако не трябва да се изписва.</p></div></div>
+            <div class="obituary-section-head"><div><h3 id="obituary-ceremony-heading">Погребение / помен — текст в долната част</h3><p>Попълнете данните за автоматичен текст или напишете собствен текст в полето отдолу.</p></div></div>
             <div class="obituary-ceremony-grid">
               <label for="obituary-ceremony-kind">Вид
                 <select id="obituary-ceremony-kind">
@@ -298,8 +305,8 @@
                   <option value="service">Опело</option>
                   <option value="funeral">Погребение</option>
                   <option value="memorial">Панихида</option>
-                  <option value="custom">Само допълнителния текст</option>
-                  <option value="none">Без церемония</option>
+                  <option value="custom">Само собствен текст</option>
+                  <option value="none">Без текст за погребение / помен</option>
                 </select>
               </label>
               <label for="obituary-ceremony-date">Дата
@@ -310,22 +317,20 @@
               </label>
             </div>
             <label for="obituary-ceremony-place">Място
-              <input id="obituary-ceremony-place" type="text" maxlength="180" placeholder="Напр. храм „Св. Мина“, Кюстендил"/>
+              <input id="obituary-ceremony-place" type="text" placeholder="Напр. храм „Св. Мина“, Кюстендил"/>
             </label>
-            <label for="obituary-extra-text">Готов възпоменателен текст <span>(зарежда се автоматично)</span>
-              <textarea id="obituary-extra-text" rows="3" maxlength="420" placeholder="Напр. Погребението ще се извърши в Новия гробищен парк."></textarea>
+            <label for="obituary-ceremony-text">Собствен текст за погребението / помена <span>(по желание)</span>
+              <textarea id="obituary-ceremony-text" rows="3" placeholder="Напр. Погребението ще се извърши в Новия гробищен парк."></textarea>
             </label>
+            <p class="obituary-photo-helper">Ако попълните това поле, най-долу ще се отпечата точно вашият текст. Ако е празно, текстът се съставя от вида, датата, часа и мястото.</p>
           </section>
 
           <section class="obituary-form-section" aria-labelledby="obituary-closing-heading">
-            <div class="obituary-section-head"><div><h3 id="obituary-closing-heading">Завършек</h3></div></div>
-            <label for="obituary-closing">Прощален текст
-              <textarea id="obituary-closing" rows="2" maxlength="220"></textarea>
+            <div class="obituary-section-head"><div><h3 id="obituary-closing-heading">Подпис и контакти</h3></div></div>
+            <label for="obituary-from">От кого — подпис долу вдясно <span>(незадължително)</span>
+              <input id="obituary-from" type="text" value="От семейството"/>
             </label>
-            <label for="obituary-from">От кого <span>(незадължително)</span>
-              <input id="obituary-from" type="text" maxlength="180" value="От семейството"/>
-            </label>
-            <label class="switch-label obituary-footer-switch"><input id="obituary-agency-footer" type="checkbox" checked/><span>Добави името, телефоните и сайта на „Ден и Нощ“ в долната част</span></label>
+            <label class="switch-label obituary-footer-switch"><input id="obituary-agency-footer" type="checkbox" checked/><span>Добави името и телефоните на „Ден и Нощ“ под рамката</span></label>
           </section>
 
           <div class="obituary-actions">
@@ -343,6 +348,7 @@
             <li>Изберете вида на некролога.</li>
             <li>Качете снимка и я наместете при нужда.</li>
             <li>Попълнете името и информацията за церемонията.</li>
+            <li>Променете „Текст под името“. За собствен текст най-долу използвайте „Собствен текст за погребението / помена“.</li>
             <li>Проверете прегледа и натиснете „Печат“ или изтеглете PDF.</li>
             <li>Печатайте на 100% или „Действителен размер“.</li>
           </ol>
@@ -502,6 +508,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.80"></script>
+<script src="admin.js?v=1.81"></script>
 </body>
 </html>
