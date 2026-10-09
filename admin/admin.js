@@ -802,6 +802,23 @@
     return text;
   }
 
+  function drawObituaryFooter(ctx,geometry,color){
+    const text='Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 / 0893 64 66 68  deninosht.bg';
+    const maxWidth=1240-7.6*geometry.pxPerMmX;
+    const bandTop=1754-3.4*geometry.pxPerMmY,bandHeight=3.4*geometry.pxPerMmY;
+    ctx.save();
+    ctx.font='bold '+(10*25.4/72*geometry.pxPerMmY)+'px Arial, Helvetica, sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillStyle=color;
+    const metrics=ctx.measureText(text);
+    const ascent=metrics.actualBoundingBoxAscent,descent=metrics.actualBoundingBoxDescent;
+    const scaleX=Math.min(1,maxWidth/metrics.width);
+    const scaleY=Math.min(1,3.1*geometry.pxPerMmY/(ascent+descent));
+    // Fit the actual ink below the unchanged frame, not an oversized line box.
+    const baseline=bandTop+(bandHeight-(ascent+descent)*scaleY)/2+ascent*scaleY;
+    ctx.translate(620,baseline); ctx.scale(scaleX,scaleY); ctx.fillText(text,0,0);
+    ctx.restore();
+  }
+
   function paintObituary(ctx,model,scale){
     // Browser print and PDF place this canvas in the same 5 mm printable area.
     const geometry=obituaryPrintGeometry(model.output);
@@ -827,7 +844,7 @@
     drawText(model.extraText,950,{size:60*scale,style:'italic',maxWidth:1020,maxHeight:360,blankLineFactor:35/56});
     drawText(buildObituaryCeremonyText(model),1360,{size:43*scale,weight:'normal',style:'italic',maxWidth:1020,maxHeight:138});
     drawText(model.from,1530,{x:1110,size:60*scale,style:'italic',align:'right',maxWidth:980,maxHeight:85});
-    if(model.agencyFooter) drawText('Траурна агенция „Ден и Нощ“ (срещу полицията) 0898 24 24 34 / 0893 64 66 68  deninosht.bg',1754-3.2*geometry.pxPerMmY,{size:7*25.4/72*geometry.pxPerMmY,style:'italic',maxWidth:1240-7.6*geometry.pxPerMmX,maxHeight:3*geometry.pxPerMmY});
+    if(model.agencyFooter) drawObituaryFooter(ctx,geometry,ink);
     return 1754;
   }
 
