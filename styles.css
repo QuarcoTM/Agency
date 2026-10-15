@@ -1146,37 +1146,86 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
   }
 }
 
-/* v1.92 — keep desktop navigation on one line; use the menu before it gets cramped. */
-.site-header .header-inner{gap:24px}
+/* v1.93 — visible navigation buttons, correct ticker stacking and contained footer animation. */
+html{scroll-padding-top:182px}
+.site-header{position:sticky;top:38px;z-index:1100}
+.site-header .header-inner{z-index:auto;gap:24px;min-width:0}
 .site-header .brand{min-width:0;flex:0 0 auto}
-.site-header .nav a{line-height:1.4}
-.site-header .nav a[aria-current="page"]{border-bottom-color:var(--brown-2)}
 .site-header .menu-toggle-icon{font-size:22px;line-height:1}
+.site-header .nav a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:10px 12px;
+  border:1px solid rgba(179,131,94,.6);
+  border-radius:999px;
+  background:#18120e;
+  color:#fff;
+  font-size:15px;
+  font-weight:600;
+  line-height:1.4;
+  text-align:center;
+  text-decoration:none;
+  white-space:nowrap;
+  transition:background .16s ease,border-color .16s ease;
+}
+.site-header .nav a:hover{
+  background:#302219;
+  border-color:var(--brown-2);
+}
+.site-header .nav a[aria-current="page"]{
+  background:var(--brown);
+  border-color:var(--brown-2);
+}
+.site-header .nav a[href^="/pri-smarten-sluchai"]{
+  background:var(--red);
+  border-color:var(--red-hover);
+}
+.site-header .nav a[href^="/pri-smarten-sluchai"]:hover{background:var(--red-hover)}
 
-@media (min-width:1280px){
-  .site-header .header-inner{min-height:116px;width:min(1680px,calc(100% - 48px))}
+/* Keep the entrance effect without letting transformed phone numbers widen the page. */
+.site-footer{overflow:hidden}
+
+@media (min-width:1024px){
+  .site-header .header-inner{
+    width:min(1680px,calc(100% - 48px));
+    min-height:128px;
+    padding:12px 0;
+  }
   .site-header .brand img{width:104px}
   .site-header .menu-toggle{display:none}
   .site-header .nav{
     position:static;
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    gap:clamp(12px,1vw,24px);
-    flex:0 0 auto;
+    display:grid;
+    grid-template-columns:repeat(5,auto);
+    align-items:stretch;
+    gap:8px;
+    flex:1 1 auto;
     min-width:0;
+    max-width:1100px;
+    margin-left:auto;
     padding:0;
-    border-bottom:0;
+    border:0;
   }
-  .site-header .nav a{
-    flex:0 0 auto;
-    white-space:nowrap;
-    font-size:clamp(14px,1.05vw,16px);
-    padding:14px 0 11px;
-  }
+  .site-header .nav a:last-child{grid-column:4 / 6}
 }
 
-@media (max-width:1279px){
+@media (min-width:1600px){
+  html{scroll-padding-top:170px}
+  .site-header .header-inner{min-height:116px;padding:6px 0}
+  .site-header .nav{
+    display:flex;
+    flex-direction:row;
+    flex:0 0 auto;
+    max-width:none;
+    gap:8px;
+  }
+  .site-header .nav a{font-size:15px}
+}
+
+@media (max-width:1023px){
+  html{scroll-padding-top:150px}
   .site-header .header-inner{min-height:96px;gap:16px}
   .site-header .brand img{width:84px}
   .site-header .menu-toggle{
@@ -1198,7 +1247,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
     display:none;
     flex-direction:column;
     align-items:stretch;
-    gap:0;
+    gap:8px;
     max-height:calc(100vh - 134px);
     overflow-y:auto;
     overscroll-behavior:contain;
@@ -1208,14 +1257,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
     z-index:1100;
   }
   .site-header .nav.open{display:flex}
-  .site-header .nav a{
-    padding:14px 10px;
-    font-size:16px;
-    border-bottom:1px solid rgba(179,131,94,.2);
-  }
+  .site-header .nav a{padding:11px 14px;font-size:16px;white-space:normal}
 }
 
 @media (max-width:560px){
+  html{scroll-padding-top:130px}
+  .site-header{top:36px}
   .site-header .header-inner{min-height:78px}
   .site-header .brand img{width:72px}
   .site-header .nav{max-height:calc(100vh - 114px)}
