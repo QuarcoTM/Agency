@@ -1146,9 +1146,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
   }
 }
 
-/* v1.93 — visible navigation buttons, correct ticker stacking and contained footer animation. */
-html{scroll-padding-top:182px}
-.site-header{position:sticky;top:38px;z-index:1100}
+/* v1.94 — navigation scrolls with the page; only the ticker stays at the top. */
+html{scroll-padding-top:54px}
+.site-header{position:relative;z-index:1100}
 .site-header .header-inner{z-index:auto;gap:24px;min-width:0}
 .site-header .brand{min-width:0;flex:0 0 auto}
 .site-header .menu-toggle-icon{font-size:22px;line-height:1}
@@ -1212,7 +1212,6 @@ html{scroll-padding-top:182px}
 }
 
 @media (min-width:1600px){
-  html{scroll-padding-top:170px}
   .site-header .header-inner{min-height:116px;padding:6px 0}
   .site-header .nav{
     display:flex;
@@ -1225,7 +1224,6 @@ html{scroll-padding-top:182px}
 }
 
 @media (max-width:1023px){
-  html{scroll-padding-top:150px}
   .site-header .header-inner{min-height:96px;gap:16px}
   .site-header .brand img{width:84px}
   .site-header .menu-toggle{
@@ -1261,8 +1259,7 @@ html{scroll-padding-top:182px}
 }
 
 @media (max-width:560px){
-  html{scroll-padding-top:130px}
-  .site-header{top:36px}
+  html{scroll-padding-top:52px}
   .site-header .header-inner{min-height:78px}
   .site-header .brand img{width:72px}
   .site-header .nav{max-height:calc(100vh - 114px)}
