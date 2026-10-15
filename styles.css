@@ -1265,3 +1265,29 @@ html{scroll-padding-top:54px}
   .site-header .nav{max-height:calc(100vh - 114px)}
 }
 
+/* v1.95 — black page scrollbar with the agency's brown accent. */
+html{scrollbar-color:var(--brown) var(--black)}
+@supports selector(::-webkit-scrollbar){
+  html{scrollbar-color:auto}
+  html::-webkit-scrollbar{width:14px;height:14px}
+  html::-webkit-scrollbar-track{background:var(--black)}
+  html::-webkit-scrollbar-thumb{
+    min-height:44px;
+    border:2px solid var(--black);
+    border-radius:999px;
+    background:var(--brown);
+  }
+  html::-webkit-scrollbar-thumb:hover,
+  html::-webkit-scrollbar-thumb:active{background:var(--brown-2)}
+  html::-webkit-scrollbar-corner{background:var(--black)}
+}
+@media (forced-colors:active){
+  html{scrollbar-color:auto}
+  html::-webkit-scrollbar,
+  html::-webkit-scrollbar-track,
+  html::-webkit-scrollbar-thumb,
+  html::-webkit-scrollbar-thumb:hover,
+  html::-webkit-scrollbar-thumb:active,
+  html::-webkit-scrollbar-corner{all:revert}
+}
+
