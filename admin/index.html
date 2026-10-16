@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.90" rel="stylesheet"/>
+<link href="admin.css?v=1.97" rel="stylesheet"/>
 <style id="obituary-print-page"></style>
 </head>
 <body>
@@ -212,6 +212,8 @@
                 <select id="obituary-design" aria-describedby="obituary-design-caption">
                   <option value="crosses" selected>Класически с кръстове</option>
                   <option value="photo">Класически със снимка</option>
+                  <option value="photo-oval">С овална снимка и кръстове</option>
+                  <option value="photo-arch">С централна снимка в арка</option>
                   <option value="angels">Класически с ангелчета</option>
                   <option value="candle">Тъмен със свещ — досегашният</option>
                   <option value="double">Двоен — за двама</option>
@@ -222,7 +224,10 @@
                 </select>
               </label>
               <figure class="obituary-design-thumbnail">
-                <canvas id="obituary-design-thumbnail" width="240" height="340" aria-label="Миниатюра на избрания некролог"></canvas>
+                <button class="obituary-design-preview-button" id="obituary-design-preview-button" type="button" aria-label="Отвори голям преглед на избрания некролог" aria-haspopup="dialog" aria-controls="obituary-design-preview-dialog">
+                  <canvas id="obituary-design-thumbnail" width="620" height="877" aria-label="Преглед на избрания некролог"></canvas>
+                  <span>Отвори голям преглед</span>
+                </button>
                 <figcaption id="obituary-design-caption">Класически с кръстове</figcaption>
               </figure>
             </div>
@@ -434,6 +439,13 @@
         </div>
         <div class="obituary-canvas-shell"><canvas id="obituary-preview-canvas" width="1240" height="1754" aria-label="Преглед на некролога"></canvas></div>
       </div>
+      <dialog class="obituary-zoom-dialog" id="obituary-design-preview-dialog" aria-labelledby="obituary-zoom-title">
+        <div class="obituary-zoom-head">
+          <h3 id="obituary-zoom-title">Преглед на некролога</h3>
+          <button class="small-button" id="obituary-design-preview-close" type="button" autofocus>Затвори</button>
+        </div>
+        <div class="obituary-zoom-sheet"><canvas id="obituary-zoom-canvas" width="1240" height="1754" aria-label="Голям преглед на избрания некролог"></canvas></div>
+      </dialog>
     </section>
 
     <section class="booklet-admin-view" id="booklet-admin-view" hidden aria-labelledby="booklet-heading">
@@ -580,6 +592,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.96"></script>
+<script src="admin.js?v=1.97"></script>
 </body>
 </html>
