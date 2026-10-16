@@ -60,6 +60,7 @@
   const bookletAddZadushnitsa = $('booklet-add-zadushnitsa');
   const obituaryForm = $('obituary-form');
   const obituaryType = $('obituary-type');
+  const obituaryYears = $('obituary-years');
   const obituaryDesign = $('obituary-design');
   const obituaryOutput = $('obituary-output');
   const obituaryGender = $('obituary-gender');
@@ -491,8 +492,32 @@
     }
   };
 
+  function readObituaryAnniversaryYears(allowIncomplete){
+    const raw=String(obituaryYears?obituaryYears.value:'1').trim();
+    const years=Number(raw);
+    if(raw&&Number.isSafeInteger(years)&&years>0) return years;
+    if(allowIncomplete) return 1;
+    throw new Error('Въведете броя години като цяло число, по-голямо от 0.');
+  }
+
+  function obituaryPeriod(model){
+    if(model.type==='year1'){
+      const years=Number(model.anniversaryYears)||1;
+      return years+' '+(years===1?'година':'години');
+    }
+    return OBITUARY_PERIODS[model.type]||'';
+  }
+
+  function updateObituaryAnniversaryFields(){
+    const anniversary=Boolean(obituaryType&&obituaryType.value==='year1');
+    const label=$('obituary-years-label');
+    if(label) label.hidden=!anniversary;
+    if(obituaryYears){obituaryYears.disabled=!anniversary;obituaryYears.required=anniversary;}
+  }
+
   function applyObituaryPreset(){
     if(!obituaryType) return;
+    updateObituaryAnniversaryFields();
     const preset=OBITUARY_PRESETS[obituaryType.value]||OBITUARY_PRESETS.death;
     $('obituary-title').value=preset.title;
     $('obituary-intro').value=preset.intro;
@@ -572,7 +597,10 @@
     if(obituaryType&&obituaryType.value==='month3') calculated=addBookletMonths(death,3);
     if(obituaryType&&obituaryType.value==='month6') calculated=addBookletMonths(death,6);
     if(obituaryType&&obituaryType.value==='month9') calculated=addBookletMonths(death,9);
-    if(obituaryType&&obituaryType.value==='year1') calculated=addBookletMonths(death,12);
+    if(obituaryType&&obituaryType.value==='year1'){
+      const anniversary=addBookletMonths(death,12*readObituaryAnniversaryYears(true));
+      if(Number.isFinite(anniversary.getTime())&&anniversary.getFullYear()<=9999) calculated=anniversary;
+    }
     if(calculated&&(force||obituaryCeremonyDateIsAutomatic||!input.value)){
       input.value=bookletDateValue(calculated); obituaryCeremonyDateIsAutomatic=true;
     }else if(force&&obituaryCeremonyDateIsAutomatic) input.value='';
@@ -767,6 +795,7 @@
     }
     return {
       type:obituaryType.value,
+      anniversaryYears:obituaryType.value==='year1'?readObituaryAnniversaryYears(allowIncomplete):1,
       design:obituaryDesign.value,
       output:obituaryOutput.value,
       gender:obituaryGender.value,
@@ -1096,7 +1125,7 @@
     const second=model.secondPerson||{name:'',period:'',age:null,photo:null};
     const title=model.type!=='death'&&model.title==='ВЪЗПОМЕНАНИЕ'?'ТЪЖЕН ПОМЕН':model.title;
     drawText(title,120,{size:88*scale,maxWidth:1020,maxHeight:104});
-    const firstPeriod=model.firstPeriod||OBITUARY_PERIODS[model.type]||'';
+    const firstPeriod=model.firstPeriod||obituaryPeriod(model);
     const periodLines=(text)=>String(text||'').replace(/\s+(години?|месеца|дни)$/i,'\n$1');
     drawText(periodLines(firstPeriod),268,{x:355,size:68*scale,maxWidth:460,maxHeight:150});
     drawText(periodLines(second.period),268,{x:885,size:68*scale,maxWidth:460,maxHeight:150});
@@ -1128,7 +1157,7 @@
     const silver=model.design==='black-silver',textX=silver?800:620,textWidth=silver?720:1020;
     const textDefaults={color:ink,outline,x:textX};if(silver) textDefaults.maxWidth=textWidth;
     const drawText=(text,y,options)=>drawObituaryFittedText(ctx,text,y,Object.assign({},textDefaults,options));
-    const period=OBITUARY_PERIODS[model.type]||'';
+    const period=obituaryPeriod(model);
     const title=model.type!=='death'&&model.title==='ВЪЗПОМЕНАНИЕ'?'ТЪЖЕН ПОМЕН':model.title;
     drawText(title,120,{size:88*scale,maxWidth:silver?740:['angels','doves'].includes(model.design)?760:model.design==='crosses'?860:1020,maxHeight:104,style:silver?'italic':'normal'});
     if(period) drawText(period,224,{size:80*scale,maxHeight:90});
@@ -2367,6 +2396,10 @@
   if(analyticsRefresh) analyticsRefresh.addEventListener('click',loadAnalytics);
 
   if(obituaryType) obituaryType.addEventListener('change',applyObituaryPreset);
+  if(obituaryYears) obituaryYears.addEventListener('input',()=>{
+    updateObituaryCeremonyDateFromDeath(false);
+    scheduleObituaryPreview();
+  });
   if(obituaryDesign) obituaryDesign.addEventListener('change',()=>{ updateObituaryDesignFields(); applyObituaryLayoutPreset(); scheduleObituaryPreview(); });
   Object.entries(obituaryLocalImages).forEach(([kind,slot])=>{
     const input=$(slot.input),remove=$(slot.remove);

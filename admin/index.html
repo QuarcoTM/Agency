@@ -200,9 +200,12 @@
                 <option value="month3">Три месеца</option>
                 <option value="month6">Шест месеца</option>
                 <option value="month9">Девет месеца</option>
-                <option value="year1">Една година</option>
+                <option value="year1">Годишнина</option>
                 <option value="memorial">Възпоменание</option>
               </select>
+            </label>
+            <label for="obituary-years" id="obituary-years-label" hidden>Брой години
+              <input id="obituary-years" type="number" min="1" step="1" inputmode="numeric" value="1" placeholder="Напр. 6" disabled/>
             </label>
             <div class="obituary-design-choice">
               <label for="obituary-design">Оформление
@@ -577,6 +580,6 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.91"></script>
+<script src="admin.js?v=1.96"></script>
 </body>
 </html>
