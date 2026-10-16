@@ -1210,8 +1210,8 @@
     const parts=obituaryNameParts(model.name);
     if(arched){
       drawObituaryPortrait(ctx,model.photo,470,388,300,350,model,false,'arch');
-      drawText(parts.join(' '),780,{size:78*scale,maxWidth:1000,maxHeight:138});
-      if(model.age!==null) drawText(model.age+'г.',930,{size:48*scale,maxWidth:980,maxHeight:60});
+      drawText(parts.join('\n'),760,{size:66*scale,maxWidth:1000,maxHeight:180,wrap:false});
+      if(model.age!==null) drawText(model.age+'г.',956,{size:42*scale,maxWidth:980,maxHeight:50});
     }else{
       if(model.photo) drawObituaryPortrait(ctx,model.photo,silver?470:180,376,silver?260:380,442,model,dark,model.design==='photo-oval'?'oval':null);
       const nameX=model.photo?(silver?955:850):textX, nameWidth=model.photo?(silver?360:540):(silver?660:980);
