@@ -314,6 +314,16 @@
     try { return JSON.parse(text); } catch (_) { return text; }
   }
 
+  async function requireAgencyAdmin(){
+    // Backend authorization is enforced by RLS; check it before showing admin UI.
+    const allowed=await request('/rest/v1/rpc/is_agency_admin', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:'{}'
+    }, true);
+    if(allowed!==true) throw new Error('Профилът няма администраторски права. Проверете настройката в Supabase.');
+  }
+
   function analyticsRpc(name, payload){
     return request('/rest/v1/rpc/' + name, {
       method:'POST',
@@ -2404,10 +2414,10 @@
     const email=$('login-email').value.trim(); const password=$('login-password').value;
     loginSubmit.disabled=true; loginSubmit.textContent='Влизане…';
     try{
-      const auth=await authToken('password',{email,password}); saveSession(auth); $('login-password').value=''; message(loginMessage,''); setLoggedIn(true);
+      const auth=await authToken('password',{email,password}); saveSession(auth); await requireAgencyAdmin(); $('login-password').value=''; message(loginMessage,''); setLoggedIn(true);
       try{ await loadData(); } catch(dataError){ message(dashboardMessage,'Входът е успешен, но данните не се заредиха: '+dataError.message,'error'); }
       await loadTopTickerSetting();
-    } catch(_){ clearSession(); setLoggedIn(false); message(loginMessage,'Неуспешен вход. Проверете имейла и паролата.','error'); }
+    } catch(error){ clearSession(); setLoggedIn(false); message(loginMessage,error&&/администраторски права|find the function|schema cache|404/i.test(error.message||'') ? ('Достъпът не е разрешен или не е приложена SQL миграцията: '+error.message) : 'Неуспешен вход. Проверете имейла и паролата.','error'); }
     finally{ loginSubmit.disabled=false; loginSubmit.textContent='Вход'; }
   });
 
@@ -2711,7 +2721,9 @@
   switchAdminView('products');
 
   async function boot(){
-    const session=await ensureSession(); const loggedIn=Boolean(session&&session.access_token); setLoggedIn(loggedIn); if(!loggedIn)return;
+    const session=await ensureSession(); if(!session||!session.access_token){setLoggedIn(false);return;}
+    try{await requireAgencyAdmin();}catch(error){clearSession();setLoggedIn(false);message(loginMessage,'Достъпът не е разрешен или не е приложена SQL миграцията: '+error.message,'error');return;}
+    setLoggedIn(true);
     try{ await loadData(); } catch(error){ message(dashboardMessage,'Админ панелът е отворен, но данните не се заредиха: '+error.message,'error'); }
     await loadTopTickerSetting();
   }
