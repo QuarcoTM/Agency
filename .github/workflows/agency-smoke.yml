@@ -1,0 +1,33 @@
+name: Agency regression checks
+
+on:
+  push:
+    branches:
+      - improvements-memorial-security-2026-10-28
+  pull_request:
+    paths:
+      - 'admin/**'
+      - 'kalkulator-pomeni.js'
+      - 'tests/**'
+      - 'supabase-security-and-analytics-v1.99.sql'
+      - '.github/workflows/agency-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check admin/admin.js
+          node --check admin/memorial-zadushnitsi.js
+          node --check kalkulator-pomeni.js
+          node --check analytics.js
+          node --check catalog.js
+      - name: Memorial regression tests
+        run: node --test tests/agency-smoke.test.mjs
