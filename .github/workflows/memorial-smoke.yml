@@ -1,0 +1,32 @@
+name: Agency memorial regression checks
+
+on:
+  push:
+    branches:
+      - safe-publish-memorial-2026-10-28
+      - main
+  pull_request:
+    paths:
+      - 'admin/**'
+      - 'kalkulator-pomeni.js'
+      - 'kalkulator-pomeni/index.html'
+      - 'tests/**'
+      - '.github/workflows/memorial-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check admin/admin.js
+          node --check admin/memorial-zadushnitsi.js
+          node --check kalkulator-pomeni.js
+      - name: Memorial regression tests
+        run: node --test tests/agency-smoke.test.mjs
