@@ -290,3 +290,8 @@ body.obituary-print-ready>#obituary-print-root.obituary-print-landscape{width:29
   #obituary-print-root.obituary-print-landscape canvas+canvas{left:calc(50% + 5mm)}
   .obituary-print-landscape::after{content:'';position:absolute;left:50%;top:0;height:100%;border-left:.2mm dashed #aaa}
 }
+
+/* v1.99 — keep manual and automatic Zadushnitsi actions visible */
+.booklet-zadushnitsi-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.booklet-zadushnitsi-actions .admin-button{white-space:normal}
+@media(max-width:640px){.booklet-zadushnitsi-actions{display:grid;grid-template-columns:1fr}.booklet-zadushnitsi-actions .admin-button{width:100%;margin:0}}
