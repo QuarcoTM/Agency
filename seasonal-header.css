@@ -185,7 +185,7 @@
     font-size:13px;
     font-weight:800;
   }
-  .site-header.home-seasonal-active .home-seasonal-text{font-size:11px}
+  .site-header.home-seasonal-active .home-seasonal-service .home-seasonal-text{display:none}
 }
 @media (max-width:360px){
   .site-header.home-seasonal-active .home-seasonal-date{
