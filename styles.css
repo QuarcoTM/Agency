@@ -1291,3 +1291,6 @@ html{scrollbar-color:var(--brown) var(--black)}
   html::-webkit-scrollbar-corner{all:revert}
 }
 
+/* v1.99 — one-click export of all calculated memorial dates */
+.pomen-calendar-all-button{display:inline-flex;align-items:center;justify-content:center;width:auto;max-width:100%;min-height:46px;margin:0 0 20px;padding:11px 20px;border-color:var(--brown-2);background:#291b13}
+@media(max-width:640px){.pomen-calendar-all-button{width:100%}}

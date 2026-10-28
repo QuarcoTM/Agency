@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Админ панел | Ден и Нощ</title>
 <link href="../assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="admin.css?v=1.97" rel="stylesheet"/>
+<link href="admin.css?v=1.99" rel="stylesheet"/>
 <style id="obituary-print-page"></style>
 </head>
 <body>
@@ -492,7 +492,7 @@
                 <h3 id="booklet-zadushnitsi-title">Задушници</h3>
                 <p>Добавете само тези, които искате да присъстват в книжката.</p>
               </div>
-              <button class="admin-button secondary" id="booklet-add-zadushnitsa" type="button">+ Добави Задушница</button>
+              <div class="booklet-zadushnitsi-actions"><button class="admin-button secondary" id="booklet-auto-zadushnitsi" type="button">Автоматично попълни за 1 година</button><button class="admin-button secondary" id="booklet-add-zadushnitsa" type="button">+ Добави Задушница</button></div>
             </div>
             <div class="booklet-zadushnitsi-list" id="booklet-zadushnitsi-list"></div>
           </section>
@@ -592,6 +592,7 @@
 
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
-<script src="admin.js?v=1.98"></script>
+<script src="memorial-zadushnitsi.js?v=1.99"></script>
+<script src="admin.js?v=1.99"></script>
 </body>
 </html>

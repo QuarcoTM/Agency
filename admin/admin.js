@@ -1437,6 +1437,35 @@
     row.append(nameLabel,dateLabel,remove); bookletZadushnitsiList.appendChild(row); invalidateBookletPreview();
   }
 
+  // Add dates only on request. Existing manually edited booklet rows remain untouched.
+  function autoAddBookletZadushnitsi(){
+    const death=parseBookletDate(bookletDeathDate&&bookletDeathDate.value);
+    if(!death){
+      message(bookletMessage,'Първо въведете дата на смъртта.','error');
+      return;
+    }
+    const calendar=window.DenINoshtZadushnitsi;
+    if(!calendar||typeof calendar.between!=='function'){
+      message(bookletMessage,'Календарният модул не е зареден. Обновете страницата.','error');
+      return;
+    }
+    const from=bookletDateValue(death);
+    const until=bookletDateValue(addBookletMonths(death,12));
+    const events=calendar.between(from,until);
+    const present=new Set(Array.from(bookletZadushnitsiList.querySelectorAll('.booklet-zadushnitsa-date')).map(input=>input.value).filter(Boolean));
+    let added=0,skipped=0;
+    events.forEach(event=>{
+      if(present.has(event.date))return;
+      if(bookletZadushnitsiList.children.length>=6){skipped++;return;}
+      addZadushnitsaRow(event.name,event.date);
+      present.add(event.date);
+      added++;
+    });
+    message(bookletMessage,added
+      ? 'Добавени са '+added+' Задушници за първата година след датата на смъртта.'+(skipped?' Няма място за още '+skipped+' (максимум 6).':'')+' Можете да редактирате или премахвате датите.'
+      : 'Няма нови Задушници за добавяне. Наличните ръчно попълнени редове са запазени.',skipped?'error':'success');
+  }
+
   function readZadushnitsi(){
     if(!bookletZadushnitsiList) return [];
     return Array.from(bookletZadushnitsiList.querySelectorAll('.booklet-zadushnitsa-row')).map((row)=>{
@@ -2595,6 +2624,8 @@
   const bookletCalculateButton=$('booklet-calculate');
   if(bookletCalculateButton) bookletCalculateButton.addEventListener('click',calculateBookletDates);
   if(bookletAddZadushnitsa) bookletAddZadushnitsa.addEventListener('click',()=>addZadushnitsaRow('',''));
+  const bookletAutoZadushnitsi=$('booklet-auto-zadushnitsi');
+  if(bookletAutoZadushnitsi) bookletAutoZadushnitsi.addEventListener('click',autoAddBookletZadushnitsi);
   if(bookletZadushnitsiList&&!bookletZadushnitsiList.children.length) addZadushnitsaRow('','');
   if(bookletForm) bookletForm.addEventListener('submit',(event)=>{
     event.preventDefault();
