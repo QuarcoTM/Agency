@@ -45,7 +45,7 @@ test('Public calculator includes eight periods and exports one complete ICS file
     },
     createElement(){return {
       set href(v){this._href=v;}, set download(v){output.filename=v;},
-      click(){}
+      click(){},remove(){}
     };},
     body:{appendChild(){}}
   };
