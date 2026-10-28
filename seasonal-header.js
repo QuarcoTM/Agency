@@ -3,7 +3,7 @@
 (() => {
   'use strict';
   const SEASONAL_BANNER_ENABLED = true; // Бързо и безопасно изключване без други промени.
-  if (!SEASONAL_BANNER_ENABLED) return;
+  if (!SEASONAL_BANNER_ENABLED || /(?:[?&])promo=off(?:&|$)/.test(window.location.search)) return;
 
   const DAY_MS = 86400000;
   const makeDate = (y,m,d) => new Date(Date.UTC(y,m,d));
