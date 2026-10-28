@@ -1,110 +1,134 @@
-/* Самостоятелен блок за задушница и услуги на началната страница.
-   Всички правила са активни САМО ако seasonal-header.js добави home-seasonal-active.
-   Изключването в JS възстановява старото оформление без CSS/HTML промени. */
+/* Ден и Нощ: компактен сезонен хедър v2.
+   Изолирано оформление: нито едно правило не засяга сайта, ако
+   seasonal-header.js не добави .home-seasonal-active. */
 .home-seasonal-banner[hidden]{display:none!important}
+
 .site-header.home-seasonal-active .header-inner{
   box-sizing:border-box;
   display:grid;
-  grid-template-columns:minmax(80px,112px) minmax(0,1fr);
-  grid-template-areas:"seasonal-brand seasonal-promo" "seasonal-nav seasonal-nav";
+  grid-template-columns:minmax(78px,110px) minmax(0,1fr);
+  grid-template-areas:"seasonal-logo seasonal-strip" "seasonal-nav seasonal-nav";
   align-items:center;
-  column-gap:22px;
-  row-gap:10px;
-  padding-top:13px;
-  padding-bottom:14px;
+  column-gap:20px;
+  row-gap:8px;
+  min-width:0;
+  padding-top:10px;
+  padding-bottom:12px;
+}
+.site-header.home-seasonal-active .brand{
+  grid-area:seasonal-logo;
+  flex:0 0 auto;
   min-width:0;
 }
-.site-header.home-seasonal-active .brand{grid-area:seasonal-brand;min-width:0}
 .site-header.home-seasonal-active .nav{
   grid-area:seasonal-nav;
   margin:0;
   width:100%;
-  max-width:none;
   min-width:0;
+  max-width:none;
 }
 .site-header.home-seasonal-active .home-seasonal-banner{
-  grid-area:seasonal-promo;
+  grid-area:seasonal-strip;
   box-sizing:border-box;
   display:grid;
-  grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);
-  gap:8px;
-  align-items:stretch;
+  grid-template-columns:minmax(0,1.04fr) minmax(0,1fr);
+  align-items:center;
   width:100%;
-  min-width:0;
   max-width:100%;
-  padding:8px;
-  background:#0e0b09;
-  border:1px solid rgba(179,131,94,.58);
-  border-radius:10px;
+  min-width:0;
+  padding:7px 9px 7px 15px;
+  border:1px solid rgba(179,131,94,.52);
+  border-left:3px solid var(--brown-2,#b3835e);
+  border-radius:7px;
+  background:#100d0b;
+  color:#fff;
 }
-.site-header.home-seasonal-active .home-seasonal-banner > *{
+.site-header.home-seasonal-active .home-seasonal-banner *,
+.site-header.home-seasonal-active .home-seasonal-banner *::before,
+.site-header.home-seasonal-active .home-seasonal-banner *::after{
   box-sizing:border-box;
-  min-width:0;
-  max-width:100%;
-  overflow-wrap:break-word;
 }
-.site-header.home-seasonal-active .home-seasonal-date,
-.site-header.home-seasonal-active .home-seasonal-service{
-  padding:10px 12px;
-  border:1px solid rgba(179,131,94,.25);
-  border-radius:6px;
-  background:#15110e;
+.site-header.home-seasonal-active .home-seasonal-core{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  gap:4px;
-  text-decoration:none;
-}
-.site-header.home-seasonal-active .home-seasonal-date{
-  background:linear-gradient(110deg,#261910,#17100c);
-  border-color:rgba(179,131,94,.65);
+  gap:5px;
+  min-width:0;
+  padding:0 13px 0 0;
 }
 .site-header.home-seasonal-active .home-seasonal-kicker{
-  color:#caa37e;
   font-size:10px;
   font-weight:800;
-  line-height:1.25;
-  letter-spacing:.08em;
+  letter-spacing:.095em;
+  line-height:1.2;
+  color:#b9957a;
   text-transform:uppercase;
 }
-.site-header.home-seasonal-active .home-seasonal-title{
+.site-header.home-seasonal-active .home-seasonal-date{
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:3px 9px;
+  min-width:0;
   color:#fff;
+  text-decoration:none;
+}
+.site-header.home-seasonal-active .home-seasonal-name{
   font-family:Georgia,'Times New Roman',serif;
-  font-size:clamp(16px,1.5vw,21px);
+  font-size:clamp(15px,1.3vw,19px);
   font-weight:700;
-  line-height:1.2;
+  line-height:1.25;
 }
 .site-header.home-seasonal-active .home-seasonal-date-value{
-  color:#dbc5b3;
   font-size:12px;
   font-weight:700;
   line-height:1.4;
+  color:#d2b298;
 }
-.site-header.home-seasonal-active .home-seasonal-text{
-  display:block;
-  color:#c7bbb0;
-  font-size:11px;
-  line-height:1.35;
+.site-header.home-seasonal-active .home-seasonal-arrow{
+  font-size:13px;
+  color:#bb906d;
 }
-.site-header.home-seasonal-active .home-seasonal-link{
-  color:#e4b28d;
-  font-size:11px;
-  font-weight:800;
-  line-height:1.4;
+.site-header.home-seasonal-active .home-seasonal-actions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  width:100%;
+  min-width:0;
 }
-.site-header.home-seasonal-active .home-seasonal-service{
-  transition:background .15s ease,border-color .15s ease;
+.site-header.home-seasonal-active .home-seasonal-action{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:41px;
+  min-width:0;
+  padding:8px 11px;
+  border:1px solid rgba(179,131,94,.48);
+  border-radius:5px;
+  background:#201813;
+  color:#f6ede4;
+  font-size:12px;
+  font-weight:750;
+  line-height:1.3;
+  text-align:center;
+  text-decoration:none;
+  overflow-wrap:break-word;
+  transition:background .16s ease,border-color .16s ease;
 }
-@media (hover:hover){
-  .site-header.home-seasonal-active .home-seasonal-service:hover{
-    background:#281b14;
-    border-color:#c18c66;
+@media (hover:hover) and (pointer:fine){
+  .site-header.home-seasonal-active .home-seasonal-action:hover{
+    border-color:#c49974;
+    background:#30231a;
+  }
+  .site-header.home-seasonal-active .home-seasonal-date:hover .home-seasonal-name{
+    text-decoration:underline;
+    text-underline-offset:3px;
   }
 }
-.site-header.home-seasonal-active .home-seasonal-service:focus-visible,
-.site-header.home-seasonal-active .home-seasonal-date a:focus-visible{
+.site-header.home-seasonal-active .home-seasonal-date:focus-visible,
+.site-header.home-seasonal-active .home-seasonal-action:focus-visible{
   outline:2px solid #fff;
-  outline-offset:3px;
+  outline-offset:2px;
 }
 @media (min-width:1024px) and (max-width:1599px){
   .site-header.home-seasonal-active .nav{
@@ -125,13 +149,19 @@
     gap:8px;
   }
 }
+@media (max-width:1200px) and (min-width:1024px){
+  .site-header.home-seasonal-active .home-seasonal-banner{
+    grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  }
+  .site-header.home-seasonal-active .home-seasonal-action{font-size:11px}
+}
 @media (max-width:1023px){
   .site-header.home-seasonal-active .header-inner{
     grid-template-columns:minmax(0,1fr) auto;
-    grid-template-areas:"seasonal-brand seasonal-menu" "seasonal-promo seasonal-promo";
+    grid-template-areas:"seasonal-logo seasonal-menu" "seasonal-strip seasonal-strip";
     column-gap:12px;
     row-gap:8px;
-    padding-top:8px;
+    padding-top:7px;
     padding-bottom:10px;
   }
   .site-header.home-seasonal-active .menu-toggle{
@@ -149,51 +179,33 @@
     overflow-y:auto;
   }
   .site-header.home-seasonal-active .home-seasonal-banner{
-    grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);
+    grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
   }
 }
-@media (max-width:700px){
+@media (max-width:650px){
   .site-header.home-seasonal-active .home-seasonal-banner{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:6px;
-    padding:7px;
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    padding:10px;
   }
-  .site-header.home-seasonal-active .home-seasonal-date{
-    grid-column:1 / -1;
-    display:grid;
-    grid-template-columns:minmax(0,1fr) auto;
-    column-gap:10px;
-    padding:9px 11px;
+  .site-header.home-seasonal-active .home-seasonal-core{
+    padding:0 0 2px;
+    gap:3px;
   }
-  .site-header.home-seasonal-active .home-seasonal-date .home-seasonal-kicker{
-    grid-column:1 / -1;
+  .site-header.home-seasonal-active .home-seasonal-kicker{font-size:9px}
+  .site-header.home-seasonal-active .home-seasonal-name{font-size:16px}
+  .site-header.home-seasonal-active .home-seasonal-date-value{font-size:12px}
+  .site-header.home-seasonal-active .home-seasonal-action{
+    min-height:36px;
+    padding:7px 8px;
+    font-size:11px;
   }
-  .site-header.home-seasonal-active .home-seasonal-date .home-seasonal-title{font-size:17px}
-  .site-header.home-seasonal-active .home-seasonal-date-value{
-    align-self:center;
-    text-align:right;
-  }
-  .site-header.home-seasonal-active .home-seasonal-date a{
-    grid-column:1 / -1;
-  }
-  .site-header.home-seasonal-active .home-seasonal-service{
-    padding:9px 10px;
-    gap:4px;
-  }
-  .site-header.home-seasonal-active .home-seasonal-service .home-seasonal-title{
-    font-family:inherit;
-    font-size:13px;
-    font-weight:800;
-  }
-  .site-header.home-seasonal-active .home-seasonal-service .home-seasonal-text{display:none}
 }
-@media (max-width:360px){
-  .site-header.home-seasonal-active .home-seasonal-date{
+@media (max-width:335px){
+  .site-header.home-seasonal-active .home-seasonal-actions{
     grid-template-columns:minmax(0,1fr);
   }
-  .site-header.home-seasonal-active .home-seasonal-date-value{text-align:left}
-  .site-header.home-seasonal-active .home-seasonal-service{padding:8px}
 }
 @media (prefers-reduced-motion:reduce){
-  .site-header.home-seasonal-active .home-seasonal-service{transition:none}
+  .site-header.home-seasonal-active .home-seasonal-action{transition:none}
 }

@@ -98,3 +98,30 @@ test('Public memorial explanatory cards and FAQ match the eight calculated stage
     'Как се изчисляват 3, 6 и 9 месеца?'
   ]);
 });
+
+test('Seasonal header has one compact strip, two services and clean rollback',()=>{
+  const html=read('index.html'), css=read('seasonal-header.css'), js=read('seasonal-header.js');
+  const begin=html.indexOf('<!-- Начало на самостоятелния сезонен блок:');
+  const end=html.indexOf('<!-- Край на самостоятелния сезонен блок -->');
+  assert.ok(begin>0 && end>begin);
+  const content=html.slice(begin,end);
+  assert.equal((content.match(/<aside\b/g)||[]).length,1);
+  assert.equal((content.match(/class="home-seasonal-action"/g)||[]).length,2);
+  assert.equal((content.match(/class="home-seasonal-banner"/g)||[]).length,1);
+  assert.ok(content.includes('href="/zadushnitsi/"'));
+  assert.ok(content.includes('href="/pochistvane-poddrazhka-grobni-mesta/"'));
+  assert.ok(content.includes('href="/pomeni/"'));
+  assert.ok(content.includes('data-seasonal-name'));
+  assert.ok(content.includes('data-seasonal-date'));
+  assert.ok(html.includes('seasonal-header.css?v=2.0'));
+  assert.ok(html.includes('seasonal-header.js?v=2.0'));
+  assert.ok(css.includes('grid-template-columns:minmax(0,1fr)'));
+  assert.ok(css.includes('grid-template-areas:"seasonal-logo seasonal-menu" "seasonal-strip seasonal-strip"'));
+  assert.ok(css.includes('max-width:100%'));
+  assert.ok(js.includes('const SEASONAL_BANNER_ENABLED = true'));
+  assert.ok(js.includes('promo=off'));
+  assert.ok(js.includes("header.classList.add('home-seasonal-active')"));
+  // Styles must be opt-in; the hidden placeholder has no impact on the legacy header.
+  const selectors=css.split('}').map(rule=>rule.split('{')[0]).filter(rule=>rule.includes('.header-inner')||rule.includes('.nav'));
+  assert.ok(selectors.every(rule=>rule.includes('home-seasonal-active')));
+});
