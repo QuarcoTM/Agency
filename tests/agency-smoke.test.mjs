@@ -78,3 +78,23 @@ test('Booklet print implementation remains present and independent of auto-fill'
   assert.ok(html.includes('src="memorial-zadushnitsi.js?v=1.99"'));
   assert.ok(code.indexOf('function addZadushnitsaRow(') < code.indexOf('function autoAddBookletZadushnitsi('));
 });
+
+test('Public memorial explanatory cards and FAQ match the eight calculated stages',()=>{
+  const html=read('kalkulator-pomeni/index.html');
+  const section=html.split('<section class="pomen-seo-content">')[1]?.split('<section class="related-services')[0];
+  assert.ok(section,'Missing explanatory section');
+  const names=Array.from(section.matchAll(/<article><h3>([^<]+)<\/h3>/g),m=>m[1]);
+  assert.deepEqual(names,['3-ти ден','9-ти ден','20-ти ден','40-ти ден','3 месеца','6 месеца','9 месеца','1 година']);
+  assert.equal((section.match(/<section\b/g)||[]).length,1);
+  assert.equal((section.match(/<\/section>/g)||[]).length,3);
+  assert.ok(section.includes('Как се изчисляват 9 и 20 дни'));
+  assert.ok(section.includes('Как се изчисляват 3, 6 и 9 месеца'));
+  const ldJson=Array.from(html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),m=>JSON.parse(m[1]));
+  const faq=ldJson.find(v=>v['@type']==='FAQPage');
+  assert.ok(faq,'Missing FAQPage structured data');
+  assert.deepEqual(faq.mainEntity.map(q=>q.name),[
+    'Брои ли се денят на смъртта при изчисляването на 40 дни?',
+    'Как се изчисляват 9 и 20 дни след смъртта?',
+    'Как се изчисляват 3, 6 и 9 месеца?'
+  ]);
+});
