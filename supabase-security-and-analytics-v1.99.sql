@@ -16,11 +16,12 @@ REVOKE ALL ON public.agency_admins FROM anon, authenticated;
 DO $$
 DECLARE v_count bigint; v_id uuid;
 BEGIN
-  SELECT count(*), min(id) INTO v_count,v_id FROM auth.users;
+  SELECT count(*) INTO v_count FROM auth.users;
   IF NOT EXISTS (SELECT 1 FROM public.agency_admins) THEN
     IF v_count <> 1 THEN
-      RAISE EXCEPTION 'No unique existing admin: % Supabase Auth users. Seed agency_admins manually; see SECURITY-DEPLOY.md.',v_count;
+      RAISE EXCEPTION 'No unique existing admin: % Supabase Auth users. Seed agency_admins manually; see SECURITY-DEPLOY-v1.99.md.',v_count;
     END IF;
+    SELECT id INTO v_id FROM auth.users LIMIT 1;
     INSERT INTO public.agency_admins(user_id) VALUES(v_id);
   END IF;
 END
