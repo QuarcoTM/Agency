@@ -105,7 +105,7 @@ test('Seasonal header has one compact strip, two services and clean rollback',()
   const end=html.indexOf('<!-- Край на самостоятелния сезонен блок -->');
   assert.ok(begin>0 && end>begin);
   const content=html.slice(begin,end);
-  assert.equal((content.match(/<aside\\b/g)||[]).length,1);
+  assert.equal((content.match(/<aside\b/g)||[]).length,1);
   assert.equal((content.match(/class="home-seasonal-action"/g)||[]).length,2);
   assert.equal((content.match(/class="home-seasonal-banner"/g)||[]).length,1);
   assert.ok(content.includes('href="/zadushnitsi/"'));
