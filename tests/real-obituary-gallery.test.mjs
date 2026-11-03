@@ -97,7 +97,7 @@ test('All eleven real admin renderers execute without throwing when drawing plac
   });
   const originalTail='  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initGallery,{once:true});\n  else initGallery();';
   assert.ok(gallery.includes(originalTail),'Renderer initializer changed');
-  const instrumented=gallery.replace(originalTail,'  globalThis.__galleryTest={renderSample,obituaryArtwork};');
+  const instrumented=gallery.replace(originalTail,'  globalThis.__galleryTest={renderSample,sampleModel,obituaryArtwork};');
   const ctx={document:{createElement:()=>createCanvas()},console};
   vm.runInNewContext(instrumented,ctx,{timeout:10000});
   const runner=ctx.__galleryTest;
@@ -115,8 +115,11 @@ test('All eleven real admin renderers execute without throwing when drawing plac
     assert.ok(drawn.includes('Име'),design+' missing name');
     assert.ok(drawn.includes('Презиме'),design+' missing patronymic');
     assert.ok(drawn.includes('Фамилия'),design+' missing surname');
-    if(['photo','photo-oval','photo-arch','double','background'].includes(design)){
-      assert.ok(drawn.includes('СНИМКА'),design+' missing PHOTO placeholder');
+    if(['photo','photo-oval','photo-arch','double'].includes(design)){
+      assert.ok(runner.sampleModel(design).photo,design+' is missing the PHOTO placeholder canvas');
+    }
+    if(design==='background'){
+      assert.ok(runner.sampleModel(design).background,'Background design needs PHOTO placeholder canvas');
     }
   }
 });
