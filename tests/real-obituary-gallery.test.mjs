@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import vm from 'node:vm';
 
 const read = path => fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const admin = read('admin/admin.js');
@@ -71,4 +72,51 @@ test('Gallery integrates only on obituary service page, on a dark background, an
   assert.match(gallery,/if\(!ENABLE_REAL_OBITUARY_GALLERY\) return;/);
   assert.match(gallery,/img\.src="\/admin\/obituary-art\/"/);
   assert.doesNotMatch(gallery,/supabase|authToken|sessionKey|localStorage/);
+});
+
+test('All eleven real admin renderers execute without throwing when drawing placeholders',()=>{
+  const drawn=[];
+  const gradient={addColorStop(){}};
+  const createContext=()=>new Proxy({
+    measureText(text){return {width:String(text).length*19,actualBoundingBoxAscent:25,actualBoundingBoxDescent:5};},
+    createLinearGradient(){return gradient;},
+    createRadialGradient(){return gradient;},
+    fillText(text){drawn.push(String(text));},
+    strokeText(){}
+  },{
+    get(target,prop){
+      if(prop in target)return target[prop];
+      if(typeof prop==='string')return ()=>{};
+      return undefined;
+    },
+    set(target,prop,value){target[prop]=value;return true;}
+  });
+  const createCanvas=()=>({
+    width:380,height:442,
+    getContext(){return createContext();}
+  });
+  const originalTail='  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initGallery,{once:true});\n  else initGallery();';
+  assert.ok(gallery.includes(originalTail),'Renderer initializer changed');
+  const instrumented=gallery.replace(originalTail,'  globalThis.__galleryTest={renderSample,obituaryArtwork};');
+  const ctx={document:{createElement:()=>createCanvas()},console};
+  vm.runInNewContext(instrumented,ctx,{timeout:10000});
+  const runner=ctx.__galleryTest;
+  assert.ok(runner);
+  for(const asset of Object.values(runner.obituaryArtwork)){
+    asset.image={width:620,height:900,naturalWidth:620,naturalHeight:900};
+  }
+  const names=['crosses','photo','photo-oval','photo-arch','angels','candle','double','black-silver','black-candle','black-gold','background'];
+  for(const design of names) {
+    drawn.length=0;
+    const canvas=createCanvas();
+    assert.doesNotThrow(()=>runner.renderSample(canvas,design,540),'Failed canvas design: '+design);
+    assert.equal(canvas.width,540);
+    assert.equal(canvas.height,764);
+    assert.ok(drawn.includes('Име'),design+' missing name');
+    assert.ok(drawn.includes('Презиме'),design+' missing patronymic');
+    assert.ok(drawn.includes('Фамилия'),design+' missing surname');
+    if(['photo','photo-oval','photo-arch','double','background'].includes(design)){
+      assert.ok(drawn.includes('СНИМКА'),design+' missing PHOTO placeholder');
+    }
+  }
 });
