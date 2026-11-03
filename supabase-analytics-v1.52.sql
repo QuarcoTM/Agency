@@ -71,7 +71,7 @@ as $$
   select
     count(*) filter (where event_type='page_view')::bigint,
     count(*) filter (where event_type='phone_click')::bigint,
-    count(*) filter (where event_type='page_view' and page_path='/kontakti.html')::bigint,
+    count(*) filter (where event_type='page_view' and page_path in ('/kontakti/', '/kontakti.html'))::bigint,
     count(*) filter (where event_type='map_open')::bigint,
     count(*) filter (where event_type='faq_open')::bigint,
     count(*) filter (where event_type='call_widget_open')::bigint
