@@ -179,7 +179,31 @@
     }
   }
 
+  function setCategoryIndexability(indexable){
+    if (!isCategoryPage) return;
+    const meta = document.querySelector('meta[name="robots"]');
+    if (meta) meta.setAttribute('content', indexable
+      ? 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
+      : 'noindex,follow');
+  }
+
+  function setCategoryCanonical(slug){
+    if (!isCategoryPage || !slug) return;
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical){
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    const url = 'https://deninosht.bg/kategoriya/?category=' + encodeURIComponent(slug);
+    canonical.href = url;
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', url);
+  }
+
   function renderCategory(category, products){
+    setCategoryIndexability(products.length > 0);
+    setCategoryCanonical(category.slug);
     const title = document.getElementById('category-page-title');
     const description = document.getElementById('category-page-description');
     if (title) title.textContent = category.name;
@@ -191,6 +215,10 @@
     if (ogTitle) ogTitle.setAttribute('content', category.name + ' в Кюстендил | Ден и Нощ');
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) ogDescription.setAttribute('content', 'Разгледайте ' + category.name.toLowerCase() + ' от траурна агенция „Ден и Нощ“ в Кюстендил.');
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', category.name + ' в Кюстендил | Ден и Нощ');
+    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDescription) twitterDescription.setAttribute('content', 'Разгледайте ' + category.name.toLowerCase() + ' в каталога на траурна агенция „Ден и Нощ“.');
 
     catalog.replaceChildren();
     const section = make('section','goods-category goods-category-page-content');
@@ -246,6 +274,7 @@
 
       const category = (categories || []).find((item)=>item.slug === selectedSlug);
       if (!category){
+        setCategoryIndexability(false);
         const title = document.getElementById('category-page-title');
         if (title) title.textContent = 'Категорията не е намерена';
         catalog.replaceChildren();
@@ -275,6 +304,7 @@
         });
       }
     } catch (error){
+      setCategoryIndexability(false);
       console.error('Catalog load failed:', error);
       setStatus('Каталогът не може да бъде зареден в момента. За наличности се свържете с нас по телефона.', true);
     } finally {
