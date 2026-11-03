@@ -16,24 +16,11 @@ test('SEO: category pages can be indexed only with published products', () => {
   assert.match(catalog, /meta\[property="og:url"\]/);
 });
 
-test('Obituary examples: anonymous and revertible independently', () => {
+test('Obituary page: inaccurate demo gallery and white background are absent', () => {
   const html = read('nekrolozi/index.html');
-  const js = read('obituary-examples.js');
-  const css = read('obituary-examples.css');
-  const block = html.split('<!-- Изолиран блок:')[1]?.split('<!-- Край на изолирания блок -->')[0];
-  assert.ok(block, 'Missing isolated sample block');
-  assert.equal((block.match(/class="obex-card obex-card--/g) || []).length, 3);
-  assert.equal((block.match(/ИМЕ И ФАМИЛИЯ/g) || []).length, 3);
-  assert.ok(block.includes('id="obituary-examples"'));
-  assert.ok(block.includes(' hidden>'));
-  assert.ok(html.includes('obituary-examples.css?v=1'));
-  assert.ok(html.includes('obituary-examples.js?v=1'));
-  assert.match(js, /const ENABLE_OBITUARY_EXAMPLES = true;/);
-  assert.match(js, /if \(!ENABLE_OBITUARY_EXAMPLES\) return;/);
-  assert.match(css, /\.obituary-examples\[hidden\]\{display:none!important\}/);
-  for (const name of ['Иван Иванов', 'Мария Петрова', 'Георги Георгиев']) {
-    assert.ok(!block.includes(name), 'No real-looking names in previews');
-  }
+  assert.ok(html.includes('<h1>Некролози в Кюстендил</h1>'));
+  assert.doesNotMatch(html, /obituary-examples|obex-card|obex-paper/);
+  assert.doesNotMatch(html, /obituary-examples\.css|obituary-examples\.js/);
 });
 
 test('Analytics: new and old contact URLs are both counted in SQL', () => {
