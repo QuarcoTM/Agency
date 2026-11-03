@@ -15,7 +15,6 @@ on:
       - 'catalog.js'
       - 'kategoriya/**'
       - 'nekrolozi/**'
-      - 'real-obituary-gallery.*'
       - 'sitemap.xml'
       - 'supabase-analytics*.sql'
       - '.github/workflows/memorial-smoke.yml'
@@ -36,6 +35,5 @@ jobs:
           node --check admin/memorial-zadushnitsi.js
           node --check kalkulator-pomeni.js
           node --check catalog.js
-          node --check real-obituary-gallery.js
       - name: Memorial regression tests
         run: node --test tests/*.test.mjs
