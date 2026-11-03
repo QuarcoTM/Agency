@@ -1,0 +1,42 @@
+/* Самостоятелна галерия с реалните шаблони от админ генератора.
+   Без светъл фон зад некролозите; не променя общите стилове на сайта. */
+#real-obituary-gallery[hidden]{display:none!important}
+.real-obituary-gallery{padding:60px 0 64px;background:#080706;border-bottom:1px solid var(--line,rgba(179,131,94,.38))}
+.real-obituary-gallery h2{margin:0 0 12px;color:#f5f3ef}
+.real-obituary-gallery-lead{margin:0 0 26px;color:var(--muted,#c9c5bf);max-width:810px;font-size:16px;line-height:1.6}
+.real-obituary-gallery-lead strong{color:#fff}
+.real-obituary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch}
+.real-obituary-card{min-width:0;margin:0;padding:12px 12px 18px;border:1px solid rgba(179,131,94,.36);background:#0b0a09;display:flex;flex-direction:column;gap:15px;transition:border-color .15s ease}
+.real-obituary-card:hover{border-color:rgba(179,131,94,.8)}
+.real-obituary-preview{display:block;width:100%;padding:0;appearance:none;border:0;background:#14110e;cursor:zoom-in;line-height:0}
+.real-obituary-preview:focus-visible{outline:3px solid #b3835e;outline-offset:3px}
+.real-obituary-preview canvas{display:block;width:100%;height:auto;aspect-ratio:1240/1754;background:#f7f7f7;box-shadow:0 7px 17px rgba(0,0,0,.22)}
+.real-obituary-card figcaption{margin:auto 0 0;text-align:center;color:#f5f3ef;font-size:15px;font-weight:700;line-height:1.4}
+.real-obituary-gallery-note{margin:26px 0 0;color:#a9a39d;font-size:13px}
+.real-obituary-mobile-nav{display:none;align-items:center;justify-content:flex-end;gap:10px;margin:0 0 14px}
+.real-obituary-mobile-nav span{flex:1;color:#c9c5bf;font-size:13px}
+.real-obituary-mobile-nav button{min-width:42px;min-height:42px;border:1px solid rgba(179,131,94,.55);background:#15110f;color:white;font-size:23px;cursor:pointer;border-radius:3px}
+.real-obituary-mobile-nav button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.real-obituary-dialog{position:fixed;max-width:min(94vw,980px);width:min(94vw,980px);max-height:95dvh;margin:auto;padding:0;color:#f5f3ef;background:#0b0908;border:1px solid #8b5e3c;box-shadow:0 20px 60px rgba(0,0,0,.85);overscroll-behavior:contain}
+.real-obituary-dialog::backdrop{background:rgba(0,0,0,.86)}
+.real-obituary-dialog-inner{padding:16px 18px 20px}
+.real-obituary-dialog-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 0 14px}
+.real-obituary-dialog-bar strong{color:#fff;font-size:clamp(14px,2.5vw,19px);line-height:1.35}
+.real-obituary-dialog-bar button{flex:none;border:1px solid rgba(179,131,94,.65);border-radius:3px;background:#15110f;color:#fff;padding:9px 14px;min-height:44px;font-size:15px;cursor:pointer}
+.real-obituary-dialog-bar button:hover{background:#2c211a}
+.real-obituary-dialog canvas{display:block;max-width:100%;max-height:calc(95dvh - 125px);width:auto;height:auto;margin:0 auto;aspect-ratio:1240/1754;background:#fff;object-fit:contain}
+body.real-obituary-dialog-open{overflow:hidden}
+@media(max-width:760px){
+  .real-obituary-gallery{padding:42px 0 52px}
+  .real-obituary-gallery-lead{font-size:14px;margin-bottom:18px}
+  .real-obituary-mobile-nav{display:flex}
+  .real-obituary-grid{display:flex;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:2px;gap:14px;padding:2px 2px 14px;scrollbar-width:thin;scrollbar-color:#8b5e3c #0c0b0a}
+  .real-obituary-card{flex:0 0 min(80vw,340px);scroll-snap-align:start;padding:9px 9px 15px}
+  .real-obituary-card figcaption{font-size:14px}
+  .real-obituary-dialog{width:96vw;max-width:96vw}
+  .real-obituary-dialog-inner{padding:10px}
+  .real-obituary-dialog-bar{padding-bottom:9px}
+  .real-obituary-dialog-bar button{padding:7px 11px}
+  .real-obituary-dialog canvas{max-height:calc(95dvh - 95px)}
+}
+@media(prefers-reduced-motion:reduce){.real-obituary-grid{scroll-behavior:auto}}
