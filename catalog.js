@@ -13,7 +13,11 @@
   };
 
   const isCategoryPage = document.body.classList.contains('category-page');
-  const selectedSlug = isCategoryPage ? (new URLSearchParams(window.location.search).get('category') || '') : '';
+  // Dedicated server-served pages have real canonical URLs; the old query URL remains functional.
+  const dedicatedSlug = isCategoryPage ? (document.body.dataset.categorySlug || '') : '';
+  const isDedicatedCategoryPage = Boolean(dedicatedSlug);
+  const selectedSlug = isCategoryPage ? (dedicatedSlug || new URLSearchParams(window.location.search).get('category') || '') : '';
+  const categoryPath = (slug)=>'/traurni-stoki/' + encodeURIComponent(slug) + '/';
 
   function setStatus(message, isError){
     status.textContent = message || '';
@@ -30,7 +34,7 @@
 
   function navigateToCategory(slug){
     if(!slug) return;
-    window.location.assign('/kategoriya/?category=' + encodeURIComponent(slug));
+    window.location.assign(categoryPath(slug));
   }
 
   function bindTouchNavigation(link, slug){
@@ -103,7 +107,7 @@
       if (!isCategoryPage){
         categories.forEach((category)=>{
           const link = document.createElement('a');
-          link.href = '/kategoriya/?category=' + encodeURIComponent(category.slug);
+          link.href = categoryPath(category.slug);
           link.textContent = category.name;
           link.dataset.category = category.slug;
           bindTouchNavigation(link, category.slug);
@@ -119,7 +123,7 @@
 
       categories.forEach((category)=>{
         const link = document.createElement('a');
-        link.href = '/kategoriya/?category=' + encodeURIComponent(category.slug);
+        link.href = categoryPath(category.slug);
         link.textContent = category.name;
         link.dataset.category = category.slug;
         if(category.slug === selectedSlug){
@@ -182,7 +186,10 @@
   function setCategoryIndexability(indexable){
     if (!isCategoryPage) return;
     const meta = document.querySelector('meta[name="robots"]');
-    if (meta) meta.setAttribute('content', indexable
+    // Legacy query-based pages are canonicalized but never independently indexed.
+    // Public obituary previews stay out of the SEO category pages for now.
+    const canIndex = isDedicatedCategoryPage && selectedSlug !== 'nekrolozi' && Boolean(indexable);
+    if (meta) meta.setAttribute('content', canIndex
       ? 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
       : 'noindex,follow');
   }
@@ -195,7 +202,7 @@
       canonical.rel = 'canonical';
       document.head.appendChild(canonical);
     }
-    const url = 'https://deninosht.bg/kategoriya/?category=' + encodeURIComponent(slug);
+    const url = 'https://deninosht.bg' + categoryPath(slug);
     canonical.href = url;
     const ogUrl = document.querySelector('meta[property="og:url"]');
     if (ogUrl) ogUrl.setAttribute('content', url);
@@ -206,19 +213,20 @@
     setCategoryCanonical(category.slug);
     const title = document.getElementById('category-page-title');
     const description = document.getElementById('category-page-description');
-    if (title) title.textContent = category.name;
-    if (description) description.textContent = 'Разгледайте публикуваните модели в категория „' + category.name + '“. За конкретна наличност и допълнителна информация се свържете с нас.';
-    document.title = category.name + ' в Кюстендил | Траурни стоки – Ден и Нощ';
+    const categoryName = String(category.name || '').trim();
+    if (title) title.textContent = categoryName;
+    if (description && !isDedicatedCategoryPage) description.textContent = 'Разгледайте публикуваните модели в категория „' + categoryName + '“. За конкретна наличност и допълнителна информация се свържете с нас.';
+    if (!isDedicatedCategoryPage) document.title = categoryName + ' в Кюстендил | Траурни стоки – Ден и Нощ';
     const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) metaDescription.setAttribute('content', category.name + ' в Кюстендил от траурна агенция „Ден и Нощ“. Разгледайте публикуваните модели и се свържете с нас за актуална наличност.');
+    if (metaDescription && !isDedicatedCategoryPage) metaDescription.setAttribute('content', categoryName + ' в Кюстендил от траурна агенция „Ден и Нощ“. Разгледайте публикуваните модели и се свържете с нас за актуална наличност.');
     const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) ogTitle.setAttribute('content', category.name + ' в Кюстендил | Ден и Нощ');
+    if (ogTitle && !isDedicatedCategoryPage) ogTitle.setAttribute('content', categoryName + ' в Кюстендил | Ден и Нощ');
     const ogDescription = document.querySelector('meta[property="og:description"]');
-    if (ogDescription) ogDescription.setAttribute('content', 'Разгледайте ' + category.name.toLowerCase() + ' от траурна агенция „Ден и Нощ“ в Кюстендил.');
+    if (ogDescription && !isDedicatedCategoryPage) ogDescription.setAttribute('content', 'Разгледайте ' + categoryName.toLowerCase() + ' от траурна агенция „Ден и Нощ“ в Кюстендил.');
     const twitterTitle = document.querySelector('meta[name="twitter:title"]');
-    if (twitterTitle) twitterTitle.setAttribute('content', category.name + ' в Кюстендил | Ден и Нощ');
+    if (twitterTitle && !isDedicatedCategoryPage) twitterTitle.setAttribute('content', categoryName + ' в Кюстендил | Ден и Нощ');
     const twitterDescription = document.querySelector('meta[name="twitter:description"]');
-    if (twitterDescription) twitterDescription.setAttribute('content', 'Разгледайте ' + category.name.toLowerCase() + ' в каталога на траурна агенция „Ден и Нощ“.');
+    if (twitterDescription && !isDedicatedCategoryPage) twitterDescription.setAttribute('content', 'Разгледайте ' + categoryName.toLowerCase() + ' в каталога на траурна агенция „Ден и Нощ“.');
 
     catalog.replaceChildren();
     const section = make('section','goods-category goods-category-page-content');
@@ -304,7 +312,9 @@
         });
       }
     } catch (error){
-      setCategoryIndexability(false);
+      // Keep the static SEO metadata during temporary network outages.
+      // Unknown query-based pages remain noindex from their HTML source.
+      if (!isDedicatedCategoryPage) setCategoryIndexability(false);
       console.error('Catalog load failed:', error);
       setStatus('Каталогът не може да бъде зареден в момента. За наличности се свържете с нас по телефона.', true);
     } finally {
