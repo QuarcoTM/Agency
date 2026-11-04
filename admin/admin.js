@@ -2055,18 +2055,30 @@
     if (file.size > 25 * 1024 * 1024) throw new Error('Снимката е прекалено голяма. Изберете файл под 25 MB.');
 
     const img = await loadImageFile(file);
-    const maxSide = 1600;
+    // Keep the existing single-image upload flow but cap new product photos
+    // to a mobile-friendly WebP without requiring manual editing or a paid API.
+    const maxSide = 1100;
     const scale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
     const width = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
     const height = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
     const canvas = document.createElement('canvas');
     canvas.width = width; canvas.height = height;
     const ctx = canvas.getContext('2d', {alpha:true});
+    if (!ctx) throw new Error('Браузърът не поддържа оптимизиране на снимки.');
     ctx.drawImage(img, 0, 0, width, height);
-    let blob = await canvasBlob(canvas, 'image/webp', 0.84);
+    let blob = await canvasBlob(canvas, 'image/webp', 0.78);
 
-    if (blob.size > 4.7 * 1024 * 1024){
-      blob = await canvasBlob(canvas, 'image/webp', 0.68);
+    // Try lower quality first, then a modest resize on unusually complex photos.
+    if (blob.size > 320 * 1024) blob = await canvasBlob(canvas, 'image/webp', 0.68);
+    if (blob.size > 320 * 1024){
+      const ratio = 800 / Math.max(width, height);
+      if (ratio < 1){
+        const compact = document.createElement('canvas');
+        compact.width = Math.max(1, Math.round(width * ratio));
+        compact.height = Math.max(1, Math.round(height * ratio));
+        compact.getContext('2d').drawImage(canvas, 0, 0, compact.width, compact.height);
+        blob = await canvasBlob(compact, 'image/webp', 0.72);
+      }
     }
     if (blob.size > 5 * 1024 * 1024) throw new Error('Снимката остава по-голяма от 5 MB след оптимизация.');
     return blob;
