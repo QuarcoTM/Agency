@@ -29,7 +29,7 @@ test('SEO: seven independent static pages have canonical titles and breadcrumbs'
     assert.match(page,/<meta name="description" content="[^"]{40,}"/);
     assert.match(page,/<h1 id="category-page-title">[^<]{5,}<\/h1>/);
     assert.match(page,/<script type="application\/ld\+json">/);
-    assert.match(page,/src="catalog\.js\?v=2\.20"/);
+    assert.match(page,/src="catalog\.js\?v=2\.21"/);
     assert.match(page,new RegExp('name="robots" content="'+(c.indexable?'index,follow':'noindex,follow')));
     assert.ok(page.includes('class="goods-catalog"'),'Live category catalog missing on '+c.slug);
   }
