@@ -15,7 +15,7 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
-          ref: {{ github.head_ref || github.ref_name }}
+          ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -42,7 +42,7 @@ jobs:
           git add assets/catalog-thumbnails catalog-thumbnails.js
           if ! git diff --cached --quiet; then
             git commit -m 'build: generate responsive WebP previews for existing catalog photos'
-            git push origin HEAD:{{ github.head_ref || github.ref_name }}
+            git push origin HEAD:${{ github.head_ref || github.ref_name }}
           else
             echo 'Thumbnails already up to date'
           fi
