@@ -31,7 +31,9 @@ jobs:
           for entry in "mobile|https://deninosht.bg/|home-mobile" "mobile|https://deninosht.bg/traurni-stoki/kovchezi/|category-mobile" "mobile|https://deninosht.bg/kontakti/|contact-mobile" "desktop|https://deninosht.bg/|home-desktop"; do
             IFS='|' read -r strategy url tag <<< "$entry"
             echo "::group::SITE PERFORMANCE $tag"
-            npx lighthouse "$url" --quiet --output=json --output-path="/tmp/deninosht-perf/${tag}.json" --only-categories=performance --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --form-factor="$strategy" --screenEmulation.disabled=$([ "$strategy" = desktop ] && echo true || echo false) --max-wait-for-load=50000
+            extra=()
+            if [[ "$strategy" == "desktop" ]]; then extra=(--preset=desktop); fi
+            npx lighthouse "$url" --quiet --output=json --output-path="/tmp/deninosht-perf/${tag}.json" --only-categories=performance --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" "${extra[@]}" --max-wait-for-load=50000
             node - "/tmp/deninosht-perf/${tag}.json" "$tag" <<'NODE'
           const fs=require('fs');
           const file=process.argv[2],tag=process.argv[3];
