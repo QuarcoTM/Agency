@@ -1,0 +1,54 @@
+name: Temporary real-world site Lighthouse audit
+on:
+  pull_request:
+    paths:
+      - 'image-sitemap.xml'
+      - '.github/workflows/temporary-performance-audit.yml'
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check browser availability
+        run: |
+          which google-chrome || which chromium || which chromium-browser
+          google-chrome --version || true
+      - name: Measure live mobile and desktop performance
+        continue-on-error: true
+        shell: bash
+        run: |
+          npm install --no-save --no-package-lock lighthouse@12
+          mkdir -p /tmp/deninosht-perf
+          set +e
+          for entry in "mobile|https://deninosht.bg/|home-mobile" "mobile|https://deninosht.bg/traurni-stoki/kovchezi/|category-mobile" "mobile|https://deninosht.bg/kontakti/|contact-mobile" "desktop|https://deninosht.bg/|home-desktop"; do
+            IFS='|' read -r strategy url tag <<< "$entry"
+            echo "::group::SITE PERFORMANCE $tag"
+            npx lighthouse "$url" --quiet --output=json --output-path="/tmp/deninosht-perf/${tag}.json" --only-categories=performance --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --form-factor="$strategy" --screenEmulation.disabled=$([ "$strategy" = desktop ] && echo true || echo false) --max-wait-for-load=50000
+            node - "/tmp/deninosht-perf/${tag}.json" "$tag" <<'NODE'
+          const fs=require('fs');
+          const file=process.argv[2],tag=process.argv[3];
+          if(!fs.existsSync(file)){console.log('AUDIT_ERROR '+tag+' report missing');process.exit(0);}
+          try{
+            const x=JSON.parse(fs.readFileSync(file,'utf8'));
+            const a=x.audits,number=k=>a[k]?.numericValue??null,fmt=k=>a[k]?.displayValue??null;
+            const opportunities=Object.values(a).filter(z=>z.details?.type==='opportunity'&&z.numericValue>100).sort((a,b)=>b.numericValue-a.numericValue).slice(0,5).map(z=>({id:z.id,title:z.title,estimatedSavingsMs:z.numericValue}));
+            console.log('PERF_RESULT '+JSON.stringify({tag,url:x.finalDisplayedUrl||x.finalUrl,score:x.categories.performance.score,LCPms:number('largest-contentful-paint'),FCPms:number('first-contentful-paint'),CLS:number('cumulative-layout-shift'),TBTms:number('total-blocking-time'),SpeedIndexMs:number('speed-index'),INP:fmt('interaction-to-next-paint'),opportunities,runtimeError:x.runtimeError}));
+          }catch(e){console.log('AUDIT_ERROR '+tag+' '+e.message);}
+          NODE
+            echo "::endgroup::"
+          done
+      - name: Upload performance reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deninosht-lighthouse
+          path: /tmp/deninosht-perf/*.json
+          if-no-files-found: warn
