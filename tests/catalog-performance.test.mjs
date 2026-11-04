@@ -57,3 +57,23 @@ test('static thumbnail manifest contains real image pairs and excludes obituarie
     }
   }
 });
+
+test('catalog categories keep loading message out of layout and preload their first optimized image',()=>{
+  const categorySlugs=['kovchezi','urni','ventsi-i-tsvetya','krastove','ritualni-prinadlezhnosti'];
+  const pages=['traurni-stoki/index.html','kategoriya/index.html',...['nekrolozi','pametnitsi',...categorySlugs].map(s=>'traurni-stoki/'+s+'/index.html')];
+  const manifest=JSON.parse(read('catalog-thumbnails.js').match(/window\.DENINOSHT_CATALOG_IMAGES = (\{[^\n]+\});/)[1]);
+  const allPaths=new Set(Object.values(manifest).flatMap(x=>[x.small,x.large]));
+  for(const p of pages){
+    const html=read(p);
+    assert.ok(html.includes('class="goods-catalog-status" role="status" aria-live="polite" hidden'),p+' initial status would shift content');
+    assert.ok(!html.includes('>Зареждане на каталога…</div>'),p+' old loading banner still present');
+    const preconnects=html.split('\n').filter(x=>x.includes('beflewauiyexpmvcxjat.supabase.co')&&x.includes('rel="preconnect"'));
+    assert.equal(preconnects.length,1,p+' needs exactly one preconnect');
+    if(categorySlugs.some(slug=>p==='traurni-stoki/'+slug+'/index.html')){
+      const src=html.match(/<link rel="preload" as="image" href="([^"]+)"/)?.[1];
+      assert.ok(src && allPaths.has(src),p+' missing valid preloaded existing WebP');
+      assert.match(html,/imagesrcset="[^"]+480w, [^"]+960w"/);
+      assert.match(html,/fetchpriority="high"/);
+    }
+  }
+});
