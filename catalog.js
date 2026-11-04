@@ -310,6 +310,20 @@
     renderLoadingSkeleton();
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(), 12000);
+
+    // These five permanent, indexable category routes have stable database IDs.
+    // Start their product request before the category list finishes loading.
+    // If an ID is ever replaced, fall back to the live ID from the categories API.
+    const knownCategoryIds = {
+      kovchezi:1, urni:2, 'ventsi-i-tsvetya':3, krastove:4,
+      'ritualni-prinadlezhnosti':5
+    };
+    const hintedId = isDedicatedCategoryPage ? knownCategoryIds[dedicatedSlug] : null;
+    const hintedProducts = hintedId ? getRows(
+      'products',
+      'select=id,name,product_code,show_product_code,slug,description,image_url,is_available,sort_order,category_id,is_active,is_archived&is_active=eq.true&is_archived=eq.false&category_id=eq.' + encodeURIComponent(hintedId) + '&order=sort_order.asc,created_at.asc',
+      controller.signal
+    ).catch(()=>null) : null;
     try{
       const categories = await getRows(
         'categories',
@@ -333,8 +347,11 @@
         return;
       }
 
-      let products;
-      try{
+      let products = null;
+      if (hintedProducts && String(category.id) === String(hintedId)){
+        products = await hintedProducts;
+      }
+      if (!products) try{
         products = await getRows(
           'products',
           'select=id,name,product_code,show_product_code,slug,description,image_url,is_available,sort_order,category_id,is_active,is_archived&is_active=eq.true&is_archived=eq.false&category_id=eq.' + encodeURIComponent(category.id) + '&order=sort_order.asc,created_at.asc',
