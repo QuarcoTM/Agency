@@ -138,7 +138,7 @@
     }
   }
 
-  function renderProduct(product){
+  function renderProduct(product, index){
     const article = make('article', 'product-card');
     article.id = 'product-' + product.id;
     article.appendChild(make('h3', 'product-name', product.name || 'Артикул'));
@@ -149,10 +149,29 @@
     if (product.image_url){
       const imageWrap = make('div', 'product-image-wrap');
       const img = document.createElement('img');
-      img.src = product.image_url;
+      // Existing items use local responsive previews. New uploads fall back to
+      // the admin's compact WebP until a matching static preview is available.
+      const versions = (window.DENINOSHT_CATALOG_IMAGES || {})[product.image_url];
       img.alt = product.name || 'Траурна стока';
-      img.loading = 'lazy';
+      img.width = 960;
+      img.height = 960;
       img.decoding = 'async';
+      const first = index === 0;
+      img.loading = first ? 'eager' : 'lazy';
+      img.fetchPriority = first ? 'high' : 'low';
+      if (versions && versions.small && versions.large){
+        img.sizes = '(max-width: 560px) calc(100vw - 40px), (max-width: 900px) 48vw, (min-width: 1450px) 23vw, 32vw';
+        img.srcset = versions.small + ' 480w, ' + versions.large + ' 960w';
+        img.src = versions.large;
+        img.addEventListener('error', function recoverOriginal(){
+          img.removeEventListener('error', recoverOriginal);
+          img.removeAttribute('srcset');
+          img.removeAttribute('sizes');
+          img.src = product.image_url;
+        });
+      } else {
+        img.src = product.image_url;
+      }
       imageWrap.appendChild(img);
       article.appendChild(imageWrap);
     }
@@ -234,7 +253,7 @@
     const content = make('div','goods-category-content');
     if (products.length){
       const grid = make('div','product-grid');
-      products.forEach((product)=>grid.appendChild(renderProduct(product)));
+      products.forEach((product,index)=>grid.appendChild(renderProduct(product,index)));
       content.appendChild(grid);
     } else {
       content.appendChild(make('p','goods-empty','В момента няма публикувани артикули в тази категория. За наличности се свържете с нас.'));
@@ -265,7 +284,30 @@
     return response.json();
   }
 
+  // Reserve a stable card layout while categories and products load.
+  // This prevents the page footer and surrounding content jumping during fetch.
+  function renderLoadingSkeleton(){
+    if (!isCategoryPage) return;
+    const section = make('section', 'goods-category goods-category-page-content');
+    const content = make('div', 'goods-category-content');
+    const grid = make('div', 'product-grid catalog-skeleton-grid');
+    grid.setAttribute('aria-hidden', 'true');
+    for (let i=0;i<2;i++){
+      const card = make('div', 'product-card catalog-skeleton-card');
+      card.appendChild(make('div','product-name skeleton-product-name'));
+      card.appendChild(make('div','product-image-wrap skeleton-product-image'));
+      const body = make('div', 'product-card-body');
+      body.appendChild(make('div','skeleton-product-description'));
+      card.appendChild(body);
+      grid.appendChild(card);
+    }
+    content.appendChild(grid);
+    section.appendChild(content);
+    catalog.replaceChildren(section);
+  }
+
   async function loadCatalog(){
+    renderLoadingSkeleton();
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(), 12000);
     try{
@@ -313,6 +355,7 @@
         });
       }
     } catch (error){
+      catalog.replaceChildren();
       // Keep the static SEO metadata during temporary network outages.
       // Unknown query-based pages remain noindex from their HTML source.
       if (!isDedicatedCategoryPage) setCategoryIndexability(false);
