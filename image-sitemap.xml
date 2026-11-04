@@ -1,21 +1,196 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-
+<!-- Public catalog snapshot: 2026-11-04. Excludes obituary previews and empty categories. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://deninosht.bg/</loc>
-
     <image:image>
       <image:loc>https://deninosht.bg/assets/logo-den-i-nosht.webp</image:loc>
     </image:image>
-
     <image:image>
       <image:loc>https://deninosht.bg/assets/photo-hands.webp</image:loc>
     </image:image>
-
     <image:image>
       <image:loc>https://deninosht.bg/assets/photo-hearse.webp</image:loc>
     </image:image>
   </url>
-
+  <url>
+    <loc>https://deninosht.bg/traurni-stoki/kovchezi/</loc>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341070595-tja6g-kovcheg-20-w3lbc.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341127010-l4lfy-kovcheg-s-dvoen-kapak-w4sup.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341160854-2ww1o-kovcheg-s-dvoen-kapak-w5iyv.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341195446-jo6fa-byal-kovcheg-w69nx.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341296408-pwaab-kovcheg-w8fkd.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341329884-4f0vp-kovcheg-s-taynata-vecherya-w95ej.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341373508-l5715-kovcheg-wa324.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341404915-7viig-kovcheg-s-krast-warar.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341438331-j4168-kovcheg-wbh2n.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341492782-yehmu-kovcheg-wcn3a.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341544614-pexey-kovcheg-wdr31.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341576863-osftl-kovcheg-wefyo.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341633149-x5k24-kovcheg-wfneo.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341665587-ojkbd-kovcheg-wgcfb.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://deninosht.bg/traurni-stoki/urni/</loc>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788348840356-foaq4-urna-0q4i6.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788348856803-lv440-urna-0qh7a.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788348928005-l06lx-urna-0s053.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788349022763-0cjfo-urna-0u19a.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788349039277-s40md-urna-0ue01.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788349061394-cr41u-urna-0uv2i.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788349000330-j2nj8-urna-0tjy6.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788349159742-ex154-urna-0wyyc.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788349185179-adpv6-urna-0xiks.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788349284584-l4l88-urna-0zna7.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788349307145-t60zb-urna-104os.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://deninosht.bg/traurni-stoki/ventsi-i-tsvetya/</loc>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788343745678-5puwt-piaflora-xoxfn.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788343971281-5hi55-estestven-venets-xtril.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788343993735-urjif-estestven-venets-xu8u7.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788343768236-r8t9e-piaflora-xpeui.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788343878433-vutg3-izkustven-venets-xrrvi.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788343896153-yfgad-estestven-venets-xs5jl.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788343915943-8ubo5-estestven-venets-xskta.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788343936517-5pbub-estestven-venets-xt0oy.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344068067-68e0b-estestven-venets-xvu6r.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344106064-urbxv-estestven-venets-xwni8.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344130691-rshg4-estestven-venets-xx6i8.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1791269547230-jfbgl-venets-bn0cd.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1791269715501-kldvt-venets-bqm6q.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1791269747821-uvdda-piaflora-brb47.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://deninosht.bg/traurni-stoki/krastove/</loc>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341696901-eqr9s-byal-krast-wh0lq.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341726021-hrnt2-cheren-krast-whn2i.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341746965-3a6ry-krast-wi384.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341769604-t3dl7-krast-wikp8.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341786974-mntxw-krast-wiy3n.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341804224-vcri4-krast-wjbeu.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788341824617-66bpx-krast-wjr5d.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://deninosht.bg/traurni-stoki/ritualni-prinadlezhnosti/</loc>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344616092-o2q8v-traurno-odeyalo-y7l2e.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344638814-9zgi2-traurno-odeyalo-y82lc.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344670126-co1a5-traurno-odeyalo-y8qr5.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344689111-bzu75-traurno-odeyalo-y95ed.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344710961-qcui4-traurno-odeyalo-y9m9d.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344727807-1u06b-traurno-odeyalo-y9z98.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344744397-jupze-traurno-odeyalo-yac26.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344763895-e20nr-traurno-odeyalo-yar3p.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://beflewauiyexpmvcxjat.supabase.co/storage/v1/object/public/product-images/products/1788344785617-qnlm8-traurna-vazglavnitsa-yb7v6.png</image:loc>
+    </image:image>
+  </url>
 </urlset>
