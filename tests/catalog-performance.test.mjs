@@ -77,3 +77,13 @@ test('catalog categories keep loading message out of layout and preload their fi
     }
   }
 });
+
+test('dedicated product categories prefetch in parallel and safely fall back to current database ID',()=>{
+  const script=read('catalog.js');
+  assert.match(script,/const hintedProducts = hintedId \? getRows\(/);
+  assert.match(script,/knownCategoryIds = \{/);
+  assert.match(script,/String\(category\.id\) === String\(hintedId\)/);
+  assert.match(script,/\.catch\(\(\)=>null\) : null/);
+  assert.match(script,/if \(!products\) try\{/);
+  assert.match(script,/renderCategory\(category, products \|\| \[\]\)/);
+});
