@@ -1294,3 +1294,11 @@ html{scrollbar-color:var(--brown) var(--black)}
 /* v1.99 — one-click export of all calculated memorial dates */
 .pomen-calendar-all-button{display:inline-flex;align-items:center;justify-content:center;width:auto;max-width:100%;min-height:46px;margin:0 0 20px;padding:11px 20px;border-color:var(--brown-2);background:#291b13}
 @media(max-width:640px){.pomen-calendar-all-button{width:100%}}
+
+/* v2.21 – stable responsive catalog loading. Only visible while data is fetching. */
+.category-page .catalog-skeleton-grid{min-height:450px}
+.category-page .catalog-skeleton-card{pointer-events:none}
+.category-page .skeleton-product-name{display:block;min-height:57px;margin:0!important;background:linear-gradient(90deg,#181411 0%,#211b17 50%,#181411 100%);border-bottom:1px solid rgba(179,131,94,.2)}
+.category-page .skeleton-product-image{display:block;aspect-ratio:1/1;background:#10100f;min-height:0}
+.category-page .skeleton-product-description{height:52px;width:86%;margin:8px auto 6px;background:linear-gradient(90deg,#161514,#201d1b,#161514);border-radius:2px}
+@media(max-width:560px){.category-page .catalog-skeleton-grid{min-height:560px}}
