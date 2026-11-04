@@ -1,0 +1,49 @@
+name: Temporary post-deploy mobile catalog Lighthouse audit
+on:
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Lighthouse against real production after successful deployment
+        shell: bash
+        run: |
+          npm install --no-save --no-package-lock lighthouse@12.4.0
+          mkdir -p /tmp/catalog-performance
+          for tag in category-mobile-1 category-mobile-2 category-mobile-3 home-mobile contact-mobile; do
+            case "$tag" in
+              category-*) url='https://deninosht.bg/traurni-stoki/kovchezi/' ;;
+              home-*) url='https://deninosht.bg/' ;;
+              contact-*) url='https://deninosht.bg/kontakti/' ;;
+            esac
+            echo "::group::PRODUCTION LIGHTHOUSE $tag"
+            npx lighthouse "$url" --quiet --output=json --output-path="/tmp/catalog-performance/$tag.json" --only-categories=performance --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --max-wait-for-load=50000
+            node - "/tmp/catalog-performance/$tag.json" "$tag" <<'NODE'
+          const fs=require('fs');
+          const r=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+          const a=r.audits,n=id=>a[id]?.numericValue??null;
+          const shifts=a['layout-shift-elements']?.details?.items?.slice(0,3)?.map(i=>({node:i.node?.snippet,score:i.score}))||[];
+          const lcpEl=a['largest-contentful-paint-element']?.details?.items?.[0]?.node?.snippet||null;
+          const x={tag:process.argv[3],url:r.finalDisplayedUrl,score:Math.round(r.categories.performance.score*100),LCPms:n('largest-contentful-paint'),CLS:n('cumulative-layout-shift'),FCPms:n('first-contentful-paint'),TBTms:n('total-blocking-time'),SpeedIndexMs:n('speed-index'),lcpElement:lcpEl,shiftNodes:shifts,runtimeError:r.runtimeError||null};
+          console.log('PERF_RESULT '+JSON.stringify(x));
+          NODE
+            echo "::endgroup::"
+          done
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deninosht-after-catalog-speed
+          path: /tmp/catalog-performance/*.json
+          if-no-files-found: warn
