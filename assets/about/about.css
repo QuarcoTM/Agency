@@ -77,3 +77,41 @@
 .about-v2-contact-actions .button{width:100%}
 }
 @media(prefers-reduced-motion:reduce){.about-v2-service-grid a{transition:none}}
+
+/* Both agency numbers are equally visible tap-to-call buttons. */
+.about-v2-contact-actions .about-v2-phone-button{
+  display:flex;
+  width:100%;
+  min-height:58px;
+  padding:12px 20px;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  font-size:clamp(20px,2vw,23px);
+  line-height:1.3;
+  font-weight:800;
+  letter-spacing:.02em;
+  white-space:nowrap;
+  text-decoration:none;
+}
+.about-v2-contact-actions .about-v2-phone-secondary{
+  background:#2b1e18;
+  color:#fff;
+  border:2px solid #a47a57;
+}
+.about-v2-contact-actions .about-v2-phone-secondary:hover,
+.about-v2-contact-actions .about-v2-phone-secondary:focus-visible{
+  background:#3b2920;
+  border-color:#d0a57d;
+}
+.about-v2-contact-actions .about-v2-help-link{
+  font-size:14px;
+  text-align:center;
+  color:#f0dfca;
+  font-weight:700;
+  text-decoration:none;
+  padding:10px 4px;
+  line-height:1.5;
+}
+.about-v2-contact-actions .about-v2-help-link:hover,
+.about-v2-contact-actions .about-v2-help-link:focus-visible{text-decoration:underline}
