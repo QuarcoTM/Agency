@@ -214,7 +214,8 @@
     const title = document.getElementById('category-page-title');
     const description = document.getElementById('category-page-description');
     const categoryName = String(category.name || '').trim();
-    if (title) title.textContent = categoryName;
+    // Keep the server-rendered keyword-rich H1 on permanent category URLs.
+    if (title && !isDedicatedCategoryPage) title.textContent = categoryName;
     if (description && !isDedicatedCategoryPage) description.textContent = 'Разгледайте публикуваните модели в категория „' + categoryName + '“. За конкретна наличност и допълнителна информация се свържете с нас.';
     if (!isDedicatedCategoryPage) document.title = categoryName + ' в Кюстендил | Траурни стоки – Ден и Нощ';
     const metaDescription = document.querySelector('meta[name="description"]');
