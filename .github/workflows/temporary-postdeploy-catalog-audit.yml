@@ -22,7 +22,7 @@ jobs:
         run: |
           npm install --no-save --no-package-lock lighthouse@12.4.0
           mkdir -p /tmp/catalog-performance
-          for tag in category-mobile-1; do
+          for tag in category-mobile-1 category-mobile-2 category-mobile-3 home-mobile contact-mobile; do
             case "$tag" in
               category-*) url='https://deninosht.bg/traurni-stoki/kovchezi/' ;;
               home-*) url='https://deninosht.bg/' ;;
@@ -50,7 +50,7 @@ jobs:
           (async()=>{
             const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
             for(const url of ['https://deninosht.bg/','https://deninosht.bg/traurni-stoki/kovchezi/']){
-              const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+              const context=await browser.newContext({viewport:{width:412,height:823},deviceScaleFactor:1.75,isMobile:true,hasTouch:true});
               const page=await context.newPage();
               await page.addInitScript(()=>{
                 window.__layoutShiftEntries=[];
