@@ -9,7 +9,7 @@ test('About page uses the real agency, verified founding date, and actual photos
   assert.match(html,/<main id="main-content" class="about-v2">/);
   assert.match(html,/03\.02\.2017 г\./);
   assert.match(html,/3 февруари 2017 г\./);
-  assert.match(html,/href="\/assets\/about\/about\.css\?v=1"/);
+  assert.match(html,/href="\/assets\/about\/about\.css\?v=2"/);
   assert.match(html,/href="tel:\+359893646668"/);
   for(const name of ['agency-entrance','agency-showroom','agency-storefront']){
     const uri='/assets/about/'+name+'.avif';
