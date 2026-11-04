@@ -1,3 +1,4 @@
+-- Live fix applied 2026-11-04. Relies on authenticated-only analytics RLS SELECT policy.
 -- Ден и Нощ — поправка на статистиката за страницата „Контакти“.
 -- ВАЖНО: Това е само скрипт за бъдещо ръчно изпълнение в Supabase проекта на Ден и Нощ.
 -- НЕ е изпълняван върху реална база. Засяга единствено функцията admin_analytics_kpis.
@@ -14,7 +15,7 @@ returns table(
   call_widget_opens bigint
 )
 language sql
-security definer
+security invoker
 set search_path = ''
 as $$
   select
