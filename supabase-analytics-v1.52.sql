@@ -1,3 +1,5 @@
+-- Archived reference. Admin analytics RPCs require an authenticated RLS SELECT policy on analytics_events.
+-- Production hardening: 2026-11-04. Public recording RPC intentionally remains SECURITY DEFINER.
 -- Ден и Нощ v1.52 — анонимна статистика за админ панела
 -- Пуснете целия файл еднократно в Supabase -> SQL Editor -> New query -> Run.
 -- Не се записват cookie/visitor ID, IP адрес, user-agent, име, имейл или телефон на посетителя.
@@ -65,7 +67,7 @@ returns table(
   call_widget_opens bigint
 )
 language sql
-security definer
+security invoker
 set search_path = public
 as $$
   select
@@ -85,7 +87,7 @@ grant execute on function public.admin_analytics_kpis(timestamptz) to authentica
 create or replace function public.admin_analytics_daily(p_since timestamptz)
 returns table(day date, page_views bigint, phone_clicks bigint, contact_actions bigint)
 language sql
-security definer
+security invoker
 set search_path = public
 as $$
   select
@@ -105,7 +107,7 @@ grant execute on function public.admin_analytics_daily(timestamptz) to authentic
 create or replace function public.admin_analytics_top_pages(p_since timestamptz, p_limit integer default 10)
 returns table(page_path text, views bigint)
 language sql
-security definer
+security invoker
 set search_path = public
 as $$
   select page_path, count(*)::bigint as views
@@ -122,7 +124,7 @@ grant execute on function public.admin_analytics_top_pages(timestamptz,integer) 
 create or replace function public.admin_analytics_sources(p_since timestamptz, p_limit integer default 10)
 returns table(source text, views bigint)
 language sql
-security definer
+security invoker
 set search_path = public
 as $$
   select source, count(*)::bigint as views
@@ -141,7 +143,7 @@ grant execute on function public.admin_analytics_sources(timestamptz,integer) to
 create or replace function public.admin_analytics_phones(p_since timestamptz)
 returns table(phone text, clicks bigint)
 language sql
-security definer
+security invoker
 set search_path = public
 as $$
   select coalesce(nullif(label,''),'Неуточнен') as phone, count(*)::bigint as clicks
