@@ -295,3 +295,13 @@ body.obituary-print-ready>#obituary-print-root.obituary-print-landscape{width:29
 .booklet-zadushnitsi-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .booklet-zadushnitsi-actions .admin-button{white-space:normal}
 @media(max-width:640px){.booklet-zadushnitsi-actions{display:grid;grid-template-columns:1fr}.booklet-zadushnitsi-actions .admin-button{width:100%;margin:0}}
+
+
+/* Phone click analytics: keep totals and show the originating page beneath each number. */
+.analytics-phone-group+.analytics-phone-group{margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.14)}
+.analytics-phone-heading{padding:5px 0 8px}
+.analytics-phone-heading .analytics-list-label{font-weight:800;font-size:16px}
+.analytics-phone-pages{display:flex;flex-direction:column;gap:0;margin:0 0 0 10px;padding-left:14px;border-left:2px solid rgba(179,131,94,.45)}
+.analytics-phone-page{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start;padding:8px 0;color:#c7c0b9;font-size:13px;line-height:1.45}
+.analytics-phone-page+.analytics-phone-page{border-top:1px solid rgba(255,255,255,.05)}
+.analytics-phone-page-count{color:#fff;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
