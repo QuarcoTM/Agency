@@ -341,13 +341,18 @@
       '/pri-smarten-sluchai/':'При смъртен случай','/pri-smarten-sluchai.html':'При смъртен случай','/organizirane-na-pogrebenie/':'Организиране на погребение','/organizirane-na-pogrebenie.html':'Организиране на погребение',
       '/kremacia/':'Кремация','/kremacia.html':'Кремация','/pomeni/':'Помен и панихида','/pomeni.html':'Помен и панихида','/pogrebalen-transport/':'Погребален транспорт','/pogrebalen-transport.html':'Погребален транспорт',
       '/nekrolozi/':'Некролози','/nekrolozi.html':'Некролози','/politika-za-poveritelnost/':'Политика за поверителност','/politika-za-poveritelnost.html':'Политика за поверителност',
-      '/politika-za-biskvitki/':'Политика за бисквитки','/politika-za-biskvitki.html':'Политика за бисквитки','/404.html':'404'
+      '/politika-za-biskvitki/':'Политика за бисквитки','/politika-za-biskvitki.html':'Политика за бисквитки','/zadushnitsi/':'Задушници','/zadushnitsi.html':'Задушници','/kalkulator-pomeni/':'Калкулатор за помен','/kalkulator-pomeni.html':'Калкулатор за помен','/pochistvane-poddrazhka-grobni-mesta/':'Почистване на гробни места','/404.html':'404'
     };
     if(names[raw]) return names[raw];
     if(raw.startsWith('/kategoriya/?category=')||raw.startsWith('/kategoriya.html?category=')){
       const slug=raw.split('category=')[1] || '';
       const cats={kovchezi:'Ковчези',urni:'Урни',krastove:'Кръстове','ritualni-prinadlezhnosti':'Ритуални принадлежности','grobni-prinadlezhnosti':'Гробни принадлежности','venci-i-cvetya':'Венци и цветя',pametnici:'Паметници'};
       return 'Категория: ' + (cats[slug] || slug.replace(/-/g,' '));
+    }
+    const category=raw.match(/^\/traurni-stoki\/(kovchezi|urni|ventsi-i-tsvetya|krastove|ritualni-prinadlezhnosti|pametnitsi)\/$/);
+    if(category){
+      const labels={kovchezi:'Ковчези',urni:'Урни','ventsi-i-tsvetya':'Венци и цветя',krastove:'Кръстове','ritualni-prinadlezhnosti':'Ритуални принадлежности',pametnitsi:'Паметници'};
+      return 'Каталог: '+labels[category[1]];
     }
     return raw;
   }
@@ -385,6 +390,53 @@
       const label=document.createElement('div'); label.className='analytics-list-label'; label.textContent=labelFn(row);
       const value=document.createElement('div'); value.className='analytics-list-value'; value.textContent=formatNumber(row[valueKey]);
       item.append(label,value); element.appendChild(item);
+    });
+  }
+
+  function renderAnalyticsPhonePages(element, rows){
+    if (!element) return;
+    element.replaceChildren();
+    if (!Array.isArray(rows) || !rows.length){
+      renderAnalyticsList(element,[],()=>'', 'clicks');
+      return;
+    }
+    const byPhone=new Map();
+    rows.forEach((row)=>{
+      const phone=phoneLabel(row.phone);
+      if (!byPhone.has(phone)) byPhone.set(phone,{total:0,pages:[]});
+      const group=byPhone.get(phone);
+      const clicks=Number(row.clicks)||0;
+      group.total+=clicks;
+      group.pages.push({path:String(row.page_path||''),clicks});
+    });
+    Array.from(byPhone.entries()).sort((a,b)=>b[1].total-a[1].total).forEach(([phone,data])=>{
+      const group=document.createElement('div');
+      group.className='analytics-phone-group';
+      const head=document.createElement('div');
+      head.className='analytics-list-row analytics-phone-heading';
+      const number=document.createElement('strong');
+      number.className='analytics-list-label';
+      number.textContent=phone;
+      const total=document.createElement('span');
+      total.className='analytics-list-value';
+      total.textContent=formatNumber(data.total);
+      head.append(number,total);
+      group.appendChild(head);
+      const details=document.createElement('div');
+      details.className='analytics-phone-pages';
+      data.pages.sort((a,b)=>b.clicks-a.clicks || a.path.localeCompare(b.path,'bg')).forEach((item)=>{
+        const line=document.createElement('div');
+        line.className='analytics-phone-page';
+        const label=document.createElement('span');
+        label.textContent='Страница: '+(item.path ? pageLabel(item.path) : 'Неуточнена');
+        const clicks=document.createElement('span');
+        clicks.className='analytics-phone-page-count';
+        clicks.textContent=formatNumber(item.clicks);
+        line.append(label,clicks);
+        details.appendChild(line);
+      });
+      group.appendChild(details);
+      element.appendChild(group);
     });
   }
 
@@ -437,20 +489,20 @@
         analyticsRpc('admin_analytics_daily',{p_since:since}),
         analyticsRpc('admin_analytics_top_pages',{p_since:since,p_limit:10}),
         analyticsRpc('admin_analytics_sources',{p_since:since,p_limit:10}),
-        analyticsRpc('admin_analytics_phones',{p_since:since})
+        analyticsRpc('admin_analytics_phone_pages',{p_since:since})
       ]);
       setAnalyticsKpis(Array.isArray(kpis)?kpis[0]:kpis);
       renderAnalyticsChart(daily,analyticsDays);
       renderAnalyticsList($('analytics-top-pages'),pages,(r)=>pageLabel(r.page_path),'views');
       renderAnalyticsList($('analytics-sources'),sources,(r)=>sourceLabel(r.source),'views');
-      renderAnalyticsList($('analytics-phones'),phones,(r)=>phoneLabel(r.phone),'clicks');
+      renderAnalyticsPhonePages($('analytics-phones'),phones);
       message(analyticsMessage,'Последно обновяване: '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'}),'success');
     } catch(error){
       setAnalyticsKpis({});
       renderAnalyticsChart([],analyticsDays);
       renderAnalyticsList($('analytics-top-pages'),[],()=>'', 'views');
       renderAnalyticsList($('analytics-sources'),[],()=>'', 'views');
-      renderAnalyticsList($('analytics-phones'),[],()=>'', 'clicks');
+      renderAnalyticsPhonePages($('analytics-phones'),[]);
       if(analyticsSchemaMissing(error)){
         if(analyticsSetup) analyticsSetup.hidden=false;
         message(analyticsMessage,'Нужно е еднократното SQL активиране за v1.52.','error');
