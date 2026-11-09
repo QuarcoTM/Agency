@@ -636,7 +636,10 @@
     if(previous && OBITUARY_TEXT_VARIANTS.some(v=>v.id===previous)) select.value=previous;
     insert.addEventListener('click',()=>{
       const variant=OBITUARY_TEXT_VARIANTS.find(v=>v.id===select.value);
-      if(!variant) return;
+      if(!variant){
+        message(obituaryMessage,'Първо изберете готов текст от списъка.');
+        return;
+      }
       target.value=variant.text;
       scheduleObituaryPreview();
       target.focus();
@@ -674,6 +677,7 @@
     $('obituary-intro').value=preset.intro;
     const closing=preset.closing[obituaryGender&&obituaryGender.value||'male']||preset.closing.neutral;
     $('obituary-extra-text').value=[preset.extra,closing].filter(Boolean).join('\n\n');
+    const selectedVerse=$('obituary-text-variant'); if(selectedVerse) selectedVerse.value='';
     $('obituary-ceremony-kind').value=preset.ceremony;
     updateObituaryCeremonyFields();
     applyObituaryLayoutPreset();
