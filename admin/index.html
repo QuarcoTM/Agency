@@ -367,6 +367,15 @@
 
           <section class="obituary-form-section" aria-labelledby="obituary-text-heading">
             <div class="obituary-section-head"><div><h3 id="obituary-text-heading">Текст под името</h3><p>Тук напишете целия прощален или възпоменателен текст. Можете да замените готовия текст и да използвате няколко реда. При дълъг текст шрифтът се намалява автоматично, за да остане всичко на един лист.</p></div></div>
+            <div class="obituary-text-variant-picker">
+              <label for="obituary-text-variant">Готови варианти от предоставените некролози
+                <select id="obituary-text-variant">
+                  <option value="">Изберете готов текст…</option>
+                </select>
+              </label>
+              <button class="small-button" id="obituary-text-variant-insert" type="button">Постави избрания текст</button>
+            </div>
+            <p class="obituary-photo-helper">Избраният вариант се поставя в полето по-долу. След това можете свободно да го редактирате. Не променя имената, датите или дизайна.</p>
             <label for="obituary-extra-text">Прощален / възпоменателен текст
               <textarea id="obituary-extra-text" rows="5" placeholder="Напр. Да бъде тих и спокоен вечният ти сън!&#10;&#10;Никога няма да те забравим!"></textarea>
             </label>
@@ -594,6 +603,6 @@
 <script src="../supabase-config.js?v=1.52"></script>
 <script src="vendor/pdf-lib.min.js?v=1.60"></script>
 <script src="memorial-zadushnitsi.js?v=1.99"></script>
-<script src="admin.js?v=2.22"></script>
+<script src="admin.js?v=2.23"></script>
 </body>
 </html>

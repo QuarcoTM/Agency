@@ -36,7 +36,7 @@ test('new admin uploads are automatically WebP and bounded without paid image AP
   assert.match(admin,/canvasBlob\(canvas, 'image\/webp', 0\.78\)/);
   assert.match(admin,/320 \* 1024/);
   assert.match(admin,/const optimized = await optimizeImage\(file\)/);
-  assert.ok(read('admin/index.html').includes('admin.js?v=2.22'));
+  assert.ok(read('admin/index.html').includes('admin.js?v=2.23'));
 });
 
 test('static thumbnail manifest contains real image pairs and excludes obituaries',()=>{
