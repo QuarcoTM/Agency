@@ -565,6 +565,84 @@
     }
   };
 
+  // Текстовете са преписани от предоставените образци (09.11.2026).
+  // 7610 повтаря 7604, затова вариантът се предлага само веднъж.
+  // Вариантите не съдържат имена, дати, места или „От семейството“.
+  const OBITUARY_TEXT_VARIANTS =   [
+    {
+      "id": "photo-7603",
+      "name": "С невероятните си доброта и човечност",
+      "text": "С невероятните си доброта и човечност,\nти ежедневно ни даряваше радост, щастие и любов.\nНикога няма да те забравим!\nПочивай в мир!"
+    },
+    {
+      "id": "photo-7604",
+      "name": "Да бъде тих и спокоен вечният ти сън",
+      "text": "Да бъде тих и спокоен вечният ти сън!\nНикога няма да те забравим!"
+    },
+    {
+      "id": "photo-7605",
+      "name": "Защо в живота все така се случва",
+      "text": "Защо в живота все така се случва\nда се разделим с най-добрите.\nЗащо все тях смъртта улучва\nи скрива им от нас очите !"
+    },
+    {
+      "id": "photo-7606",
+      "name": "Добрите хора не умират",
+      "text": "Добрите хора не умират\nне се превръщат в пепел или в дим\nте винаги оставят светла диря\nи честен път,по който да вървим."
+    },
+    {
+      "id": "photo-7607",
+      "name": "Ако можем с думи да те върнем",
+      "text": "Ако можем с думи да те върнем,\nнай-хубавите за теб ще изберем!\nАко можем със сълзи да те върнем,\nморе от тях ще съберем!"
+    },
+    {
+      "id": "photo-7608",
+      "name": "Неусетно дните минават",
+      "text": "Неусетно дните минават.\nПри звездите си мамо сега.\nНо ни липсваш!\nУжасно ни липсваш!\nИ горчи,и боли от тъга!\nОбичаме те!"
+    },
+    {
+      "id": "photo-7609",
+      "name": "Когато си отиде, не попита",
+      "text": "Когато си отиде, не попита\nболка ти дали ни причини,\nно сърцата ни остави свити\nи не чувстваш колко ни боли."
+    },
+    {
+      "id": "photo-7611",
+      "name": "До твоя гроб утъпкана пътека води",
+      "text": "До твоя гроб утъпкана пътека води\nи идваме до него със цветя.\nЩе постоим, ще помълчим, ще си\nотидем,\nотнесли мъката в своите сърца"
+    },
+    {
+      "id": "photo-7612",
+      "name": "Винаги ще си с нас",
+      "text": "Винаги ще си с нас.\nЩе живеем със спомени, тъга и\nобич.\nБезкрайно ти благодарим за\nвсичко,\nкоето остави след себе си през\nземното си битие."
+    }
+  ];
+
+  function initializeObituaryTextVariants(){
+    const select=$('obituary-text-variant');
+    const insert=$('obituary-text-variant-insert');
+    const target=$('obituary-extra-text');
+    if(!select||!insert||!target) return;
+    const previous=select.value;
+    select.replaceChildren();
+    const placeholder=document.createElement('option');
+    placeholder.value='';
+    placeholder.textContent='Изберете готов текст…';
+    select.appendChild(placeholder);
+    OBITUARY_TEXT_VARIANTS.forEach((variant,index)=>{
+      const option=document.createElement('option');
+      option.value=variant.id;
+      option.textContent=(index+1)+'. '+variant.name;
+      select.appendChild(option);
+    });
+    if(previous && OBITUARY_TEXT_VARIANTS.some(v=>v.id===previous)) select.value=previous;
+    insert.addEventListener('click',()=>{
+      const variant=OBITUARY_TEXT_VARIANTS.find(v=>v.id===select.value);
+      if(!variant) return;
+      target.value=variant.text;
+      scheduleObituaryPreview();
+      target.focus();
+    });
+  }
+
   function readObituaryAnniversaryYears(allowIncomplete){
     const raw=String(obituaryYears?obituaryYears.value:'1').trim();
     const years=Number(raw);
@@ -2536,6 +2614,7 @@
   }));
   if(analyticsRefresh) analyticsRefresh.addEventListener('click',loadAnalytics);
 
+  initializeObituaryTextVariants();
   if(obituaryType) obituaryType.addEventListener('change',applyObituaryPreset);
   if(obituaryYears) obituaryYears.addEventListener('input',()=>{
     updateObituaryCeremonyDateFromDeath(false);
