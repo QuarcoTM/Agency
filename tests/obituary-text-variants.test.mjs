@@ -6,15 +6,15 @@ const read=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const script=read('admin/admin.js');
 const html=read('admin/index.html');
 
-test('nine photo-derived obituary messages are available, without the duplicate photo',()=>{
+test('sixteen photo-derived obituary messages are available, without the duplicate photo',()=>{
   const begin=script.indexOf('const OBITUARY_TEXT_VARIANTS = ');
   const end=script.indexOf('\n\n  function initializeObituaryTextVariants',begin);
   assert.ok(begin>0 && end>begin,'Obituary variants declaration missing');
   const section=script.slice(begin,end);
   const ids=[...section.matchAll(/"id": "(photo-\d+)"/g)].map(m=>m[1]);
-  assert.deepEqual(ids,['photo-7603','photo-7604','photo-7605','photo-7606','photo-7607','photo-7608','photo-7609','photo-7611','photo-7612']);
+  assert.deepEqual(ids,['photo-7603','photo-7604','photo-7605','photo-7606','photo-7607','photo-7608','photo-7609','photo-7611','photo-7612','photo-7613','photo-7614','photo-7615','photo-7616','photo-7617','photo-7618','photo-7619']);
   assert.ok(!section.includes('photo-7610'),'Duplicate should not appear');
-  for(const text of ['С невероятните си доброта и човечност,','Да бъде тих и спокоен вечният ти сън!','Защо в живота все така се случва','Добрите хора не умират','Ако можем с думи да те върнем,','Неусетно дните минават.','Когато си отиде, не попита','До твоя гроб утъпкана пътека води','Винаги ще си с нас.']){
+  for(const text of ['С невероятните си доброта и човечност,','Да бъде тих и спокоен вечният ти сън!','Защо в живота все така се случва','Добрите хора не умират','Ако можем с думи да те върнем,','Неусетно дните минават.','Когато си отиде, не попита','До твоя гроб утъпкана пътека води','Винаги ще си с нас.','Да си спомним с обич и признателност','Един човек не може да умре','Не се изплаква мъката със сълзи','За един живот изпълнен със смисъл','Престана да тупти едно сърце','Не е истина, че времето лекува','Отиде си!На никого не каза нищо!']){
     assert.ok(section.includes(text),'Missing source text: '+text);
   }
   assert.doesNotMatch(section,/(?:Иван|Йоакимов|Христова|Димитров|Черкезки|Нора|Цветан|Траурен парк)/i,'No names or personal data from photos');
@@ -29,7 +29,7 @@ test('Explicit insert updates only the editable obituary text and schedules prev
   assert.match(script,/target\.value=variant\.text/);
   assert.match(script,/scheduleObituaryPreview\(\)/);
   assert.match(script,/initializeObituaryTextVariants\(\);\s+if\(obituaryType\)/);
-  assert.match(html,/admin\.js\?v=2\.23/);
+  assert.match(html,/admin\.js\?v=2\.24/);
   assert.match(script,/async function downloadObituaryPdf\(/);
   assert.match(script,/function renderObituaryPreview\(/);
 });
