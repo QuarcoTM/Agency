@@ -29,7 +29,7 @@ test('Explicit insert updates only the editable obituary text and schedules prev
   assert.match(script,/target\.value=variant\.text/);
   assert.match(script,/scheduleObituaryPreview\(\)/);
   assert.match(script,/initializeObituaryTextVariants\(\);\s+if\(obituaryType\)/);
-  assert.match(html,/admin\.js\?v=2\.24/);
+  assert.match(html,/admin\.js\?v=2\.25/);
   assert.match(script,/async function downloadObituaryPdf\(/);
   assert.match(script,/function renderObituaryPreview\(/);
 });

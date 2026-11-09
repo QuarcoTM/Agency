@@ -1606,6 +1606,17 @@
     row.append(nameLabel,dateLabel,remove); bookletZadushnitsiList.appendChild(row); invalidateBookletPreview();
   }
 
+  // Auto-fill only future memorial Saturdays within the first year after death.
+  // Compare calendar dates at local noon to avoid time-of-day and DST surprises.
+  // Manually entered rows are never removed or overwritten.
+  function getUpcomingBookletZadushnitsi(calendar, death, now){
+    const today = new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);
+    const fromDate = death > today ? death : today;
+    const untilDate = addBookletMonths(death,12);
+    if(fromDate > untilDate) return [];
+    return calendar.between(bookletDateValue(fromDate),bookletDateValue(untilDate));
+  }
+
   // Add dates only on request. Existing manually edited booklet rows remain untouched.
   function autoAddBookletZadushnitsi(){
     const death=parseBookletDate(bookletDeathDate&&bookletDeathDate.value);
@@ -1618,9 +1629,7 @@
       message(bookletMessage,'Календарният модул не е зареден. Обновете страницата.','error');
       return;
     }
-    const from=bookletDateValue(death);
-    const until=bookletDateValue(addBookletMonths(death,12));
-    const events=calendar.between(from,until);
+    const events=getUpcomingBookletZadushnitsi(calendar,death,new Date());
     const present=new Set(Array.from(bookletZadushnitsiList.querySelectorAll('.booklet-zadushnitsa-date')).map(input=>input.value).filter(Boolean));
     let added=0,skipped=0;
     events.forEach(event=>{
@@ -1631,8 +1640,8 @@
       added++;
     });
     message(bookletMessage,added
-      ? 'Добавени са '+added+' Задушници за първата година след датата на смъртта.'+(skipped?' Няма място за още '+skipped+' (максимум 6).':'')+' Можете да редактирате или премахвате датите.'
-      : 'Няма нови Задушници за добавяне. Наличните ръчно попълнени редове са запазени.',skipped?'error':'success');
+      ? 'Добавени са '+added+' предстоящи Задушници до края на първата година след датата на смъртта.'+(skipped?' Няма място за още '+skipped+' (максимум 6).':'')+' Можете да редактирате или премахвате датите.'
+      : 'Няма нови предстоящи Задушници за добавяне в този период. Минали дати не се добавят автоматично; ръчно попълнените редове са запазени.',skipped?'error':'success');
   }
 
   function readZadushnitsi(){
