@@ -15,7 +15,7 @@ test('Admin shows origin page for every phone click, grouped by number',()=>{
  assert.match(code,/group\.total\+=clicks/);
  assert.match(html,/Кликове по телефон и страница/);
  assert.match(html,/не потвърдени телефонни разговори/);
- assert.match(html,/admin\.js\?v=2\.24/);
+ assert.match(html,/admin\.js\?v=2\.25/);
  assert.match(html,/admin\.css\?v=2\.22/);
  assert.match(css,/\.analytics-phone-page\{/);
 });
